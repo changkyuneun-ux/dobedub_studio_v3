@@ -1,9 +1,9 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-01T14:20:50+09:00",
+    "generatedAt": "2026-08-02T15:43:49+09:00",
     "source": "workflow-json",
     "workflowDirectory": "workflows",
-    "fingerprint": "52710acdbcbad006c2c5b9007958ebe96c3787ade2d6a1e69bd66314a4bf3a2c",
+    "fingerprint": "051bc3c3c68589973b633f2f657cd2e73eccd3b1f78c3433be9dec5dad56bc40",
     "workflowCount": 6,
     "hasObjectInfoSnapshot": false,
     "sources": [
@@ -15,9 +15,9 @@
       },
       {
         "path": "workflows/1-images.paramconfig.json",
-        "sha256": "a547b9e942ada4df887977b8fd5991b80ba80e3bc56fbc7164bfc3f3b779e2eb",
-        "sizeBytes": 3280,
-        "modifiedAt": "2026-07-31T17:07:46"
+        "sha256": "54e5e7c154ff1a465c3df465443fae54c16b1ca7821bfb404429b156611e71de",
+        "sizeBytes": 3290,
+        "modifiedAt": "2026-08-02T15:32:37"
       },
       {
         "path": "workflows/2-images.json",
@@ -27,9 +27,9 @@
       },
       {
         "path": "workflows/2-images.paramconfig.json",
-        "sha256": "c37625a07ba6d008e83ef125f0a2497bf9350b32bf6333ceceb6643913a91a9c",
-        "sizeBytes": 3306,
-        "modifiedAt": "2026-07-31T17:07:46"
+        "sha256": "915f86cc4be1843767dcba85bd01b6fe41b1bd4baea423674a39cd4133961c74",
+        "sizeBytes": 3316,
+        "modifiedAt": "2026-08-02T15:32:37"
       },
       {
         "path": "workflows/3-images.json",
@@ -39,9 +39,9 @@
       },
       {
         "path": "workflows/3-images.paramconfig.json",
-        "sha256": "5d513fed3c1d9fc6604e675baf587fac0c13baedb920175c7a7f170f067fd6dc",
-        "sizeBytes": 5580,
-        "modifiedAt": "2026-07-31T17:07:46"
+        "sha256": "61c2da3945942708c793ecbc2bd48e198b87dea13479b7e86a916bdbda1f66d5",
+        "sizeBytes": 5590,
+        "modifiedAt": "2026-08-02T15:32:37"
       },
       {
         "path": "workflows/4-images.json",
@@ -51,9 +51,9 @@
       },
       {
         "path": "workflows/4-images.paramconfig.json",
-        "sha256": "e142480bb63785ffffb676db0a8e1554d379ba2bb889895704bb9b0eaa2e857b",
-        "sizeBytes": 7461,
-        "modifiedAt": "2026-07-31T17:07:46"
+        "sha256": "b59c15eacecfceefb25b565e8331ac1734e2b54698b46af020b67dbd9d6df0ff",
+        "sizeBytes": 7471,
+        "modifiedAt": "2026-08-02T15:32:37"
       },
       {
         "path": "workflows/5-images.json",
@@ -63,9 +63,9 @@
       },
       {
         "path": "workflows/5-images.paramconfig.json",
-        "sha256": "fe4a4b35fa3361462eaee835616f27dbb5f275162c7ff19b3ed8e072af87d14e",
-        "sizeBytes": 9342,
-        "modifiedAt": "2026-07-31T17:07:46"
+        "sha256": "f1c7ff211aa9a6e252d2ed5055117765d72b25814c44fe5ddf41367f3b5893e5",
+        "sizeBytes": 9352,
+        "modifiedAt": "2026-08-02T15:32:37"
       },
       {
         "path": "workflows/6-images.json",
@@ -75,15 +75,9 @@
       },
       {
         "path": "workflows/6-images.paramconfig.json",
-        "sha256": "0b418cd12ecebbdd0b1c576a416895929125d7034a3898fc7519cb4279648fa4",
-        "sizeBytes": 11223,
-        "modifiedAt": "2026-07-31T17:07:46"
-      },
-      {
-        "path": "data/segment-defaults.json",
-        "sha256": "e228123661844a5abe84524f4a4602820527b6dbe7ea471f3bb71f6e557646d4",
-        "sizeBytes": 4799,
-        "modifiedAt": "2026-07-31T16:54:31"
+        "sha256": "d104153d3d4e62e828e597d6c10ca87889320f399531f92fe6fb123ea67ae20a",
+        "sizeBytes": 11233,
+        "modifiedAt": "2026-08-02T15:32:37"
       }
     ]
   },
