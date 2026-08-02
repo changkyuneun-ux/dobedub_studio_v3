@@ -1,0 +1,88 @@
+{
+  "_comment": "자동 생성된 초안(generate_paramconfig.py)을 사람이 검토·확정한 파일입니다. steps/cfg_scale은 'Enable 4steps LoRA?' 스위치(129:131, 값=true로 고정)의 4-step 프리셋 노드(129:118 steps=4, 129:122 cfg=1)를 편집 대상으로 확정했습니다. 이 스위치 자체는 v2 UI에 노출하지 않습니다(20-step 프리셋 129:128/129:126은 더 이상 사용되지 않음). 이 워크플로우는 다른 워크플로우와 달리 'frames'(프레임 수) 대신 'duration_seconds'(길이(초)) 파라미터를 노출합니다 — 실제 프레임 수는 서버가 floor(duration_seconds * fps + 1)로 계산해 129:98.length에 반영합니다(129:163 ComfyMathExpression, 워크플로우 안에서 자동 계산되므로 별도 write 불필요). 프론트/백엔드는 이 워크플로우일 때만 'frames' 슬라이더 대신 '길이(초)' 슬라이더를 렌더링해야 합니다.",
+  "workflow": "1-key-frames.json",
+  "segments": [
+    {
+      "segment_index": 1,
+      "params": {
+        "seed": {
+          "targets": [
+            {
+              "node": "129:86",
+              "field": "noise_seed"
+            }
+          ],
+          "type": "int",
+          "default": 3895529720290,
+          "randomizable": true
+        },
+        "steps": {
+          "targets": [
+            {
+              "node": "129:118",
+              "field": "value"
+            }
+          ],
+          "type": "int",
+          "min": 1,
+          "max": 24,
+          "default": 4
+        },
+        "cfg_scale": {
+          "targets": [
+            {
+              "node": "129:122",
+              "field": "value"
+            }
+          ],
+          "type": "float",
+          "min": 0.0,
+          "max": 6.0,
+          "default": 1
+        },
+        "motion_shift": {
+          "targets": [
+            {
+              "node": "129:104",
+              "field": "shift"
+            },
+            {
+              "node": "129:103",
+              "field": "shift"
+            }
+          ],
+          "type": "float",
+          "min": 2.0,
+          "max": 10.0,
+          "default": 5.000000000000001,
+          "sync": true
+        },
+        "fps": {
+          "targets": [
+            {
+              "node": "129:162",
+              "field": "value"
+            }
+          ],
+          "type": "int",
+          "min": 8,
+          "max": 30,
+          "default": 16
+        },
+        "duration_seconds": {
+          "targets": [
+            {
+              "node": "129:161",
+              "field": "value"
+            }
+          ],
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 3,
+          "note": "이 워크플로우 전용 파라미터. 다른 워크플로우의 'frames'(프레임 수)를 대체하며, 실제 프레임 수는 서버가 계산합니다."
+        }
+      }
+    }
+  ]
+}

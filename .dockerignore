@@ -1,0 +1,16 @@
+.git
+.DS_Store
+.env
+.preview
+__pycache__
+*.pyc
+data/assets.json
+data/configs.json
+data/history.json
+data/uploads
+data/outputs
+data/reports
+node_modules
+dist
+tmp
+output

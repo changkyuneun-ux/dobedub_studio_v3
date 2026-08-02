@@ -1,0 +1,1116 @@
+{
+  "62": {
+    "inputs": {
+      "image": "6-key-frames-1.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Start Frame"
+    }
+  },
+  "122": {
+    "inputs": {
+      "image": "6-key-frames-2.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "End Frame"
+    }
+  },
+  "124": {
+    "inputs": {
+      "image": "6-key-frames-3.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "End Frame"
+    }
+  },
+  "126": {
+    "inputs": {
+      "image": "6-key-frames-4.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "End Frame"
+    }
+  },
+  "128": {
+    "inputs": {
+      "image": "6-key-frames-5.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "End Frame"
+    }
+  },
+  "133": {
+    "inputs": {
+      "image1": [
+        "140:8",
+        0
+      ],
+      "image2": [
+        "141:162",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "이미지 배치"
+    }
+  },
+  "134": {
+    "inputs": {
+      "image1": [
+        "133",
+        0
+      ],
+      "image2": [
+        "142:178",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "이미지 배치"
+    }
+  },
+  "135": {
+    "inputs": {
+      "image1": [
+        "134",
+        0
+      ],
+      "image2": [
+        "143:194",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "이미지 배치"
+    }
+  },
+  "145": {
+    "inputs": {
+      "fps": 24,
+      "bit_depth": 8,
+      "images": [
+        "135",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "비디오 생성"
+    }
+  },
+  "146": {
+    "inputs": {
+      "filename_prefix": "video/ComfyUI",
+      "format": "auto",
+      "codec": "auto",
+      "video": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "비디오 저장"
+    }
+  },
+  "140:38": {
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "CLIP 로드"
+    }
+  },
+  "140:60": {
+    "inputs": {
+      "fps": 16,
+      "bit_depth": 8,
+      "images": [
+        "140:8",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "비디오 생성"
+    }
+  },
+  "140:37": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "140:56": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "140:55": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "140:92",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "140:92": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "140:56",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "140:91": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "140:37",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "140:54": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "140:91",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "140:58": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": 0,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 2,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "140:55",
+        0
+      ],
+      "positive": [
+        "140:67",
+        0
+      ],
+      "negative": [
+        "140:67",
+        1
+      ],
+      "latent_image": [
+        "140:57",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "140:57": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 106238756028535,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": 2,
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "140:54",
+        0
+      ],
+      "positive": [
+        "140:67",
+        0
+      ],
+      "negative": [
+        "140:67",
+        1
+      ],
+      "latent_image": [
+        "140:67",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "140:39": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "VAE 로드"
+    }
+  },
+  "140:67": {
+    "inputs": {
+      "width": 720,
+      "height": 720,
+      "length": 25,
+      "batch_size": 1,
+      "positive": [
+        "140:6",
+        0
+      ],
+      "negative": [
+        "140:7",
+        0
+      ],
+      "vae": [
+        "140:39",
+        0
+      ],
+      "start_image": [
+        "62",
+        0
+      ],
+      "end_image": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideo",
+    "_meta": {
+      "title": "WAN 비디오 생성 (시작-끝 프레임)"
+    }
+  },
+  "140:6": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "140:38",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "140:8": {
+    "inputs": {
+      "samples": [
+        "140:58",
+        0
+      ],
+      "vae": [
+        "140:39",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE 디코드"
+    }
+  },
+  "140:7": {
+    "inputs": {
+      "text": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+      "clip": [
+        "140:38",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "141:147": {
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "CLIP 로드"
+    }
+  },
+  "141:149": {
+    "inputs": {
+      "fps": 16,
+      "bit_depth": 8,
+      "images": [
+        "141:162",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "비디오 생성"
+    }
+  },
+  "141:150": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "141:151": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "141:152": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "141:153",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "141:153": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "141:151",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "141:154": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "141:150",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "141:155": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "141:154",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "141:156": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": 0,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 2,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "141:152",
+        0
+      ],
+      "positive": [
+        "141:159",
+        0
+      ],
+      "negative": [
+        "141:159",
+        1
+      ],
+      "latent_image": [
+        "141:157",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "141:157": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 332092862784409,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": 2,
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "141:155",
+        0
+      ],
+      "positive": [
+        "141:159",
+        0
+      ],
+      "negative": [
+        "141:159",
+        1
+      ],
+      "latent_image": [
+        "141:159",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "141:158": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "VAE 로드"
+    }
+  },
+  "141:159": {
+    "inputs": {
+      "width": 720,
+      "height": 720,
+      "length": 25,
+      "batch_size": 1,
+      "positive": [
+        "141:160",
+        0
+      ],
+      "negative": [
+        "141:148",
+        0
+      ],
+      "vae": [
+        "141:158",
+        0
+      ],
+      "start_image": [
+        "122",
+        0
+      ],
+      "end_image": [
+        "124",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideo",
+    "_meta": {
+      "title": "WAN 비디오 생성 (시작-끝 프레임)"
+    }
+  },
+  "141:160": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "141:147",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "141:162": {
+    "inputs": {
+      "samples": [
+        "141:156",
+        0
+      ],
+      "vae": [
+        "141:158",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE 디코드"
+    }
+  },
+  "141:148": {
+    "inputs": {
+      "text": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+      "clip": [
+        "141:147",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "142:163": {
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "CLIP 로드"
+    }
+  },
+  "142:165": {
+    "inputs": {
+      "fps": 16,
+      "bit_depth": 8,
+      "images": [
+        "142:178",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "비디오 생성"
+    }
+  },
+  "142:166": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "142:167": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "142:168": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "142:169",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "142:169": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "142:167",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "142:170": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "142:166",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "142:171": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "142:170",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "142:172": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": 0,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 2,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "142:168",
+        0
+      ],
+      "positive": [
+        "142:175",
+        0
+      ],
+      "negative": [
+        "142:175",
+        1
+      ],
+      "latent_image": [
+        "142:173",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "142:173": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 502081291840272,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": 2,
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "142:171",
+        0
+      ],
+      "positive": [
+        "142:175",
+        0
+      ],
+      "negative": [
+        "142:175",
+        1
+      ],
+      "latent_image": [
+        "142:175",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "142:174": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "VAE 로드"
+    }
+  },
+  "142:175": {
+    "inputs": {
+      "width": 720,
+      "height": 720,
+      "length": 25,
+      "batch_size": 1,
+      "positive": [
+        "142:176",
+        0
+      ],
+      "negative": [
+        "142:164",
+        0
+      ],
+      "vae": [
+        "142:174",
+        0
+      ],
+      "start_image": [
+        "124",
+        0
+      ],
+      "end_image": [
+        "126",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideo",
+    "_meta": {
+      "title": "WAN 비디오 생성 (시작-끝 프레임)"
+    }
+  },
+  "142:176": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "142:163",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "142:178": {
+    "inputs": {
+      "samples": [
+        "142:172",
+        0
+      ],
+      "vae": [
+        "142:174",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE 디코드"
+    }
+  },
+  "142:164": {
+    "inputs": {
+      "text": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+      "clip": [
+        "142:163",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "143:179": {
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "CLIP 로드"
+    }
+  },
+  "143:181": {
+    "inputs": {
+      "fps": 16,
+      "bit_depth": 8,
+      "images": [
+        "143:194",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "비디오 생성"
+    }
+  },
+  "143:182": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "143:183": {
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "143:184": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "143:185",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "143:185": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "143:183",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "143:186": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1,
+      "model": [
+        "143:182",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA 로드 (모델 전용)"
+    }
+  },
+  "143:187": {
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "143:186",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "모델 샘플링 (SD3)"
+    }
+  },
+  "143:188": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": 0,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 2,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "143:184",
+        0
+      ],
+      "positive": [
+        "143:191",
+        0
+      ],
+      "negative": [
+        "143:191",
+        1
+      ],
+      "latent_image": [
+        "143:189",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "143:189": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 282609046210025,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": 2,
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "143:187",
+        0
+      ],
+      "positive": [
+        "143:191",
+        0
+      ],
+      "negative": [
+        "143:191",
+        1
+      ],
+      "latent_image": [
+        "143:191",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "고급 KSampler"
+    }
+  },
+  "143:190": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "VAE 로드"
+    }
+  },
+  "143:191": {
+    "inputs": {
+      "width": 720,
+      "height": 720,
+      "length": 25,
+      "batch_size": 1,
+      "positive": [
+        "143:192",
+        0
+      ],
+      "negative": [
+        "143:180",
+        0
+      ],
+      "vae": [
+        "143:190",
+        0
+      ],
+      "start_image": [
+        "126",
+        0
+      ],
+      "end_image": [
+        "128",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideo",
+    "_meta": {
+      "title": "WAN 비디오 생성 (시작-끝 프레임)"
+    }
+  },
+  "143:192": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "143:179",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "143:194": {
+    "inputs": {
+      "samples": [
+        "143:188",
+        0
+      ],
+      "vae": [
+        "143:190",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE 디코드"
+    }
+  },
+  "143:180": {
+    "inputs": {
+      "text": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+      "clip": [
+        "143:179",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  }
+}

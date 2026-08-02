@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DOBEDUB STUDIO</title>
+    <script>
+      window.APP_CONFIG = {
+        API_BASE_URL: ""
+      };
+    </script>
+    <link rel="stylesheet" href="./src/styles.css?v=20260729-report-url-v1" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <section id="loginScreen" class="login-screen" aria-label="로그인">
+        <header class="topbar">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>DOBEDUB STUDIO</span>
+          </div>
+          <div id="loginApiStatusPill" class="status-pill">System: <strong id="loginApiStatusText">CHECKING</strong><span></span></div>
+        </header>
+
+        <div class="ambient ambient-left" aria-hidden="true"></div>
+        <div class="ambient ambient-right" aria-hidden="true"></div>
+
+        <form id="loginForm" class="login-card">
+          <h1>DOBEDUB STUDIO | 접속</h1>
+          <label>
+            <span>ID (Email Address) <em>Required *</em></span>
+            <input id="loginId" type="text" autocomplete="username" placeholder="Enter your Employee ID" required />
+          </label>
+          <label>
+            <span>Password <em>Required *</em></span>
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your Password" required />
+          </label>
+          <label>
+            <span>Name <em>Required *</em></span>
+            <input id="loginName" type="text" autocomplete="name" placeholder="Enter your Full Name" required />
+          </label>
+          <button class="primary-button" type="submit">접속하기</button>
+        </form>
+      </section>
+
+      <section id="studioScreen" class="studio-screen is-hidden" aria-label="스튜디오">
+        <header class="topbar studio-topbar">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>DOBEDUB STUDIO</span>
+          </div>
+          <button id="historyButton" class="toolbar-button" type="button">History/Saved Videos</button>
+          <button id="statusButton" class="toolbar-button" type="button">Check Status</button>
+          <button id="manualButton" class="toolbar-button" type="button">User Manual</button>
+          <div class="segment-manager">
+            <span>Subgraph Manager</span>
+            <div><i id="globalProgressBar"></i></div>
+            <b id="globalProgressText">56%</b>
+          </div>
+          <div id="apiStatusPill" class="status-pill">API Server: <strong id="apiStatusText">CHECKING</strong><span></span></div>
+          <div class="user-chip">
+            User: <strong id="userNameText">-</strong>
+            <button id="logoutButton" class="user-logout-button" type="button">로그아웃</button>
+          </div>
+        </header>
+
+        <main class="workspace">
+          <aside class="segment-sidebar">
+            <h2>Control Panel</h2>
+            <div id="segmentList" class="segment-list"></div>
+          </aside>
+
+          <section class="control-panel">
+            <div class="workflow-header">
+              <h2>Workflow List</h2>
+            </div>
+
+            <label class="select-row">
+              <span class="sr-only">Workflow Type</span>
+              <select id="workflowSelect"></select>
+            </label>
+
+            <section class="upload-zone">
+              <h3 id="uploadTitle">Image Upload - Selected Segment 1</h3>
+              <div id="keyframeGrid" class="keyframe-grid"></div>
+            </section>
+
+            <label class="field">
+              <span>Positive Prompt</span>
+              <textarea id="positivePrompt" rows="3"></textarea>
+            </label>
+
+            <label class="field">
+              <span>Negative Prompt</span>
+              <textarea id="negativePrompt" rows="2"></textarea>
+            </label>
+
+            <button id="loadPromptButton" class="secondary-button" type="button">Load Past Prompts</button>
+
+            <section class="node-config">
+              <div class="node-config-title">
+                <h3>Wan Node Config (ComfyUI)</h3>
+                <button id="resetSegmentConfigButton" class="secondary-button compact-action-button" type="button">세그먼트 설정 초기화</button>
+              </div>
+              <div id="configControls" class="config-controls"></div>
+            </section>
+
+            <div class="generation-actions">
+              <button id="generateButton" class="primary-button generate-button" type="button">GENERATE VIDEO</button>
+              <button id="cancelGenerationButton" class="danger-button cancel-button is-hidden" type="button" disabled>Cancel Generation</button>
+            </div>
+          </section>
+
+          <section class="preview-panel">
+            <div class="preview-top">
+              <h2>Preview & Output</h2>
+              <div class="preview-actions">
+                <button id="metadataViewButton" class="save-button" type="button">Metadata View</button>
+              </div>
+            </div>
+
+            <section class="progress-card">
+              <div class="progress-ring" style="--pct: 45"><span id="runProgressText">45%</span></div>
+              <p>Generation Time: <strong id="elapsedText">00:11:1s</strong></p>
+            </section>
+
+            <div class="output-grid">
+              <section class="log-card">
+                <h3>Log Stream: <span id="logPercent">(35%)</span></h3>
+                <p id="logText">Dynamic cinematic scene of a cyberpunk city street at night, neon signs reflecting on wet pavement, flying vehicles...</p>
+              </section>
+
+              <section class="video-column">
+                <div class="video-toolbar">
+                  <span>View Subgraph:</span>
+                  <select id="previewSegmentSelect"></select>
+                </div>
+                <div id="outputVideoFrame" class="video-frame">
+                  <div class="neon-scene" aria-label="생성 영상 프리뷰"></div>
+                  <div class="player-bar"><span></span><b>0:00</b><i></i></div>
+                </div>
+
+                <section class="generation-info">
+                  <h3>Generation Info</h3>
+                  <div class="info-row">
+                    <div class="thumb-scene" aria-hidden="true"></div>
+                    <div>
+                      <p>Seed: <strong id="seedText">4920381920</strong></p>
+                      <p>FPS: <strong id="fpsText">24</strong></p>
+                    </div>
+                  </div>
+                  <p id="promptSummary" class="prompt-summary"></p>
+                  <div id="segmentDetailText" class="segment-detail-text"></div>
+                </section>
+
+                <button id="downloadButton" class="primary-button" type="button">Download MP4</button>
+                <button id="refreshButton" class="save-button" type="button">Refresh</button>
+              </section>
+            </div>
+          </section>
+        </main>
+
+        <div id="historyModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+          <section class="history-modal">
+            <div class="modal-header">
+              <h2 id="historyTitle">Task History & Result List</h2>
+              <div>
+                <button id="generateReportButton" class="secondary-button" type="button">Generate Report</button>
+                <button id="closeHistoryButton" class="icon-button" type="button" aria-label="닫기">×</button>
+              </div>
+            </div>
+            <p id="modalNotice" class="modal-notice" aria-live="polite"></p>
+            <div class="history-layout">
+              <div class="history-list">
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Timestamp</th>
+                      <th>Worker</th>
+                      <th>Positive Prompt</th>
+                      <th>Negative Prompt</th>
+                      <th>Status</th>
+                      <th>View</th>
+                      <th>Download</th>
+                      <th>Rework</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyRows"></tbody>
+                </table>
+                <div id="historyPagination" class="history-pagination" aria-label="작업 이력 페이지"></div>
+              </div>
+              <aside class="task-detail">
+                <div class="detail-tabs">
+                  <button class="is-active" type="button" data-detail-tab="overview">Task Overview</button>
+                  <button type="button" data-detail-tab="images">Input Images</button>
+                  <button type="button" data-detail-tab="config">Node Config</button>
+                  <button type="button" data-detail-tab="video">Output Video</button>
+                </div>
+                <div id="detailBody" class="detail-body"></div>
+              </aside>
+            </div>
+          </section>
+        </div>
+
+        <div id="statusModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+          <section class="status-modal">
+            <div class="modal-header">
+              <h2 id="statusTitle">System & RunPod Status</h2>
+              <div>
+                <button id="testRunpodButton" class="secondary-button" type="button">Test RunPod</button>
+                <button id="refreshStatusButton" class="secondary-button" type="button">Refresh</button>
+                <button id="closeStatusButton" class="icon-button" type="button" aria-label="닫기">×</button>
+              </div>
+            </div>
+            <p id="statusNotice" class="modal-notice" aria-live="polite"></p>
+            <div id="statusGrid" class="status-grid"></div>
+          </section>
+        </div>
+
+        <div id="manualModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+          <section class="manual-modal">
+            <div class="modal-header">
+              <h2 id="manualTitle">dobedub studio 사용자 매뉴얼</h2>
+              <button id="closeManualButton" class="icon-button" type="button" aria-label="닫기">×</button>
+            </div>
+            <iframe id="manualFrame" title="dobedub studio 사용자 매뉴얼" src="about:blank"></iframe>
+          </section>
+        </div>
+
+        <div id="promptModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="promptModalTitle">
+          <section class="picker-modal">
+            <div class="modal-header">
+              <h2 id="promptModalTitle">Load Past Prompts</h2>
+              <button id="closePromptModalButton" class="icon-button" type="button" aria-label="닫기">×</button>
+            </div>
+            <div class="picker-tabs">
+              <button class="is-active" type="button" data-prompt-tab="positive">Positive</button>
+              <button type="button" data-prompt-tab="negative">Negative</button>
+            </div>
+            <div id="promptList" class="picker-list"></div>
+          </section>
+        </div>
+
+        <div id="metadataModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="metadataModalTitle">
+          <section class="metadata-modal">
+            <div class="modal-header">
+              <h2 id="metadataModalTitle">Workflow Metadata</h2>
+              <button id="closeMetadataModalButton" class="icon-button" type="button" aria-label="닫기">×</button>
+            </div>
+            <div class="metadata-toolbar">
+              <label>
+                <span>Workflow</span>
+                <select id="metadataWorkflowSelect"></select>
+              </label>
+              <button id="rebuildMetadataButton" class="secondary-button" type="button">Rebuild Metadata</button>
+            </div>
+            <div class="metadata-tabs">
+              <button class="is-active" type="button" data-metadata-tab="summary">Summary</button>
+              <button type="button" data-metadata-tab="subgraphs">Subgraphs</button>
+              <button type="button" data-metadata-tab="parameters">Parameters</button>
+              <button type="button" data-metadata-tab="models">Models</button>
+              <button type="button" data-metadata-tab="nodes">Nodes</button>
+            </div>
+            <div id="metadataBody" class="metadata-body"></div>
+          </section>
+        </div>
+
+        <div id="deleteHistoryModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="deleteHistoryTitle">
+          <section class="confirm-modal">
+            <div class="modal-header">
+              <h2 id="deleteHistoryTitle">작업 내역 삭제</h2>
+            </div>
+            <p class="confirm-message">삭제한 모든 자료(이미지, 영상 등)가 모두 삭제 됩니다. 삭제후 복구되지 않습니다. 삭제하시겠습니까?</p>
+            <div class="confirm-actions">
+              <button id="cancelDeleteHistoryButton" class="secondary-button" type="button">취소</button>
+              <button id="confirmDeleteHistoryButton" class="danger-button" type="button">삭제</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+    <script id="manualMarkdownSource" type="text/plain">__MANUAL_MARKDOWN__</script>
+    <script src="./src/app.js?v=20260729-manual-embedded-v1"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+.preview/
+.env
+!.env.example
+.DS_Store
+__pycache__/
+data/*
+!data/segment-defaults.json
+node_modules/
+dist/
+tmp/

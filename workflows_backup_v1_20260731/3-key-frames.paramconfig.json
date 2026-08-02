@@ -1,0 +1,188 @@
+{
+  "_comment": "자동 생성된 초안입니다(generate_paramconfig.py). min/max 범위와 seed 노드 판정을 반드시 검토한 뒤 서비스에 반영하세요.",
+  "workflow": "3-key-frames.json",
+  "segments": [
+    {
+      "segment_index": 1,
+      "params": {
+        "seed": {
+          "targets": [
+            {
+              "node": "140:57",
+              "field": "noise_seed"
+            }
+          ],
+          "type": "int",
+          "default": 106238756028535,
+          "randomizable": true
+        },
+        "steps": {
+          "targets": [
+            {
+              "node": "140:58",
+              "field": "steps"
+            },
+            {
+              "node": "140:57",
+              "field": "steps"
+            }
+          ],
+          "type": "int",
+          "min": 1,
+          "max": 24,
+          "default": 4,
+          "sync": true
+        },
+        "cfg_scale": {
+          "targets": [
+            {
+              "node": "140:58",
+              "field": "cfg"
+            },
+            {
+              "node": "140:57",
+              "field": "cfg"
+            }
+          ],
+          "type": "float",
+          "min": 0.0,
+          "max": 6.0,
+          "default": 1,
+          "sync": true
+        },
+        "motion_shift": {
+          "targets": [
+            {
+              "node": "140:55",
+              "field": "shift"
+            },
+            {
+              "node": "140:54",
+              "field": "shift"
+            }
+          ],
+          "type": "float",
+          "min": 2.0,
+          "max": 10.0,
+          "default": 5,
+          "sync": true
+        },
+        "frames": {
+          "targets": [
+            {
+              "node": "140:67",
+              "field": "length"
+            }
+          ],
+          "type": "int",
+          "min": 15,
+          "max": 45,
+          "default": 25
+        },
+        "fps": {
+          "targets": [
+            {
+              "node": "140:60",
+              "field": "fps"
+            }
+          ],
+          "type": "int",
+          "min": 8,
+          "max": 30,
+          "default": 16
+        }
+      }
+    },
+    {
+      "segment_index": 2,
+      "params": {
+        "seed": {
+          "targets": [
+            {
+              "node": "141:157",
+              "field": "noise_seed"
+            }
+          ],
+          "type": "int",
+          "default": 332092862784409,
+          "randomizable": true
+        },
+        "steps": {
+          "targets": [
+            {
+              "node": "141:156",
+              "field": "steps"
+            },
+            {
+              "node": "141:157",
+              "field": "steps"
+            }
+          ],
+          "type": "int",
+          "min": 1,
+          "max": 24,
+          "default": 4,
+          "sync": true
+        },
+        "cfg_scale": {
+          "targets": [
+            {
+              "node": "141:156",
+              "field": "cfg"
+            },
+            {
+              "node": "141:157",
+              "field": "cfg"
+            }
+          ],
+          "type": "float",
+          "min": 0.0,
+          "max": 6.0,
+          "default": 1,
+          "sync": true
+        },
+        "motion_shift": {
+          "targets": [
+            {
+              "node": "141:152",
+              "field": "shift"
+            },
+            {
+              "node": "141:155",
+              "field": "shift"
+            }
+          ],
+          "type": "float",
+          "min": 2.0,
+          "max": 10.0,
+          "default": 5,
+          "sync": true
+        },
+        "frames": {
+          "targets": [
+            {
+              "node": "141:159",
+              "field": "length"
+            }
+          ],
+          "type": "int",
+          "min": 15,
+          "max": 45,
+          "default": 25
+        },
+        "fps": {
+          "targets": [
+            {
+              "node": "141:149",
+              "field": "fps"
+            }
+          ],
+          "type": "int",
+          "min": 8,
+          "max": 30,
+          "default": 16
+        }
+      }
+    }
+  ]
+}
