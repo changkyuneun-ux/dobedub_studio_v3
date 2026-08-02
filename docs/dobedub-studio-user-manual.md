@@ -12,7 +12,7 @@ URL:comfyui.dobedub.org
 | 2026-07-29 | 앱 화면에서 사용자 매뉴얼을 바로 확인할 수 없음 | 상단 `Check Status` 옆에 `User Manual` 버튼을 추가하고 별도 모달 HTML 페이지로 매뉴얼 제공 | Markdown 수정 시 모달 매뉴얼에 즉시 반영 |
 | 2026-07-29 | 사용자 정보 옆 로그아웃 기능 없음 | 사용자 이름 옆 `로그아웃` 버튼 추가, 클릭 시 세션 삭제 후 로그인 화면으로 복귀 | 브라우저 세션 기준 |
 | 2026-07-29 | 작업 이력의 항목 구조가 기존 UI 기준으로 설명됨 | No., Worker, Positive/Negative Prompt 복사, Delete, Output Video 탭 기준으로 설명 수정 | 신규 UI 기준 |
-| 2026-07-31 | 1-key~5-key 워크플로우 기준 | 1-images~6-images v2 워크플로우 기준으로 변경 | Workflow2 기반, workflow 내장 SaveVideo 노드 사용 |
+| 2026-07-31 | 1-key~5-key 워크플로우 기준 | 1-images~6-images v2 워크플로우 기준으로 변경 | workflow 내장 SaveVideo 노드 사용 |
 | 2026-07-31 | 작업 이력에서 과거 작업을 바로 편집 화면으로 불러올 수 없음 | 작업 리스트에 `재작업` 버튼 추가, 입력 이미지와 프롬프트 및 설정값을 생성 화면에 복원 | 일부 수정 후 빠른 재생성 용도 |
 | 2026-07-31 | 컨트롤 패널에서 구간을 `Segment 1` 형식으로 표시 | workflow 서브그래프 노드 이름과 순서를 포함한 `노드이름_1` 형식으로 표시 | 예: `WAN 비디오 생성 (시작-끝 프레임)_1` |
 | 2026-07-31 | 최종 출력 `CreateVideo`와 `SaveVideo` 설정을 UI에서 조정할 수 없음 | `Final Output FPS`, `Final Bit Depth`, `Final Format`, `Final Codec` 설정 추가 | `filename_prefix`는 asset/이력 관리를 위해 앱 내부 자동 관리 |

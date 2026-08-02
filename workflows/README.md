@@ -1,8 +1,8 @@
 # v2 workflow directory
 
-This folder contains the active ComfyUI Export(API) workflows used by DOBEDUB STUDIO v2.
+This folder contains the active ComfyUI Export(API) workflows used by DOBEDUB STUDIO.
 
-The current active set was promoted from `Workflow2/`:
+The current active set is:
 
 - `1-images.json`
 - `2-images.json`

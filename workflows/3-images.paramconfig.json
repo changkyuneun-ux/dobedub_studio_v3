@@ -1,5 +1,5 @@
 {
-  "_comment": "Workflow2 기준으로 생성한 v2 paramconfig입니다. targets/default는 현재 workflow JSON의 노드 ID와 입력값을 기준으로 합니다.",
+  "_comment": "현재 active workflow 기준으로 생성한 paramconfig입니다. targets/default는 현재 workflow JSON의 노드 ID와 입력값을 기준으로 합니다.",
   "workflow": "3-images.json",
   "segments": [
     {
