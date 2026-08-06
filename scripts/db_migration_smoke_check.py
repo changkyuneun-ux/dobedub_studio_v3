@@ -49,7 +49,13 @@ def main():
         database_path = Path(tmp) / "dobedub-smoke.db"
         os.environ["DATABASE_URL"] = f"sqlite:///{database_path}"
         config = Config(str(PROJECT_ROOT / "alembic.ini"))
+        from scripts.upgrade_database import migration_state
+
+        before_upgrade = migration_state(config)
+        assert before_upgrade["migrationRequired"] is True, before_upgrade
         command.upgrade(config, "head")
+        after_upgrade = migration_state(config)
+        assert after_upgrade["migrationRequired"] is False, after_upgrade
 
         engine = create_engine(os.environ["DATABASE_URL"], future=True)
         inspector = inspect(engine)

@@ -52,7 +52,7 @@ RUN_SERVER_AUTO_MIGRATE=0
 - `DATABASE_URL`은 ECS task definition의 plaintext 환경변수보다 Secrets Manager 또는 SSM Parameter Store 참조를 권장합니다.
 - `DATABASE_SSL_CA`와 `DATABASE_SSL_VERIFY_IDENTITY`를 설정해 RDS CA 검증을 함께 활성화합니다.
 - RDS security group은 ECS task security group에서 오는 3306 inbound만 허용합니다.
-- 기본 운영에서는 `PERSISTENCE_BACKEND=db`인 경우 웹 task 시작 시 migration을 하지 않고, 별도 one-off ECS task 또는 CI/CD 단계에서 `alembic upgrade head`를 먼저 실행합니다.
+- 기본 운영에서는 `PERSISTENCE_BACKEND=db`인 경우 웹 task 시작 시 migration을 하지 않습니다. 새 이미지의 Alembic head가 RDS보다 앞선 경우에만 별도 one-off ECS task 또는 CI/CD 단계에서 migration을 실행합니다.
 - 웹 task는 `RUN_SERVER_AUTO_MIGRATE=0`을 유지해 app startup과 DB schema 변경을 분리합니다.
 - 애플리케이션 task는 migration 완료 후 새 revision으로 교체합니다.
 - Docker image의 기본 entrypoint는 `scripts/run_server.py`입니다. 앱 시작 시에는 serving만 담당하고, DB migration은 `scripts/upgrade_database.py`를 one-off task로 실행합니다.
@@ -63,13 +63,33 @@ RUN_SERVER_AUTO_MIGRATE=0
 python3 scripts/db_migration_smoke_check.py
 ```
 
-운영 migration 예시:
+### 스키마 변경 조건부 one-off migration
+
+새 이미지가 만들어진 뒤, **웹 서비스 배포 전에** 같은 이미지로 아래 check command를 실행합니다.
+
+```bash
+python3 scripts/upgrade_database.py --check
+```
+
+- 출력의 `migrationRequired`가 `false`이고 exit code가 `0`이면: schema 변경이 없으므로 one-off task와 migration을 생략하고 웹 서비스를 배포합니다.
+- `migrationRequired`가 `true`이고 exit code가 `2`이면: 새 Alembic migration이 있으므로 같은 이미지와 동일한 RDS/Secrets/EFS 환경으로 one-off ECS task를 실행합니다.
+- check가 DB 연결 오류로 실패하면: 웹 서비스 배포를 중단하고 RDS security group, secret, CA 경로를 먼저 확인합니다.
+
+pending일 때 one-off ECS task의 command override는 아래와 같이 지정합니다. `--if-needed`는 실행 직전 다른 배포가 migration을 끝냈어도 안전하게 skip합니다.
+
+```text
+python3 scripts/upgrade_database.py --if-needed
+```
+
+one-off task가 exit code `0`으로 종료된 것을 확인한 뒤에만 새 ECS service revision을 배포합니다. `RUN_SERVER_AUTO_MIGRATE=0`은 항상 유지합니다.
+
+로컬 migration 예시:
 
 ```bash
 DATABASE_URL='mysql+pymysql://<user>:<password>@<rds-endpoint>:3306/dobedub_studio' \
 DATABASE_SSL_CA='/app/certs/global-bundle.pem' \
 DATABASE_SSL_VERIFY_IDENTITY=1 \
-  python3 scripts/upgrade_database.py
+  python3 scripts/upgrade_database.py --if-needed
 ```
 
 ## Asset 저장소 기준
@@ -117,7 +137,7 @@ docker buildx build --platform linux/amd64 --push \
 5. 새 task definition revision을 등록합니다.
 6. `dobedub-app` 서비스를 새 revision으로 업데이트합니다.
 7. 새 task가 healthy 상태가 된 뒤 이전 task가 drain되는지 확인합니다.
-8. 별도 migration 작업이 필요한 경우 `scripts/upgrade_database.py`를 one-off task로 먼저 실행합니다.
+8. 같은 이미지로 `python3 scripts/upgrade_database.py --check`를 실행합니다. pending일 때만 `python3 scripts/upgrade_database.py --if-needed` one-off task를 성공시킨 뒤 service를 업데이트합니다.
 
 ## 운영 저장소 주의
 

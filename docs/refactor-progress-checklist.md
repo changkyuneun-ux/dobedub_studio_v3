@@ -498,6 +498,7 @@ node --check src/app.js
 
 - [x] Docker production runner `scripts/run_server.py` 추가
 - [x] 운영 runner는 serving 전용으로 두고, migration은 `scripts/upgrade_database.py` one-off task로 분리
+- [x] `upgrade_database.py --check`로 RDS revision/head 차이를 판별하고, pending일 때만 `--if-needed` one-off migration을 적용
 - [x] Dockerfile에 frontend Node build stage 추가
 - [x] Docker CMD를 `scripts/run_server.py`로 변경
 - [x] Docker 기본 `PORT`와 `EXPOSE`를 ECS target 기준 `7860`으로 정렬
