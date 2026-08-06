@@ -113,6 +113,11 @@ def main():
         assert response.status_code == 200, response.text
         assert response.content == b"fake-image"
 
+        # Assets are intentionally protected: browser image/video tags cannot attach
+        # JWT headers, so the frontend must load task assets through apiClient.assetBlob.
+        response = client.get(f"/api/files/{upload['assetId']}")
+        assert response.status_code == 401, response.text
+
         response = client.get(f"/api/files/{upload['assetId']}", headers={**admin_headers, "Range": "bytes=0-3"})
         assert response.status_code == 206, response.text
         assert response.content == b"fake"
@@ -149,7 +154,9 @@ def main():
         assert response.status_code == 200, response.text
         history = response.json()
         assert history["total"] >= 1
-        assert any(item.get("taskId") == task_id for item in history["items"])
+        history_item = next(item for item in history["items"] if item.get("taskId") == task_id)
+        assert history_item["inputAssets"] == [upload["assetId"]]
+        assert history_item["inputImages"][0]["assetId"] == upload["assetId"]
 
         response = client.get("/api/prompts", headers=admin_headers)
         assert response.status_code == 200, response.text

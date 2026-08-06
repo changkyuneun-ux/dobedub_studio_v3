@@ -225,6 +225,11 @@ def main() -> None:
     assert "재작업" in main_tsx
     assert "삭제한 모든 자료" in main_tsx
     assert "createKeyframesFromHistory" in main_tsx
+    assert '<ProtectedImage src={keyframe.previewUrl} alt={`Input ${keyframe.index}`} />' in main_tsx
+    assert '<img src={keyframe.previewUrl}' not in main_tsx
+    rework_handler = re.search(r"async function applyHistoryRework\(item: HistoryItem\) \{(?P<body>.*?)\n  \}", main_tsx, re.DOTALL)
+    assert rework_handler is not None
+    assert 'onNavigate("studio");' in rework_handler.group("body")
 
     styles_css = (PROJECT_ROOT / "frontend/src/styles.css").read_text(encoding="utf-8")
     assert ".prompt-builder-modal" in styles_css
@@ -292,6 +297,7 @@ def main() -> None:
     assert "/api/jobs" in api_client
     assert "/delete" in api_client
     assert "/api/auth/login" in api_client
+    assert "assetBlob: (path: string) => requestBlob(path)" in api_client
     assert "/api/admin/users" in api_client
     assert "/api/admin/workflows" in api_client
     assert "/api/admin/workflows/${encodeURIComponent(workflowId)}/activate" in api_client

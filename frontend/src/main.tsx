@@ -1274,7 +1274,9 @@ function StudioShell({
       setSelectedSegmentIndex(1);
       setKeyframes(nextKeyframes);
       resetRunState();
-      setHistoryModalOpen(false);
+      // The history modal is route-controlled. Closing only its local state leaves
+      // the URL on /studio/history, which prevents the Task History button opening it again.
+      onNavigate("studio");
       setNotice(`재작업 정보를 생성 화면에 불러왔습니다. 입력 이미지 ${nextKeyframes.filter((keyframe) => keyframe.upload?.assetId).length}개 로드됨.`);
     } catch (error) {
       setModalNotice(error instanceof Error ? error.message : "재작업 정보를 불러오지 못했습니다.");
@@ -1426,7 +1428,7 @@ function StudioShell({
             >
               <input type="file" accept="image/*" multiple onChange={(event) => applySelectedFiles(keyframe.index, event.target.files)} />
               <span>Image {keyframe.index}</span>
-              {keyframe.previewUrl ? <img src={keyframe.previewUrl} alt={`Input ${keyframe.index}`} /> : <b>Select Image</b>}
+              {keyframe.previewUrl ? <ProtectedImage src={keyframe.previewUrl} alt={`Input ${keyframe.index}`} /> : <b>Select Image</b>}
               <small>{keyframe.uploading ? "uploading..." : keyframe.error || keyframe.metaText}</small>
               {keyframe.previewUrl ? (
                 <button type="button" onClick={(event) => { event.preventDefault(); clearKeyframe(keyframe.index); }}>
