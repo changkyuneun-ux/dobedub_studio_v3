@@ -976,7 +976,61 @@ textarea {
 }
 
 .manual-modal {
+  grid-template-rows: auto auto minmax(0, 1fr);
   width: min(980px, calc(100vw - 48px));
+}
+
+.manual-search-toolbar {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+}
+
+.manual-search-toolbar label {
+  color: var(--muted);
+  display: grid;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 6px;
+}
+
+.manual-search-toolbar input {
+  min-height: 38px;
+}
+
+.manual-search-toolbar p {
+  color: var(--muted);
+  font-size: 13px;
+  grid-column: 1 / -1;
+  margin: 0;
+  min-height: 18px;
+}
+
+.seed-randomize-button {
+  align-self: center;
+  background: #18345a;
+  border: 1px solid var(--blue);
+  border-radius: 5px;
+  color: #dbeafe;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 30px;
+  padding: 4px 8px;
+}
+
+.seed-randomize-button:hover {
+  background: #1d4f85;
+}
+
+.seed-config-row {
+  grid-template-columns: 108px minmax(180px, 0.72fr) max-content minmax(230px, 1fr);
+}
+
+.seed-config-row .seed-randomize-button {
+  white-space: nowrap;
 }
 
 .metadata-modal {
@@ -3084,11 +3138,29 @@ textarea {
   }
 
   .prompt-reuse-search,
+  .manual-search-toolbar,
   .prompt-review-form,
   .prompt-review-media,
   .prompt-reuse-info-grid,
   .prompt-reuse-asset-grid {
     grid-template-columns: 1fr;
+  }
+
+  .manual-search-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .seed-config-row {
+    grid-template-columns: 108px minmax(160px, 1fr) max-content;
+  }
+
+  .seed-config-row em {
+    grid-column: 2 / -1;
+  }
+
+  .manual-search-toolbar label,
+  .manual-search-toolbar p {
+    grid-column: 1 / -1;
   }
 
   .prompt-reuse-info-grid div,

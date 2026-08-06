@@ -145,7 +145,6 @@ def manual_html_page(manual_path: Path | None = None) -> str:
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <base href="about:srcdoc" />
     <title>dobedub studio 사용자 매뉴얼</title>
     <style>
       :root {{ color-scheme: light; --blue: #2f80ff; --line: #d6dde8; --muted: #596574; }}
@@ -163,12 +162,6 @@ def manual_html_page(manual_path: Path | None = None) -> str:
       figure {{ margin: 18px 0 22px; }}
       figure img {{ border: 1px solid #cbd5e1; border-radius: 8px; display: block; max-width: 100%; width: 100%; }}
       figcaption {{ color: var(--muted); font-size: 13px; margin-top: 8px; text-align: center; }}
-      .manual-search {{ align-items: end; background: #fff; border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 10px; grid-template-columns: minmax(180px, 1fr) auto auto; margin: 0 0 22px; padding: 14px; position: sticky; top: 0; z-index: 2; }}
-      .manual-search label {{ color: var(--muted); display: grid; font-size: 13px; font-weight: 700; gap: 6px; }}
-      .manual-search input {{ border: 1px solid #b9c4d4; border-radius: 6px; font: inherit; min-height: 38px; padding: 8px 10px; }}
-      .manual-search button {{ background: var(--blue); border: 0; border-radius: 6px; color: #fff; cursor: pointer; font: inherit; font-weight: 700; min-height: 38px; padding: 8px 14px; }}
-      .manual-search button.secondary {{ background: #eef4ff; border: 1px solid #c9dbff; color: #0f56b3; }}
-      .manual-search-status {{ color: var(--muted); font-size: 13px; grid-column: 1 / -1; min-height: 18px; }}
       mark.manual-hit {{ background: #fde68a; border-radius: 3px; color: #111827; padding: 0 2px; }}
       mark.manual-hit.is-current {{ background: #fb923c; color: #111827; }}
       .manual-table-wrap {{ overflow-x: auto; margin: 14px 0 20px; }}
@@ -176,142 +169,13 @@ def manual_html_page(manual_path: Path | None = None) -> str:
       th {{ background: #2563eb; color: #fff; font-weight: 700; }}
       th, td {{ border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }}
       td {{ background: #fbfdff; }}
-      @media (max-width: 720px) {{ main {{ padding: 28px 20px 40px; }} h1 {{ font-size: 28px; }} h2 {{ font-size: 22px; }} .manual-search {{ grid-template-columns: 1fr; }} }}
+      @media (max-width: 720px) {{ main {{ padding: 28px 20px 40px; }} h1 {{ font-size: 28px; }} h2 {{ font-size: 22px; }} }}
     </style>
   </head>
   <body>
     <main>
-      <form class="manual-search" id="manualSearch" role="search">
-        <label>매뉴얼 검색
-          <input id="manualSearchInput" type="search" placeholder="검색어 입력 후 Enter" autocomplete="off" />
-        </label>
-        <button type="submit">검색</button>
-        <button class="secondary" id="manualSearchNext" type="button">다음</button>
-        <div class="manual-search-status" id="manualSearchStatus" aria-live="polite"></div>
-      </form>
       <p style="color: var(--muted); margin-bottom: 24px;">Last updated: {html.escape(modified)}</p>
       {body}
     </main>
-    <script>
-      (() => {{
-        const form = document.getElementById("manualSearch");
-        const input = document.getElementById("manualSearchInput");
-        const nextButton = document.getElementById("manualSearchNext");
-        const status = document.getElementById("manualSearchStatus");
-        let hits = [];
-        let currentIndex = -1;
-
-        // srcDoc documents otherwise resolve fragment links against the host
-        // application URL. Keep the table of contents inside this document.
-        document.addEventListener("click", (event) => {{
-          const target = event.target;
-          if (!(target instanceof Element)) {{
-            return;
-          }}
-          const link = target.closest('a[href^="#"]');
-          const href = link?.getAttribute("href") || "";
-          const anchorId = decodeURIComponent(href.slice(1));
-          const section = anchorId ? document.getElementById(anchorId) : null;
-          if (!section) {{
-            return;
-          }}
-          event.preventDefault();
-          section.scrollIntoView({{ behavior: "smooth", block: "start" }});
-        }});
-
-        function clearHighlights() {{
-          document.querySelectorAll("mark.manual-hit").forEach((mark) => {{
-            const text = document.createTextNode(mark.textContent || "");
-            mark.replaceWith(text);
-            text.parentNode?.normalize();
-          }});
-          hits = [];
-          currentIndex = -1;
-        }}
-
-        function textNodes(root) {{
-          const nodes = [];
-          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {{
-            acceptNode(node) {{
-              if (!node.nodeValue || !node.nodeValue.trim()) {{
-                return NodeFilter.FILTER_REJECT;
-              }}
-              if (node.parentElement?.closest("#manualSearch, script, style, mark")) {{
-                return NodeFilter.FILTER_REJECT;
-              }}
-              return NodeFilter.FILTER_ACCEPT;
-            }}
-          }});
-          while (walker.nextNode()) {{
-            nodes.push(walker.currentNode);
-          }}
-          return nodes;
-        }}
-
-        function highlight(term) {{
-          clearHighlights();
-          const query = term.trim();
-          if (!query) {{
-            status.textContent = "검색어를 입력하세요.";
-            return;
-          }}
-          const needle = query.toLocaleLowerCase();
-          textNodes(document.body).forEach((node) => {{
-            const value = node.nodeValue || "";
-            const lower = value.toLocaleLowerCase();
-            let cursor = 0;
-            const fragment = document.createDocumentFragment();
-            let found = false;
-            while (true) {{
-              const index = lower.indexOf(needle, cursor);
-              if (index === -1) {{
-                break;
-              }}
-              found = true;
-              if (index > cursor) {{
-                fragment.appendChild(document.createTextNode(value.slice(cursor, index)));
-              }}
-              const mark = document.createElement("mark");
-              mark.className = "manual-hit";
-              mark.textContent = value.slice(index, index + query.length);
-              fragment.appendChild(mark);
-              cursor = index + query.length;
-            }}
-            if (!found) {{
-              return;
-            }}
-            if (cursor < value.length) {{
-              fragment.appendChild(document.createTextNode(value.slice(cursor)));
-            }}
-            node.replaceWith(fragment);
-          }});
-          hits = Array.from(document.querySelectorAll("mark.manual-hit"));
-          if (!hits.length) {{
-            status.textContent = `"${{query}}" 검색 결과가 없습니다.`;
-            return;
-          }}
-          moveTo(0);
-        }}
-
-        function moveTo(index) {{
-          if (!hits.length) {{
-            status.textContent = "검색 결과가 없습니다.";
-            return;
-          }}
-          hits.forEach((hit) => hit.classList.remove("is-current"));
-          currentIndex = (index + hits.length) % hits.length;
-          const current = hits[currentIndex];
-          current.classList.add("is-current");
-          current.scrollIntoView({{ behavior: "smooth", block: "center" }});
-          status.textContent = `${{currentIndex + 1}} / ${{hits.length}} 검색 결과`;
-        }}
-
-        form?.addEventListener("submit", (event) => {{
-          event.preventDefault();
-          highlight(input?.value || "");
-        }});
-        nextButton?.addEventListener("click", () => moveTo(currentIndex + 1));
-      }})();
-    </script>
   </body>
 </html>"""

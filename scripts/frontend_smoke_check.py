@@ -77,7 +77,11 @@ def main() -> None:
     assert "function HistoryModal" in main_tsx
     assert "function StatusModal" in main_tsx
     assert "function ManualModal" in main_tsx
-    assert 'sandbox="allow-scripts"' in main_tsx
+    assert 'sandbox="allow-same-origin"' in main_tsx
+    assert 'sandbox="allow-scripts"' not in main_tsx
+    assert "function createRandomSeed()" in main_tsx
+    assert "seed-randomize-button" in main_tsx
+    assert 'className="config-row seed-config-row"' in main_tsx
     assert "function MetadataModal" in main_tsx
     assert "function AdminConsoleModal" in main_tsx
     assert "Admin Console" in main_tsx
@@ -219,6 +223,9 @@ def main() -> None:
     assert "Generate Report" not in main_tsx
     assert "apiClient.systemStatus" in main_tsx
     assert "apiClient.manualHtml" in main_tsx
+    assert "function searchManual()" in main_tsx
+    assert "sandbox=\"allow-same-origin\"" in main_tsx
+    assert "manual-search-toolbar" in main_tsx
     assert "apiClient.workflowWidgetMetadata" in main_tsx
     assert "apiClient.rebuildMetadata" in main_tsx
     assert "apiClient.deleteHistory" in main_tsx
@@ -258,6 +265,7 @@ def main() -> None:
     assert "grid-template-rows: auto 108px auto;" in styles_css
     assert "height: 190px;" in styles_css
     assert ".selected-keyword-text" in styles_css
+    assert ".seed-config-row" in styles_css
     assert "overflow-wrap: anywhere;" in styles_css
     assert "height: 100%;" in styles_css
     assert "overscroll-behavior: contain;" in styles_css

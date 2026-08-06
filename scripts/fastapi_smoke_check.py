@@ -207,8 +207,8 @@ def main():
         assert "v3-01-login.png" in response.text
         assert "v3-14-admin-prompt-catalog.png" in response.text
         assert 'href="#1-서비스-개요"' in response.text
-        assert '<base href="about:srcdoc" />' in response.text
-        assert 'target.closest(\'a[href^="#"]\')' in response.text
+        assert "manualSearch" not in response.text
+        assert "<script>" not in response.text
         assert "Prompt Reuse" in response.text
         assert "Admin Console" in response.text
 

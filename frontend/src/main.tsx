@@ -1479,6 +1479,7 @@ function StudioShell({
             <SeedConfigRow
               value={selectedSegment.config.seed ?? selectedSegment.config.Seed ?? ""}
               onChange={(value) => updateConfigValue("seed", value, { key: "seed", label: "Seed", type: "int" })}
+              onRandomize={() => updateConfigValue("seed", String(createRandomSeed()), { key: "seed", label: "Seed", type: "int" })}
             />
           ) : null}
         </div>
@@ -4280,6 +4281,111 @@ function ManualModal({
   error: string;
   onClose: () => void;
 }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const hitsRef = useRef<HTMLElement[]>([]);
+  const hitIndexRef = useRef(-1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchStatus, setSearchStatus] = useState("");
+
+  function clearHighlights() {
+    const document = iframeRef.current?.contentDocument;
+    if (!document) return;
+    document.querySelectorAll<HTMLElement>("mark.manual-hit").forEach((mark) => {
+      const text = document.createTextNode(mark.textContent || "");
+      mark.replaceWith(text);
+      text.parentNode?.normalize();
+    });
+    hitsRef.current = [];
+    hitIndexRef.current = -1;
+  }
+
+  function moveToHit(index: number) {
+    const hits = hitsRef.current;
+    if (!hits.length) {
+      setSearchStatus("검색 결과가 없습니다.");
+      return;
+    }
+    hits.forEach((hit) => hit.classList.remove("is-current"));
+    hitIndexRef.current = (index + hits.length) % hits.length;
+    const current = hits[hitIndexRef.current];
+    current.classList.add("is-current");
+    current.scrollIntoView({ behavior: "smooth", block: "center" });
+    setSearchStatus(`${hitIndexRef.current + 1} / ${hits.length} 검색 결과`);
+  }
+
+  function searchManual() {
+    const document = iframeRef.current?.contentDocument;
+    clearHighlights();
+    const query = searchQuery.trim();
+    if (!document || !query) {
+      setSearchStatus("검색어를 입력하세요.");
+      return;
+    }
+
+    const needle = query.toLocaleLowerCase();
+    const nodes: Text[] = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue?.trim() || node.parentElement?.closest("style, script, mark")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+
+    nodes.forEach((node) => {
+      const value = node.nodeValue || "";
+      const lower = value.toLocaleLowerCase();
+      let cursor = 0;
+      let found = false;
+      const fragment = document.createDocumentFragment();
+      while (true) {
+        const index = lower.indexOf(needle, cursor);
+        if (index === -1) break;
+        found = true;
+        if (index > cursor) fragment.appendChild(document.createTextNode(value.slice(cursor, index)));
+        const mark = document.createElement("mark");
+        mark.className = "manual-hit";
+        mark.textContent = value.slice(index, index + query.length);
+        fragment.appendChild(mark);
+        cursor = index + query.length;
+      }
+      if (!found) return;
+      if (cursor < value.length) fragment.appendChild(document.createTextNode(value.slice(cursor)));
+      node.replaceWith(fragment);
+    });
+
+    hitsRef.current = Array.from(document.querySelectorAll<HTMLElement>("mark.manual-hit"));
+    if (!hitsRef.current.length) {
+      setSearchStatus(`"${query}" 검색 결과가 없습니다.`);
+      return;
+    }
+    moveToHit(0);
+  }
+
+  function handleManualLoad() {
+    clearHighlights();
+    setSearchStatus("");
+    const document = iframeRef.current?.contentDocument;
+    document?.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      const link = target?.closest?.('a[href^="#"]');
+      const anchorId = decodeURIComponent(link?.getAttribute("href")?.slice(1) || "");
+      const section = anchorId ? document.getElementById(anchorId) : null;
+      if (!section) return;
+      event.preventDefault();
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  useEffect(() => {
+    hitsRef.current = [];
+    hitIndexRef.current = -1;
+    setSearchQuery("");
+    setSearchStatus("");
+  }, [html]);
+
   return (
     <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="manualTitle" onMouseDown={(event) => {
       if (event.target === event.currentTarget) {
@@ -4293,6 +4399,23 @@ function ManualModal({
             <button className="icon-button" type="button" onClick={onClose}>x</button>
           </div>
         </div>
+        <form className="manual-search-toolbar" onSubmit={(event) => {
+          event.preventDefault();
+          searchManual();
+        }}>
+          <label>
+            매뉴얼 검색
+            <input
+              type="search"
+              value={searchQuery}
+              placeholder="검색어 입력 후 Enter"
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+          </label>
+          <button className="primary-button" type="submit">검색</button>
+          <button className="secondary-button" type="button" onClick={() => moveToHit(hitIndexRef.current + 1)}>다음</button>
+          <p aria-live="polite">{searchStatus}</p>
+        </form>
         <div className="manual-frame">
           {loading ? (
             <p>사용자 매뉴얼을 불러오는 중입니다.</p>
@@ -4303,8 +4426,10 @@ function ManualModal({
             </div>
           ) : (
             <iframe
+              ref={iframeRef}
               title="dobedub studio 사용자 매뉴얼"
-              sandbox="allow-scripts"
+              sandbox="allow-same-origin"
+              onLoad={handleManualLoad}
               srcDoc={html}
             />
           )}
@@ -4428,13 +4553,31 @@ function ConfigRow({
   );
 }
 
-function SeedConfigRow({ value, onChange }: { value: string | number | null; onChange: (value: string) => void }) {
+function createRandomSeed(): number {
+  const maxSeed = Number.MAX_SAFE_INTEGER;
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    const values = new Uint32Array(2);
+    crypto.getRandomValues(values);
+    // Keep the value within JavaScript's exact-integer range before it is serialized to JSON.
+    return Math.max(1, values[0] * 0x200000 + (values[1] >>> 11));
+  }
+  return Math.max(1, Math.floor(Math.random() * maxSeed));
+}
+
+function SeedConfigRow({
+  value,
+  onChange,
+  onRandomize
+}: {
+  value: string | number | null;
+  onChange: (value: string) => void;
+  onRandomize: () => void;
+}) {
   return (
-    <div className="config-row">
+    <div className="config-row seed-config-row">
       <span>Seed</span>
-      <strong />
       <input type="number" value={String(value ?? "")} onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value)} />
-      <small>Randomize</small>
+      <button className="seed-randomize-button" type="button" onClick={onRandomize}>Randomize</button>
       <em>결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.</em>
     </div>
   );
