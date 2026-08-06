@@ -1,14 +1,18 @@
 # AWS ECS 배포 가이드
 
-이 문서는 기존 Gradio 기반 `Serverless_ComfyUI` ECS 서비스를 `DOBEDUB STUDIO` 앱으로 교체하기 위한 배포 절차입니다.
+이 문서는 현재 운영 중인 `DOBEDUB STUDIO` ECS 서비스를 안전하게 갱신하기 위한 기준입니다. 상세 실행 순서는 [ECS 운영 배포 체크리스트](./ecs-production-deployment-checklist.md)를 사용합니다.
 
 ## 전제
 
 - AWS 리전: `ap-northeast-2`
 - ECS 클러스터: `default`
 - ECS 서비스: `dobedub-app`
-- 기존 ECS 서비스 컨테이너 포트: `7860`
+- ECS task definition family: `default-dobedub-app`
+- ECR repository: `dobedub-app`
+- 컨테이너 포트: `7860`
 - RunPod 실행 모드: `RUNPOD_DRY_RUN=0`
+- 데이터베이스: Amazon RDS MySQL
+- 파일 저장: EFS를 `/data/outputs`에 마운트한 local storage backend
 
 ## 필수 환경변수
 
@@ -25,9 +29,7 @@ DATABASE_URL=mysql+pymysql://<user>:<password>@<rds-endpoint>:3306/dobedub_studi
 DATABASE_ECHO=0
 DATABASE_SSL_CA=/app/certs/global-bundle.pem
 DATABASE_SSL_VERIFY_IDENTITY=1
-STORAGE_BACKEND=s3
-S3_BUCKET=<asset-bucket>
-S3_PREFIX=dobedub-studio
+STORAGE_BACKEND=local
 RUNPOD_DRY_RUN=0
 RUNPOD_API_KEY=<secret>
 RUNPOD_ENDPOINT_ID=<endpoint-id>
@@ -96,9 +98,10 @@ DATABASE_SSL_VERIFY_IDENTITY=1 \
 
 DB에는 파일 바이너리를 저장하지 않습니다. DB에는 `asset_id`, `file_name`, `mime_type`, `size_bytes`, `storage_backend`, `storage_key`, `public_url` 등 메타데이터만 저장합니다.
 
-- 현재 호환 경로: JSON metadata + local/EFS 파일
-- ECS 과도기 권장: EFS mount + RDS
-- 장기 권장: S3 asset storage + RDS metadata
+- 현재 운영: RDS에 metadata를 저장하고, 입력 이미지·생성 영상·리포트 파일은 EFS mount `/data/outputs`에 저장합니다.
+- 현재 task definition은 `STORAGE_BACKEND=local`, `STUDIO_DATA_DIR=/data/outputs/dobedub-studio`, `OUTPUTS_DIR=/data/outputs/dobedub-studio/outputs`를 사용합니다.
+- S3 backend는 장기 전환 후보일 뿐 현재 운영 task definition에는 설정하지 않습니다.
+- 로컬 개발 데이터와 EFS/RDS 운영 데이터는 자동 동기화하지 않습니다. 운영 data migration은 별도 승인·실행 대상입니다.
 
 ## 이미지 빌드
 
@@ -116,7 +119,7 @@ Apple Silicon Mac에서 기본 `docker build`를 사용하면 ARM64 이미지가
 ```bash
 AWS_REGION=ap-northeast-2
 AWS_ACCOUNT_ID=<account-id>
-ECR_REPOSITORY=dobedub_studio
+ECR_REPOSITORY=dobedub-app
 
 aws ecr get-login-password --region "$AWS_REGION" \
   | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
@@ -130,22 +133,17 @@ docker buildx build --platform linux/amd64 --push \
 
 ## ECS 업데이트 개요
 
-1. 기존 서비스의 task definition을 조회합니다.
-2. container image를 새 ECR 이미지로 교체합니다. `latest` 대신 immutable tag(git SHA/build number)를 사용합니다.
-3. 기존 서비스의 target group/port를 유지하려면 container port가 `7860`인지 확인합니다.
-4. `RUNPOD_API_KEY`는 plaintext env보다 Secrets Manager 또는 SSM Parameter Store 참조를 권장합니다.
-5. 새 task definition revision을 등록합니다.
-6. `dobedub-app` 서비스를 새 revision으로 업데이트합니다.
-7. 새 task가 healthy 상태가 된 뒤 이전 task가 drain되는지 확인합니다.
-8. 같은 이미지로 `python3 scripts/upgrade_database.py --check`를 실행합니다. pending일 때만 `python3 scripts/upgrade_database.py --if-needed` one-off task를 성공시킨 뒤 service를 업데이트합니다.
+1. 테스트를 통과한 immutable image를 `dobedub-app` ECR repository에 push합니다.
+2. 기존 task definition에서 새 revision을 만들고 image만 교체합니다. `AUTH_TRUST_PROXY_HEADERS`는 추가하지 않습니다.
+3. 새 revision은 기존 RDS secret, RunPod secrets, EFS `/data/outputs` volume, `STORAGE_BACKEND=local`, `RUN_SERVER_AUTO_MIGRATE=0`을 유지합니다.
+4. 서비스 업데이트 전에 동일 image/revision으로 `python3 scripts/upgrade_database.py --check`를 실행합니다.
+5. pending일 때만 `python3 scripts/upgrade_database.py --if-needed` one-off task를 성공시킵니다.
+6. 그 다음에만 `dobedub-app` 서비스를 새 revision으로 업데이트합니다.
+7. ALB target health, `/api/health`, 로그인/RBAC, Prompt Catalog/Builder, EFS 파일 저장을 확인한 뒤 배포 완료로 판정합니다.
 
 ## 운영 저장소 주의
 
-현재 production-compatible 경로는 `data/*.json`, `data/uploads`, `data/outputs`를 로컬 파일로 사용합니다. ECS task가 재시작되면 컨테이너 내부 데이터는 사라질 수 있으므로 운영에서는 아래 중 하나를 적용해야 합니다.
-
-- 임시 운영: 기존처럼 stateless로 두고 작업 이력/결과 파일은 재시작 시 초기화 허용
-- 권장 운영: EFS를 `/app/data`에 mount
-- 장기 운영: 작업 이력은 RDS, 결과 asset은 S3로 이전
+현재 운영 파일 경로는 EFS mount `/data/outputs`입니다. 컨테이너 자체의 `/app/data`는 영속 저장소가 아니므로 운영 asset 경로로 사용하지 않습니다.
 
 ## 운영 배포 기록
 
