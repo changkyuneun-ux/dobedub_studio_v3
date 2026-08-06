@@ -1,0 +1,6173 @@
+{
+  "version": 1,
+  "tables": {
+    "users": [
+      {
+        "id": "dobedub",
+        "name": "장균은",
+        "email": null,
+        "role": "SUPER_ADMIN",
+        "password_hash": "pbkdf2_sha256$11c6a4c1745a2616a9887845da432f16$988ceebe3c2fe58de5527bbaf0da63a95ce88e6f91ff9aa1f48ba3c63ce5c1c7",
+        "permissions_json": [
+          "admin:*"
+        ],
+        "is_active": true,
+        "last_login_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:36.363059"
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T09:12:38.288467"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:36.363092"
+        }
+      },
+      {
+        "id": "user@example.com",
+        "name": "Tester",
+        "email": null,
+        "role": "OPERATOR",
+        "password_hash": "pbkdf2_sha256$e899f57e7c9c66cd73a915ef60ed54d0$b8b089936b55ad88097e81b715590d6c23a32dc7abd86b6b08531795b66b8548",
+        "permissions_json": [
+          "users:write"
+        ],
+        "is_active": true,
+        "last_login_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:04:11.270318"
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T23:38:38.938105"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:47:05.822002"
+        }
+      },
+      {
+        "id": "송승화",
+        "name": "송승화",
+        "email": null,
+        "role": "ADMIN",
+        "password_hash": "pbkdf2_sha256$84075d2a1ae586a6a5cd3fddaaf4101f$bbce43feb6b861347410c9e02fd743e4b5fbffae7d373d5c5cda71f473678a65",
+        "permissions_json": [],
+        "is_active": true,
+        "last_login_at": null,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:08:56.252070"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:46:55.765207"
+        }
+      },
+      {
+        "id": "함승현",
+        "name": "함승현",
+        "email": null,
+        "role": "ADMIN",
+        "password_hash": "pbkdf2_sha256$9dbc0a3dca298d681b439f2a3cb853da$f2f210e0ab29e54c0c6125b94c852a38b01907a815cd56b64ff3f29c912e051d",
+        "permissions_json": [],
+        "is_active": true,
+        "last_login_at": null,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:09:55.828024"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:46:35.910250"
+        }
+      },
+      {
+        "id": "박진우",
+        "name": "박진우",
+        "email": null,
+        "role": "ADMIN",
+        "password_hash": "pbkdf2_sha256$ccacc724c00960e5be067b72aa9fc879$4304b9e3ac01ce4f5cf64fcbc7aa1774d91aca27946efb3a4993cd839ea2e0a0",
+        "permissions_json": [],
+        "is_active": true,
+        "last_login_at": null,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:10:31.902312"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:46:27.475802"
+        }
+      },
+      {
+        "id": "황수경",
+        "name": "황수경",
+        "email": null,
+        "role": "ADMIN",
+        "password_hash": "pbkdf2_sha256$8b652dd2f98796ba036a7de8a6ac6a75$d53aa9279ac0b4c41b7212863916c9c84d34136ebc5271a5be363ac01c10b670",
+        "permissions_json": [],
+        "is_active": true,
+        "last_login_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T04:00:33.577870"
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:11:01.083685"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T04:00:33.577898"
+        }
+      },
+      {
+        "id": "장균은",
+        "name": "장균은",
+        "email": null,
+        "role": "SUPER_ADMIN",
+        "password_hash": "pbkdf2_sha256$38a7e5a39e7943a4d4340fc8acaa74e2$e7cdfe8a6590729279ca803cc4ec19c9107df659de1bd619c98dad3fa125dfc8",
+        "permissions_json": [],
+        "is_active": false,
+        "last_login_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:28:30.786699"
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:11:53.138492"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:32:14.636289"
+        }
+      }
+    ],
+    "roles": [
+      {
+        "id": 1,
+        "code": "SUPER_ADMIN",
+        "name": "Super Admin",
+        "description": "전체 운영 및 시스템 설정 권한",
+        "level": 40,
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 10,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 2,
+        "code": "ADMIN",
+        "name": "Admin",
+        "description": "사용자, 워크플로우, Prompt Catalog 운영 관리 권한",
+        "level": 30,
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "id": 3,
+        "code": "OPERATOR",
+        "name": "Operator",
+        "description": "영상 생성, 작업 조회, 프롬프트 리뷰 등 실무 작업 권한",
+        "level": 20,
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 30,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 4,
+        "code": "VIEWER",
+        "name": "Viewer",
+        "description": "작업과 결과 조회 중심의 읽기 전용 권한",
+        "level": 10,
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 40,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      }
+    ],
+    "permissions": [
+      {
+        "id": 1,
+        "code": "admin:*",
+        "domain": "admin",
+        "action": "*",
+        "name": "Admin 전체",
+        "description": "관리자 기능 전체 접근",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 10,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 2,
+        "code": "users:read",
+        "domain": "users",
+        "action": "read",
+        "name": "사용자 조회",
+        "description": "사용자 목록과 상세 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 3,
+        "code": "users:write",
+        "domain": "users",
+        "action": "write",
+        "name": "사용자 수정",
+        "description": "사용자 등록, 수정, 상태 변경",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 21,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 4,
+        "code": "roles:read",
+        "domain": "roles",
+        "action": "read",
+        "name": "역할/권한 조회",
+        "description": "역할과 권한 그룹 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 30,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 5,
+        "code": "roles:write",
+        "domain": "roles",
+        "action": "write",
+        "name": "역할/권한 수정",
+        "description": "역할별 권한 구성 변경",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 31,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 6,
+        "code": "workflows:read",
+        "domain": "workflows",
+        "action": "read",
+        "name": "워크플로우 조회",
+        "description": "워크플로우 목록과 메타데이터 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 40,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 7,
+        "code": "workflows:write",
+        "domain": "workflows",
+        "action": "write",
+        "name": "워크플로우 수정",
+        "description": "워크플로우 등록과 수정",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 41,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 8,
+        "code": "workflows:activate",
+        "domain": "workflows",
+        "action": "activate",
+        "name": "워크플로우 활성화",
+        "description": "워크플로우 활성화와 비활성화",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 42,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 9,
+        "code": "prompt-catalog:read",
+        "domain": "prompt-catalog",
+        "action": "read",
+        "name": "카탈로그 조회",
+        "description": "Prompt Catalog 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 50,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 10,
+        "code": "prompt-catalog:write",
+        "domain": "prompt-catalog",
+        "action": "write",
+        "name": "카탈로그 수정",
+        "description": "카테고리, 서브 카테고리, 키워드 관리",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 51,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 11,
+        "code": "prompts:build",
+        "domain": "prompts",
+        "action": "build",
+        "name": "프롬프트 생성",
+        "description": "Prompt Builder와 Qwen 프롬프트 생성",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 60,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 12,
+        "code": "prompts:reuse",
+        "domain": "prompts",
+        "action": "reuse",
+        "name": "프롬프트 재사용",
+        "description": "재사용 가능 프롬프트 검색과 적용",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 61,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 13,
+        "code": "prompts:review",
+        "domain": "prompts",
+        "action": "review",
+        "name": "프롬프트 리뷰",
+        "description": "품질 등급, 코멘트, 재사용 가능 여부 관리",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 62,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 14,
+        "code": "jobs:run",
+        "domain": "jobs",
+        "action": "run",
+        "name": "작업 실행",
+        "description": "영상 생성 작업 제출",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 70,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 15,
+        "code": "jobs:cancel",
+        "domain": "jobs",
+        "action": "cancel",
+        "name": "작업 취소",
+        "description": "RunPod 생성 작업 취소",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 71,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 16,
+        "code": "history:read",
+        "domain": "history",
+        "action": "read",
+        "name": "작업 이력 조회",
+        "description": "작업 결과와 이력 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 80,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 17,
+        "code": "history:delete",
+        "domain": "history",
+        "action": "delete",
+        "name": "작업 이력 삭제",
+        "description": "작업과 관련 asset 삭제",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 81,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 18,
+        "code": "metadata:read",
+        "domain": "metadata",
+        "action": "read",
+        "name": "메타데이터 조회",
+        "description": "Workflow metadata 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 90,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 19,
+        "code": "metadata:rebuild",
+        "domain": "metadata",
+        "action": "rebuild",
+        "name": "메타데이터 재생성",
+        "description": "Workflow metadata rebuild",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 91,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 20,
+        "code": "system:read",
+        "domain": "system",
+        "action": "read",
+        "name": "시스템 상태 조회",
+        "description": "ComfyUI/Qwen/DB 상태 확인",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 100,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 21,
+        "code": "manual:read",
+        "domain": "manual",
+        "action": "read",
+        "name": "사용자 매뉴얼 조회",
+        "description": "사용자 매뉴얼 조회",
+        "is_system": true,
+        "is_active": true,
+        "sort_order": 110,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      }
+    ],
+    "role_permissions": [
+      {
+        "role_id": 1,
+        "permission_id": 1,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 6,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 14,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 15,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 16,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 11,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 12,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 13,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 18,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 3,
+        "permission_id": 21,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 4,
+        "permission_id": 6,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 4,
+        "permission_id": 16,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 4,
+        "permission_id": 18,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 4,
+        "permission_id": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 4,
+        "permission_id": 21,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 2,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 3,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 4,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 5,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 6,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 7,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 8,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 9,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 10,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 11,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 12,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 13,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 14,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 15,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 16,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 17,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 18,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 19,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      },
+      {
+        "role_id": 2,
+        "permission_id": 21,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:07:41.257030"
+        }
+      }
+    ],
+    "user_permissions": [
+      {
+        "user_id": "dobedub",
+        "permission_id": 1,
+        "grant_type": "ALLOW",
+        "note": "Migrated from users.permissions_json",
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "user_id": "user@example.com",
+        "permission_id": 3,
+        "grant_type": "ALLOW",
+        "note": "Migrated from users.permissions_json",
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      }
+    ],
+    "ui_permission_resources": [
+      {
+        "id": 1,
+        "resource_type": "MENU",
+        "resource_key": "top.history",
+        "label": "History/Saved Videos",
+        "required_permission_code": "history:read",
+        "route_path": "/studio/history",
+        "method": null,
+        "is_active": true,
+        "sort_order": 10,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 2,
+        "resource_type": "MENU",
+        "resource_key": "top.status",
+        "label": "Check Status",
+        "required_permission_code": "system:read",
+        "route_path": "/studio/status",
+        "method": null,
+        "is_active": true,
+        "sort_order": 20,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 3,
+        "resource_type": "MENU",
+        "resource_key": "top.metadata",
+        "label": "Metadata View",
+        "required_permission_code": "metadata:read",
+        "route_path": "/studio/metadata",
+        "method": null,
+        "is_active": true,
+        "sort_order": 30,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 4,
+        "resource_type": "MENU",
+        "resource_key": "top.manual",
+        "label": "User Manual",
+        "required_permission_code": "manual:read",
+        "route_path": "/studio/manual",
+        "method": null,
+        "is_active": true,
+        "sort_order": 40,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 5,
+        "resource_type": "MENU",
+        "resource_key": "top.admin",
+        "label": "Admin Console",
+        "required_permission_code": "users:read",
+        "route_path": "/studio/admin",
+        "method": null,
+        "is_active": false,
+        "sort_order": 50,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 6,
+        "resource_type": "ACTION",
+        "resource_key": "action.metadata_rebuild",
+        "label": "Rebuild Metadata",
+        "required_permission_code": "metadata:rebuild",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 100,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 7,
+        "resource_type": "ACTION",
+        "resource_key": "action.admin_user_save",
+        "label": "Save User",
+        "required_permission_code": "users:write",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 110,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 8,
+        "resource_type": "ACTION",
+        "resource_key": "action.admin_role_save",
+        "label": "Save Role Permissions",
+        "required_permission_code": "roles:write",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 120,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 9,
+        "resource_type": "ACTION",
+        "resource_key": "action.workflow_save",
+        "label": "Save Workflow",
+        "required_permission_code": "workflows:write",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 130,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 10,
+        "resource_type": "ACTION",
+        "resource_key": "action.workflow_activate",
+        "label": "Activate Workflow",
+        "required_permission_code": "workflows:activate",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 140,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 11,
+        "resource_type": "ACTION",
+        "resource_key": "action.catalog_save",
+        "label": "Save Prompt Catalog",
+        "required_permission_code": "prompt-catalog:write",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 150,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 12,
+        "resource_type": "ACTION",
+        "resource_key": "action.prompt_builder",
+        "label": "Prompt Builder",
+        "required_permission_code": "prompts:build",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 160,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 13,
+        "resource_type": "ACTION",
+        "resource_key": "action.prompt_reuse",
+        "label": "Prompt Reuse",
+        "required_permission_code": "prompts:reuse",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 170,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 14,
+        "resource_type": "ACTION",
+        "resource_key": "action.prompt_review_save",
+        "label": "Save Prompt Review",
+        "required_permission_code": "prompts:review",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 180,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 15,
+        "resource_type": "ACTION",
+        "resource_key": "action.generate_video",
+        "label": "Generate Video",
+        "required_permission_code": "jobs:run",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 190,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 16,
+        "resource_type": "ACTION",
+        "resource_key": "action.cancel_generation",
+        "label": "Cancel Generation",
+        "required_permission_code": "jobs:cancel",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 200,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 17,
+        "resource_type": "ACTION",
+        "resource_key": "action.history_delete",
+        "label": "Delete History",
+        "required_permission_code": "history:delete",
+        "route_path": null,
+        "method": null,
+        "is_active": true,
+        "sort_order": 210,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 18,
+        "resource_type": "API",
+        "resource_key": "api.admin.users",
+        "label": "Admin Users API",
+        "required_permission_code": "users:read",
+        "route_path": "/api/admin/users",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 300,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 19,
+        "resource_type": "API",
+        "resource_key": "api.admin.users_write",
+        "label": "Admin User Write API",
+        "required_permission_code": "users:write",
+        "route_path": "/api/admin/users",
+        "method": "POST/PUT",
+        "is_active": true,
+        "sort_order": 301,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 20,
+        "resource_type": "API",
+        "resource_key": "api.admin.roles",
+        "label": "Admin Roles API",
+        "required_permission_code": "roles:read",
+        "route_path": "/api/admin/permissions",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 310,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 21,
+        "resource_type": "API",
+        "resource_key": "api.admin.workflows",
+        "label": "Admin Workflows API",
+        "required_permission_code": "workflows:read",
+        "route_path": "/api/admin/workflows",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 320,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 22,
+        "resource_type": "API",
+        "resource_key": "api.jobs",
+        "label": "Jobs API",
+        "required_permission_code": "jobs:run",
+        "route_path": "/api/jobs",
+        "method": "POST",
+        "is_active": true,
+        "sort_order": 330,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 23,
+        "resource_type": "API",
+        "resource_key": "api.jobs_cancel",
+        "label": "Job Cancel API",
+        "required_permission_code": "jobs:cancel",
+        "route_path": "/api/jobs/{task_id}/cancel",
+        "method": "POST",
+        "is_active": true,
+        "sort_order": 331,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 24,
+        "resource_type": "API",
+        "resource_key": "api.history",
+        "label": "History API",
+        "required_permission_code": "history:read",
+        "route_path": "/api/history",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 340,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 25,
+        "resource_type": "API",
+        "resource_key": "api.metadata",
+        "label": "Metadata API",
+        "required_permission_code": "metadata:read",
+        "route_path": "/api/metadata",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 350,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 26,
+        "resource_type": "API",
+        "resource_key": "api.prompts",
+        "label": "Prompt Builder API",
+        "required_permission_code": "prompts:build",
+        "route_path": "/api/prompts",
+        "method": "POST",
+        "is_active": true,
+        "sort_order": 360,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T00:09:51.084067"
+        }
+      },
+      {
+        "id": 27,
+        "resource_type": "MENU",
+        "resource_key": "top.admin.users",
+        "label": "Admin > Users",
+        "required_permission_code": "users:read",
+        "route_path": "/studio/admin",
+        "method": null,
+        "is_active": true,
+        "sort_order": 51,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 28,
+        "resource_type": "MENU",
+        "resource_key": "top.admin.roles",
+        "label": "Admin > Permission Catalog",
+        "required_permission_code": "roles:read",
+        "route_path": "/studio/admin",
+        "method": null,
+        "is_active": true,
+        "sort_order": 52,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 29,
+        "resource_type": "MENU",
+        "resource_key": "top.admin.workflows",
+        "label": "Admin > Workflows",
+        "required_permission_code": "workflows:write",
+        "route_path": "/studio/admin",
+        "method": null,
+        "is_active": true,
+        "sort_order": 53,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 30,
+        "resource_type": "MENU",
+        "resource_key": "top.admin.catalog",
+        "label": "Admin > Prompt Catalog",
+        "required_permission_code": "prompt-catalog:write",
+        "route_path": "/studio/admin",
+        "method": null,
+        "is_active": true,
+        "sort_order": 54,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 31,
+        "resource_type": "API",
+        "resource_key": "api.history_delete",
+        "label": "History Delete API",
+        "required_permission_code": "history:delete",
+        "route_path": "/api/history/{task_id}/delete",
+        "method": "POST",
+        "is_active": true,
+        "sort_order": 341,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 32,
+        "resource_type": "API",
+        "resource_key": "api.metadata_rebuild",
+        "label": "Metadata Rebuild API",
+        "required_permission_code": "metadata:rebuild",
+        "route_path": "/api/metadata/rebuild",
+        "method": "POST",
+        "is_active": true,
+        "sort_order": 351,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 33,
+        "resource_type": "API",
+        "resource_key": "api.prompt_reuse",
+        "label": "Reusable Prompt API",
+        "required_permission_code": "prompts:reuse",
+        "route_path": "/api/prompts/reusable",
+        "method": "GET",
+        "is_active": true,
+        "sort_order": 361,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T02:31:17.125134"
+        }
+      },
+      {
+        "id": 34,
+        "resource_type": "API",
+        "resource_key": "api.admin.roles_write",
+        "label": "Admin Role Permission Write API",
+        "required_permission_code": "roles:write",
+        "route_path": "/api/admin/roles/{role_code}/permissions",
+        "method": "PUT",
+        "is_active": true,
+        "sort_order": 311,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:06:14.043799"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-05T03:06:14.043799"
+        }
+      }
+    ],
+    "prompt_categories": [
+      {
+        "id": 1,
+        "code": "GENRE",
+        "group_code": "positive_work_style",
+        "parent_category_id": 36,
+        "scope_type": "GLOBAL",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "장르",
+        "name_en": "Genre",
+        "description": null,
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706409"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636786"
+        }
+      },
+      {
+        "id": 2,
+        "code": "CONTENT_RATING",
+        "group_code": "positive_work_style",
+        "parent_category_id": 36,
+        "scope_type": "GLOBAL",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "콘텐츠 등급",
+        "name_en": "Content Rating",
+        "description": null,
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706411"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636789"
+        }
+      },
+      {
+        "id": 3,
+        "code": "SUBJECT_TYPE",
+        "group_code": "positive_subject",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": true,
+        "max_select_count": 1,
+        "name_ko": "대상 유형",
+        "name_en": "Subject Type",
+        "description": null,
+        "sort_order": 30,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706411"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636791"
+        }
+      },
+      {
+        "id": 4,
+        "code": "CHARACTER_APPEARANCE",
+        "group_code": "positive_appearance",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "인물/대상 외형",
+        "name_en": "Appearance",
+        "description": null,
+        "sort_order": 40,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706412"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636792"
+        }
+      },
+      {
+        "id": 5,
+        "code": "CHARACTER_ACTION",
+        "group_code": "positive_action_motion",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 6,
+        "name_ko": "인물/대상 동작",
+        "name_en": "Character Action",
+        "description": null,
+        "sort_order": 50,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706412"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636793"
+        }
+      },
+      {
+        "id": 6,
+        "code": "CAMERA_MOVEMENT",
+        "group_code": "positive_camera_composition",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "카메라 움직임",
+        "name_en": "Camera Movement",
+        "description": null,
+        "sort_order": 60,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706413"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636794"
+        }
+      },
+      {
+        "id": 7,
+        "code": "CAMERA_FRAMING",
+        "group_code": "positive_camera_composition",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "프레이밍",
+        "name_en": "Camera Framing",
+        "description": null,
+        "sort_order": 70,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706413"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636795"
+        }
+      },
+      {
+        "id": 8,
+        "code": "BACKGROUND",
+        "group_code": "positive_scene_background",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "배경",
+        "name_en": "Background",
+        "description": null,
+        "sort_order": 80,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706413"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636796"
+        }
+      },
+      {
+        "id": 9,
+        "code": "TIME_OF_DAY",
+        "group_code": "positive_scene_background",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "시간대",
+        "name_en": "Time of Day",
+        "description": null,
+        "sort_order": 90,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706414"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636797"
+        }
+      },
+      {
+        "id": 10,
+        "code": "WEATHER",
+        "group_code": "positive_scene_background",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 2,
+        "name_ko": "날씨/환경",
+        "name_en": "Weather",
+        "description": null,
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706414"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636798"
+        }
+      },
+      {
+        "id": 11,
+        "code": "LIGHTING",
+        "group_code": "positive_light_color",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "조명",
+        "name_en": "Lighting",
+        "description": null,
+        "sort_order": 110,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706415"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636799"
+        }
+      },
+      {
+        "id": 12,
+        "code": "COLOR_PALETTE",
+        "group_code": "positive_light_color",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "색감",
+        "name_en": "Color Palette",
+        "description": null,
+        "sort_order": 120,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706415"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636799"
+        }
+      },
+      {
+        "id": 13,
+        "code": "VIDEO_MOOD",
+        "group_code": "positive_light_color",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "분위기",
+        "name_en": "Mood",
+        "description": null,
+        "sort_order": 130,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706415"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636800"
+        }
+      },
+      {
+        "id": 14,
+        "code": "QUALITY_TAG",
+        "group_code": "positive_quality_render",
+        "parent_category_id": 36,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "품질",
+        "name_en": "Quality",
+        "description": null,
+        "sort_order": 140,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706416"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636801"
+        }
+      },
+      {
+        "id": 15,
+        "code": "NEGATIVE_ANATOMY",
+        "group_code": "negative_distortion",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "인체/형태 제한",
+        "name_en": "Negative Anatomy",
+        "description": null,
+        "sort_order": 150,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706416"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636802"
+        }
+      },
+      {
+        "id": 16,
+        "code": "NEGATIVE_ARTIFACT",
+        "group_code": "negative_text_watermark",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "아티팩트 제한",
+        "name_en": "Negative Artifact",
+        "description": null,
+        "sort_order": 160,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706416"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636803"
+        }
+      },
+      {
+        "id": 17,
+        "code": "NEGATIVE_TEMPORAL",
+        "group_code": "negative_motion",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "시간/움직임 제한",
+        "name_en": "Negative Temporal",
+        "description": null,
+        "sort_order": 170,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.706417"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636804"
+        }
+      },
+      {
+        "id": 18,
+        "code": "OBJECT_ACTION",
+        "group_code": "positive_action_motion",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "객체 동작",
+        "name_en": "Object Action",
+        "description": null,
+        "sort_order": 180,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684343"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636805"
+        }
+      },
+      {
+        "id": 19,
+        "code": "MOTION_SPEED",
+        "group_code": "positive_action_motion",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "움직임 속도",
+        "name_en": "Motion Speed",
+        "description": null,
+        "sort_order": 190,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684349"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636806"
+        }
+      },
+      {
+        "id": 20,
+        "code": "MOTION_INTENSITY",
+        "group_code": "positive_action_motion",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "움직임 강도",
+        "name_en": "Motion Intensity",
+        "description": null,
+        "sort_order": 200,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684351"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636807"
+        }
+      },
+      {
+        "id": 21,
+        "code": "CAMERA_ANGLE",
+        "group_code": "positive_camera_composition",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "카메라 각도",
+        "name_en": "Camera Angle",
+        "description": null,
+        "sort_order": 210,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684352"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636807"
+        }
+      },
+      {
+        "id": 22,
+        "code": "LENS_TYPE",
+        "group_code": "positive_camera_composition",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "렌즈",
+        "name_en": "Lens Type",
+        "description": null,
+        "sort_order": 220,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684353"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636808"
+        }
+      },
+      {
+        "id": 23,
+        "code": "FOCUS_STYLE",
+        "group_code": "positive_camera_composition",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "초점",
+        "name_en": "Focus Style",
+        "description": null,
+        "sort_order": 230,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684354"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636809"
+        }
+      },
+      {
+        "id": 24,
+        "code": "CLOTHING",
+        "group_code": "positive_appearance",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "의상",
+        "name_en": "Clothing",
+        "description": null,
+        "sort_order": 240,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684355"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636810"
+        }
+      },
+      {
+        "id": 25,
+        "code": "POSE",
+        "group_code": "positive_appearance",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "포즈",
+        "name_en": "Pose",
+        "description": null,
+        "sort_order": 250,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684356"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636811"
+        }
+      },
+      {
+        "id": 26,
+        "code": "GAZE_DIRECTION",
+        "group_code": "positive_appearance",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "시선",
+        "name_en": "Gaze Direction",
+        "description": null,
+        "sort_order": 260,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684357"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636812"
+        }
+      },
+      {
+        "id": 27,
+        "code": "FACIAL_EXPRESSION",
+        "group_code": "positive_expression_emotion",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "표정",
+        "name_en": "Facial Expression",
+        "description": null,
+        "sort_order": 270,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684358"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636813"
+        }
+      },
+      {
+        "id": 28,
+        "code": "EMOTION",
+        "group_code": "positive_expression_emotion",
+        "parent_category_id": 36,
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "감정",
+        "name_en": "Emotion",
+        "description": null,
+        "sort_order": 280,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684359"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636814"
+        }
+      },
+      {
+        "id": 29,
+        "code": "ANIMATION_STYLE",
+        "group_code": "positive_work_style",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "애니메이션 스타일",
+        "name_en": "Animation Style",
+        "description": null,
+        "sort_order": 290,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684359"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636814"
+        }
+      },
+      {
+        "id": 30,
+        "code": "RENDERING_STYLE",
+        "group_code": "positive_quality_render",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "렌더링 스타일",
+        "name_en": "Rendering Style",
+        "description": null,
+        "sort_order": 300,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684360"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636815"
+        }
+      },
+      {
+        "id": 31,
+        "code": "SCENE_TRANSITION",
+        "group_code": "positive_work_style",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "장면 전환",
+        "name_en": "Scene Transition",
+        "description": null,
+        "sort_order": 310,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684361"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636816"
+        }
+      },
+      {
+        "id": 32,
+        "code": "SHOT_DURATION",
+        "group_code": "positive_action_motion",
+        "parent_category_id": 36,
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "샷 길이",
+        "name_en": "Shot Duration",
+        "description": null,
+        "sort_order": 320,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684362"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636817"
+        }
+      },
+      {
+        "id": 33,
+        "code": "NEGATIVE_QUALITY",
+        "group_code": "negative_quality",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "품질 제한",
+        "name_en": "Negative Quality",
+        "description": null,
+        "sort_order": 330,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684363"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636818"
+        }
+      },
+      {
+        "id": 34,
+        "code": "NEGATIVE_CAMERA",
+        "group_code": "negative_camera",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "카메라 제한",
+        "name_en": "Negative Camera",
+        "description": null,
+        "sort_order": 340,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684363"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636819"
+        }
+      },
+      {
+        "id": 35,
+        "code": "NEGATIVE_TEXT",
+        "group_code": "negative_text_watermark",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "문자/자막 제한",
+        "name_en": "Negative Text",
+        "description": null,
+        "sort_order": 350,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.684364"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636820"
+        }
+      },
+      {
+        "id": 36,
+        "code": "POSITIVE_ROOT",
+        "group_code": "prompt_scope",
+        "parent_category_id": null,
+        "scope_type": "GLOBAL",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": null,
+        "name_ko": "Positive",
+        "name_en": "Positive",
+        "description": null,
+        "sort_order": 1,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.242427"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.625886"
+        }
+      },
+      {
+        "id": 37,
+        "code": "NEGATIVE_ROOT",
+        "group_code": "prompt_scope",
+        "parent_category_id": null,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": null,
+        "name_ko": "Negative",
+        "name_en": "Negative",
+        "description": null,
+        "sort_order": 2,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.242428"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.626378"
+        }
+      },
+      {
+        "id": 38,
+        "code": "NEGATIVE_IDENTITY",
+        "group_code": "negative_identity",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "정체성 제한",
+        "name_en": "Negative Identity",
+        "description": null,
+        "sort_order": 360,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.242429"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636821"
+        }
+      },
+      {
+        "id": 39,
+        "code": "NEGATIVE_EXCLUSION",
+        "group_code": "negative_exclusion",
+        "parent_category_id": 37,
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "금지/제외 요소",
+        "name_en": "Negative Exclusion",
+        "description": null,
+        "sort_order": 370,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.242429"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.636822"
+        }
+      }
+    ],
+    "prompt_scopes": [
+      {
+        "id": 1,
+        "code": "POSITIVE",
+        "name_ko": "Positive",
+        "name_en": "Positive",
+        "description": null,
+        "sort_order": 1,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 2,
+        "code": "NEGATIVE",
+        "name_ko": "Negative",
+        "name_en": "Negative",
+        "description": null,
+        "sort_order": 2,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      }
+    ],
+    "prompt_category_groups": [
+      {
+        "id": 1,
+        "scope_id": 2,
+        "code": "negative_camera",
+        "name_ko": "카메라 오류",
+        "name_en": "Camera Error",
+        "description": null,
+        "sort_order": 150,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 2,
+        "scope_id": 2,
+        "code": "negative_distortion",
+        "name_ko": "왜곡/변형",
+        "name_en": "Distortion",
+        "description": null,
+        "sort_order": 110,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 3,
+        "scope_id": 2,
+        "code": "negative_exclusion",
+        "name_ko": "금지/제외 요소",
+        "name_en": "Exclusion",
+        "description": null,
+        "sort_order": 160,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 4,
+        "scope_id": 2,
+        "code": "negative_identity",
+        "name_ko": "정체성 훼손",
+        "name_en": "Identity Drift",
+        "description": null,
+        "sort_order": 120,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 5,
+        "scope_id": 2,
+        "code": "negative_motion",
+        "name_ko": "움직임 오류",
+        "name_en": "Motion Error",
+        "description": null,
+        "sort_order": 130,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 6,
+        "scope_id": 2,
+        "code": "negative_quality",
+        "name_ko": "품질 저하",
+        "name_en": "Negative Quality",
+        "description": null,
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 7,
+        "scope_id": 2,
+        "code": "negative_text_watermark",
+        "name_ko": "텍스트/워터마크",
+        "name_en": "Text / Watermark",
+        "description": null,
+        "sort_order": 140,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 8,
+        "scope_id": 1,
+        "code": "positive_action_motion",
+        "name_ko": "동작/움직임",
+        "name_en": "Action / Motion",
+        "description": null,
+        "sort_order": 40,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 9,
+        "scope_id": 1,
+        "code": "positive_appearance",
+        "name_ko": "외형/속성",
+        "name_en": "Appearance",
+        "description": null,
+        "sort_order": 30,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 10,
+        "scope_id": 1,
+        "code": "positive_camera_composition",
+        "name_ko": "카메라/구도",
+        "name_en": "Camera / Composition",
+        "description": null,
+        "sort_order": 70,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 11,
+        "scope_id": 1,
+        "code": "positive_expression_emotion",
+        "name_ko": "표정/감정",
+        "name_en": "Expression / Emotion",
+        "description": null,
+        "sort_order": 50,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 12,
+        "scope_id": 1,
+        "code": "positive_light_color",
+        "name_ko": "조명/색감",
+        "name_en": "Light / Color",
+        "description": null,
+        "sort_order": 80,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 13,
+        "scope_id": 1,
+        "code": "positive_quality_render",
+        "name_ko": "품질/렌더링",
+        "name_en": "Quality / Rendering",
+        "description": null,
+        "sort_order": 90,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 14,
+        "scope_id": 1,
+        "code": "positive_scene_background",
+        "name_ko": "장면/배경",
+        "name_en": "Scene / Background",
+        "description": null,
+        "sort_order": 60,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 15,
+        "scope_id": 1,
+        "code": "positive_subject",
+        "name_ko": "인물/대상",
+        "name_en": "Subject",
+        "description": null,
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 16,
+        "scope_id": 1,
+        "code": "positive_work_style",
+        "name_ko": "작품/스타일",
+        "name_en": "Work / Style",
+        "description": null,
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      }
+    ],
+    "prompt_subcategories": [
+      {
+        "id": 1,
+        "category_group_id": 16,
+        "legacy_category_id": 1,
+        "code": "GENRE",
+        "scope_type": "GLOBAL",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "장르",
+        "name_en": "Genre",
+        "description": null,
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 2,
+        "category_group_id": 16,
+        "legacy_category_id": 2,
+        "code": "CONTENT_RATING",
+        "scope_type": "GLOBAL",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "콘텐츠 등급",
+        "name_en": "Content Rating",
+        "description": null,
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 3,
+        "category_group_id": 15,
+        "legacy_category_id": 3,
+        "code": "SUBJECT_TYPE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": true,
+        "max_select_count": 1,
+        "name_ko": "대상 유형",
+        "name_en": "Subject Type",
+        "description": null,
+        "sort_order": 30,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 4,
+        "category_group_id": 9,
+        "legacy_category_id": 4,
+        "code": "CHARACTER_APPEARANCE",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "인물/대상 외형",
+        "name_en": "Appearance",
+        "description": null,
+        "sort_order": 40,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 5,
+        "category_group_id": 8,
+        "legacy_category_id": 5,
+        "code": "CHARACTER_ACTION",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 6,
+        "name_ko": "인물/대상 동작",
+        "name_en": "Character Action",
+        "description": null,
+        "sort_order": 50,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 6,
+        "category_group_id": 10,
+        "legacy_category_id": 6,
+        "code": "CAMERA_MOVEMENT",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "카메라 움직임",
+        "name_en": "Camera Movement",
+        "description": null,
+        "sort_order": 60,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 7,
+        "category_group_id": 10,
+        "legacy_category_id": 7,
+        "code": "CAMERA_FRAMING",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "프레이밍",
+        "name_en": "Camera Framing",
+        "description": null,
+        "sort_order": 70,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 8,
+        "category_group_id": 14,
+        "legacy_category_id": 8,
+        "code": "BACKGROUND",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "배경",
+        "name_en": "Background",
+        "description": null,
+        "sort_order": 80,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 9,
+        "category_group_id": 14,
+        "legacy_category_id": 9,
+        "code": "TIME_OF_DAY",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "시간대",
+        "name_en": "Time of Day",
+        "description": null,
+        "sort_order": 90,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 10,
+        "category_group_id": 14,
+        "legacy_category_id": 10,
+        "code": "WEATHER",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 2,
+        "name_ko": "날씨/환경",
+        "name_en": "Weather",
+        "description": null,
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 11,
+        "category_group_id": 12,
+        "legacy_category_id": 11,
+        "code": "LIGHTING",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "조명",
+        "name_en": "Lighting",
+        "description": null,
+        "sort_order": 110,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 12,
+        "category_group_id": 12,
+        "legacy_category_id": 12,
+        "code": "COLOR_PALETTE",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "색감",
+        "name_en": "Color Palette",
+        "description": null,
+        "sort_order": 120,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 13,
+        "category_group_id": 12,
+        "legacy_category_id": 13,
+        "code": "VIDEO_MOOD",
+        "scope_type": "SCENE",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "분위기",
+        "name_en": "Mood",
+        "description": null,
+        "sort_order": 130,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 14,
+        "category_group_id": 13,
+        "legacy_category_id": 14,
+        "code": "QUALITY_TAG",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "품질",
+        "name_en": "Quality",
+        "description": null,
+        "sort_order": 140,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 15,
+        "category_group_id": 2,
+        "legacy_category_id": 15,
+        "code": "NEGATIVE_ANATOMY",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "인체/형태 제한",
+        "name_en": "Negative Anatomy",
+        "description": null,
+        "sort_order": 150,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 16,
+        "category_group_id": 7,
+        "legacy_category_id": 16,
+        "code": "NEGATIVE_ARTIFACT",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "아티팩트 제한",
+        "name_en": "Negative Artifact",
+        "description": null,
+        "sort_order": 160,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 17,
+        "category_group_id": 5,
+        "legacy_category_id": 17,
+        "code": "NEGATIVE_TEMPORAL",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "시간/움직임 제한",
+        "name_en": "Negative Temporal",
+        "description": null,
+        "sort_order": 170,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 18,
+        "category_group_id": 8,
+        "legacy_category_id": 18,
+        "code": "OBJECT_ACTION",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "객체 동작",
+        "name_en": "Object Action",
+        "description": null,
+        "sort_order": 180,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 19,
+        "category_group_id": 8,
+        "legacy_category_id": 19,
+        "code": "MOTION_SPEED",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "움직임 속도",
+        "name_en": "Motion Speed",
+        "description": null,
+        "sort_order": 190,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 20,
+        "category_group_id": 8,
+        "legacy_category_id": 20,
+        "code": "MOTION_INTENSITY",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "움직임 강도",
+        "name_en": "Motion Intensity",
+        "description": null,
+        "sort_order": 200,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 21,
+        "category_group_id": 10,
+        "legacy_category_id": 21,
+        "code": "CAMERA_ANGLE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "카메라 각도",
+        "name_en": "Camera Angle",
+        "description": null,
+        "sort_order": 210,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 22,
+        "category_group_id": 10,
+        "legacy_category_id": 22,
+        "code": "LENS_TYPE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "렌즈",
+        "name_en": "Lens Type",
+        "description": null,
+        "sort_order": 220,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 23,
+        "category_group_id": 10,
+        "legacy_category_id": 23,
+        "code": "FOCUS_STYLE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "초점",
+        "name_en": "Focus Style",
+        "description": null,
+        "sort_order": 230,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 24,
+        "category_group_id": 9,
+        "legacy_category_id": 24,
+        "code": "CLOTHING",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 4,
+        "name_ko": "의상",
+        "name_en": "Clothing",
+        "description": null,
+        "sort_order": 240,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 25,
+        "category_group_id": 9,
+        "legacy_category_id": 25,
+        "code": "POSE",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "포즈",
+        "name_en": "Pose",
+        "description": null,
+        "sort_order": 250,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 26,
+        "category_group_id": 9,
+        "legacy_category_id": 26,
+        "code": "GAZE_DIRECTION",
+        "scope_type": "ENTITY",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "시선",
+        "name_en": "Gaze Direction",
+        "description": null,
+        "sort_order": 260,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 27,
+        "category_group_id": 11,
+        "legacy_category_id": 27,
+        "code": "FACIAL_EXPRESSION",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "표정",
+        "name_en": "Facial Expression",
+        "description": null,
+        "sort_order": 270,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 28,
+        "category_group_id": 11,
+        "legacy_category_id": 28,
+        "code": "EMOTION",
+        "scope_type": "ENTITY",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 3,
+        "name_ko": "감정",
+        "name_en": "Emotion",
+        "description": null,
+        "sort_order": 280,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 29,
+        "category_group_id": 16,
+        "legacy_category_id": 29,
+        "code": "ANIMATION_STYLE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "애니메이션 스타일",
+        "name_en": "Animation Style",
+        "description": null,
+        "sort_order": 290,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 30,
+        "category_group_id": 13,
+        "legacy_category_id": 30,
+        "code": "RENDERING_STYLE",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "렌더링 스타일",
+        "name_en": "Rendering Style",
+        "description": null,
+        "sort_order": 300,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 31,
+        "category_group_id": 16,
+        "legacy_category_id": 31,
+        "code": "SCENE_TRANSITION",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "장면 전환",
+        "name_en": "Scene Transition",
+        "description": null,
+        "sort_order": 310,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 32,
+        "category_group_id": 8,
+        "legacy_category_id": 32,
+        "code": "SHOT_DURATION",
+        "scope_type": "SCENE",
+        "selection_type": "SINGLE",
+        "required_yn": false,
+        "max_select_count": 1,
+        "name_ko": "샷 길이",
+        "name_en": "Shot Duration",
+        "description": null,
+        "sort_order": 320,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 33,
+        "category_group_id": 6,
+        "legacy_category_id": 33,
+        "code": "NEGATIVE_QUALITY",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "품질 제한",
+        "name_en": "Negative Quality",
+        "description": null,
+        "sort_order": 330,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 34,
+        "category_group_id": 1,
+        "legacy_category_id": 34,
+        "code": "NEGATIVE_CAMERA",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "카메라 제한",
+        "name_en": "Negative Camera",
+        "description": null,
+        "sort_order": 340,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 35,
+        "category_group_id": 7,
+        "legacy_category_id": 35,
+        "code": "NEGATIVE_TEXT",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "문자/자막 제한",
+        "name_en": "Negative Text",
+        "description": null,
+        "sort_order": 350,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 36,
+        "category_group_id": 4,
+        "legacy_category_id": 38,
+        "code": "NEGATIVE_IDENTITY",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "정체성 제한",
+        "name_en": "Negative Identity",
+        "description": null,
+        "sort_order": 360,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      },
+      {
+        "id": 37,
+        "category_group_id": 3,
+        "legacy_category_id": 39,
+        "code": "NEGATIVE_EXCLUSION",
+        "scope_type": "OUTPUT",
+        "selection_type": "MULTIPLE",
+        "required_yn": false,
+        "max_select_count": 5,
+        "name_ko": "금지/제외 요소",
+        "name_en": "Negative Exclusion",
+        "description": null,
+        "sort_order": 370,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T07:05:35.708153"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-06T05:08:38.512205"
+        }
+      }
+    ],
+    "prompt_terms": [
+      {
+        "id": 1,
+        "category_id": 1,
+        "code": "genre_cinematic",
+        "canonical_key": "genre.cinematic",
+        "label_ko": "시네마틱",
+        "label_en": "cinematic",
+        "description": null,
+        "prompt_text": "cinematic image-to-video shot",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708881"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.637560"
+        }
+      },
+      {
+        "id": 2,
+        "category_id": 1,
+        "code": "genre_documentary",
+        "canonical_key": "genre.documentary",
+        "label_ko": "다큐멘터리",
+        "label_en": "documentary",
+        "description": null,
+        "prompt_text": "natural documentary style",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708881"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.637758"
+        }
+      },
+      {
+        "id": 3,
+        "category_id": 2,
+        "code": "rating_brand_safe",
+        "canonical_key": "rating.brand_safe",
+        "label_ko": "브랜드 세이프",
+        "label_en": "brand-safe",
+        "description": null,
+        "prompt_text": "brand-safe visual tone",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708882"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.637919"
+        }
+      },
+      {
+        "id": 4,
+        "category_id": 3,
+        "code": "subject_person",
+        "canonical_key": "subject.person",
+        "label_ko": "소녀",
+        "label_en": "girl",
+        "description": null,
+        "prompt_text": "the person from the input image",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708882"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:52:00.737985"
+        }
+      },
+      {
+        "id": 5,
+        "category_id": 3,
+        "code": "subject_product",
+        "canonical_key": "subject.product",
+        "label_ko": "남자",
+        "label_en": "man",
+        "description": null,
+        "prompt_text": "the product from the input image",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708883"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:52:24.492413"
+        }
+      },
+      {
+        "id": 6,
+        "category_id": 4,
+        "code": "appearance_preserve_identity",
+        "canonical_key": "appearance.preserve_identity",
+        "label_ko": "동일성 유지",
+        "label_en": "preserve identity",
+        "description": null,
+        "prompt_text": "preserve the same identity, outfit, and proportions from the input image",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708883"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.638369"
+        }
+      },
+      {
+        "id": 7,
+        "category_id": 5,
+        "code": "action_gentle_walk",
+        "canonical_key": "action.gentle_walk",
+        "label_ko": "천천히 걷기",
+        "label_en": "gentle walking",
+        "description": null,
+        "prompt_text": "gentle walking motion",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708883"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.638517"
+        }
+      },
+      {
+        "id": 8,
+        "category_id": 5,
+        "code": "action_subtle_expression",
+        "canonical_key": "action.subtle_expression",
+        "label_ko": "미세한 표정 변화",
+        "label_en": "subtle expression",
+        "description": null,
+        "prompt_text": "subtle natural expression change",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708884"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.638660"
+        }
+      },
+      {
+        "id": 9,
+        "category_id": 6,
+        "code": "camera_slow_tracking",
+        "canonical_key": "camera.movement.slow_tracking",
+        "label_ko": "느린 트래킹",
+        "label_en": "slow tracking",
+        "description": null,
+        "prompt_text": "slow tracking camera movement",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708884"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.638803"
+        }
+      },
+      {
+        "id": 10,
+        "category_id": 6,
+        "code": "camera_static",
+        "canonical_key": "camera.movement.static",
+        "label_ko": "고정 카메라",
+        "label_en": "static camera",
+        "description": null,
+        "prompt_text": "stable static camera",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708885"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.638974"
+        }
+      },
+      {
+        "id": 11,
+        "category_id": 7,
+        "code": "shot_medium",
+        "canonical_key": "camera.framing.medium",
+        "label_ko": "미디엄 샷",
+        "label_en": "medium shot",
+        "description": null,
+        "prompt_text": "medium shot composition",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708885"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639124"
+        }
+      },
+      {
+        "id": 12,
+        "category_id": 8,
+        "code": "background_original",
+        "canonical_key": "environment.background.original",
+        "label_ko": "원본 배경 유지",
+        "label_en": "preserve original background",
+        "description": null,
+        "prompt_text": "preserve the original background layout",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708885"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639270"
+        }
+      },
+      {
+        "id": 13,
+        "category_id": 9,
+        "code": "time_original",
+        "canonical_key": "environment.time.original",
+        "label_ko": "원본 시간대 유지",
+        "label_en": "preserve original time of day",
+        "description": null,
+        "prompt_text": "preserve the original time of day",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708886"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639393"
+        }
+      },
+      {
+        "id": 14,
+        "category_id": 10,
+        "code": "weather_original",
+        "canonical_key": "environment.weather.original",
+        "label_ko": "원본 날씨 유지",
+        "label_en": "preserve original weather",
+        "description": null,
+        "prompt_text": "preserve the original weather and atmosphere",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708886"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639516"
+        }
+      },
+      {
+        "id": 15,
+        "category_id": 11,
+        "code": "lighting_soft",
+        "canonical_key": "style.lighting.soft",
+        "label_ko": "부드러운 조명",
+        "label_en": "soft light",
+        "description": null,
+        "prompt_text": "soft natural light",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708886"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639636"
+        }
+      },
+      {
+        "id": 16,
+        "category_id": 12,
+        "code": "color_balanced",
+        "canonical_key": "style.color.balanced",
+        "label_ko": "균형 잡힌 색감",
+        "label_en": "balanced color",
+        "description": null,
+        "prompt_text": "balanced natural color grading",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708887"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639756"
+        }
+      },
+      {
+        "id": 17,
+        "category_id": 13,
+        "code": "mood_calm",
+        "canonical_key": "style.mood.calm",
+        "label_ko": "차분한 분위기",
+        "label_en": "calm",
+        "description": null,
+        "prompt_text": "calm and believable atmosphere",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708887"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639875"
+        }
+      },
+      {
+        "id": 18,
+        "category_id": 14,
+        "code": "quality_stable_motion",
+        "canonical_key": "quality.stable_motion",
+        "label_ko": "안정적인 움직임",
+        "label_en": "stable motion",
+        "description": null,
+        "prompt_text": "stable motion, coherent frames",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708888"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.639994"
+        }
+      },
+      {
+        "id": 19,
+        "category_id": 15,
+        "code": "negative_distortion",
+        "canonical_key": "negative.anatomy.distortion",
+        "label_ko": "왜곡 방지",
+        "label_en": "avoid distortion",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "distorted anatomy, warped body, deformed face, extra limbs",
+        "risk_level": "HIGH",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708888"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640114"
+        }
+      },
+      {
+        "id": 20,
+        "category_id": 16,
+        "code": "negative_artifacts",
+        "canonical_key": "negative.artifact.general",
+        "label_ko": "아티팩트 방지",
+        "label_en": "avoid artifacts",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "blur, flicker, watermark, subtitles, text artifacts",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708888"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640233"
+        }
+      },
+      {
+        "id": 21,
+        "category_id": 17,
+        "code": "negative_unstable_motion",
+        "canonical_key": "negative.temporal.unstable_motion",
+        "label_ko": "불안정 움직임 방지",
+        "label_en": "avoid unstable motion",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "jitter, temporal inconsistency, unstable motion, morphing",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 30,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.708889"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640355"
+        }
+      },
+      {
+        "id": 22,
+        "category_id": 18,
+        "code": "object_remain_stable",
+        "canonical_key": "object.action.remain_stable",
+        "label_ko": "안정 유지",
+        "label_en": "remain stable",
+        "description": null,
+        "prompt_text": "the object remains stable and keeps its original shape",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693076"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640507"
+        }
+      },
+      {
+        "id": 23,
+        "category_id": 18,
+        "code": "object_subtle_motion",
+        "canonical_key": "object.action.subtle_motion",
+        "label_ko": "미세한 움직임",
+        "label_en": "subtle object motion",
+        "description": null,
+        "prompt_text": "subtle object motion without shape deformation",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693078"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640632"
+        }
+      },
+      {
+        "id": 24,
+        "category_id": 19,
+        "code": "motion_speed_slow",
+        "canonical_key": "motion.speed.slow",
+        "label_ko": "느리게",
+        "label_en": "slow motion pace",
+        "description": null,
+        "prompt_text": "slow, controlled motion pace",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693079"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640750"
+        }
+      },
+      {
+        "id": 25,
+        "category_id": 19,
+        "code": "motion_speed_natural",
+        "canonical_key": "motion.speed.natural",
+        "label_ko": "자연스럽게",
+        "label_en": "natural motion pace",
+        "description": null,
+        "prompt_text": "natural motion pace",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693080"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.640891"
+        }
+      },
+      {
+        "id": 26,
+        "category_id": 20,
+        "code": "motion_intensity_subtle",
+        "canonical_key": "motion.intensity.subtle",
+        "label_ko": "약하게",
+        "label_en": "subtle motion intensity",
+        "description": null,
+        "prompt_text": "subtle motion intensity",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693081"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641019"
+        }
+      },
+      {
+        "id": 27,
+        "category_id": 20,
+        "code": "motion_intensity_moderate",
+        "canonical_key": "motion.intensity.moderate",
+        "label_ko": "중간",
+        "label_en": "moderate motion intensity",
+        "description": null,
+        "prompt_text": "moderate motion intensity",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693081"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641138"
+        }
+      },
+      {
+        "id": 28,
+        "category_id": 21,
+        "code": "camera_angle_eye_level",
+        "canonical_key": "camera.angle.eye_level",
+        "label_ko": "눈높이",
+        "label_en": "eye-level angle",
+        "description": null,
+        "prompt_text": "eye-level camera angle",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693082"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641258"
+        }
+      },
+      {
+        "id": 29,
+        "category_id": 21,
+        "code": "camera_angle_low",
+        "canonical_key": "camera.angle.low",
+        "label_ko": "로우 앵글",
+        "label_en": "low angle",
+        "description": null,
+        "prompt_text": "low-angle camera view",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693083"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641375"
+        }
+      },
+      {
+        "id": 30,
+        "category_id": 22,
+        "code": "lens_standard",
+        "canonical_key": "camera.lens.standard",
+        "label_ko": "표준 렌즈",
+        "label_en": "standard lens",
+        "description": null,
+        "prompt_text": "standard lens perspective",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693084"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641492"
+        }
+      },
+      {
+        "id": 31,
+        "category_id": 22,
+        "code": "lens_telephoto",
+        "canonical_key": "camera.lens.telephoto",
+        "label_ko": "망원 렌즈",
+        "label_en": "telephoto lens",
+        "description": null,
+        "prompt_text": "compressed telephoto lens perspective",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693085"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641610"
+        }
+      },
+      {
+        "id": 32,
+        "category_id": 23,
+        "code": "focus_subject_locked",
+        "canonical_key": "camera.focus.subject_locked",
+        "label_ko": "대상 고정 초점",
+        "label_en": "subject-locked focus",
+        "description": null,
+        "prompt_text": "subject-locked focus",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693085"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641745"
+        }
+      },
+      {
+        "id": 33,
+        "category_id": 23,
+        "code": "focus_shallow_depth",
+        "canonical_key": "camera.focus.shallow_depth",
+        "label_ko": "얕은 심도",
+        "label_en": "shallow depth of field",
+        "description": null,
+        "prompt_text": "shallow depth of field",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 20,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693086"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641861"
+        }
+      },
+      {
+        "id": 34,
+        "category_id": 24,
+        "code": "clothing_preserve",
+        "canonical_key": "subject.clothing.preserve",
+        "label_ko": "의상 유지",
+        "label_en": "preserve clothing",
+        "description": null,
+        "prompt_text": "preserve the original clothing",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693087"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.641978"
+        }
+      },
+      {
+        "id": 35,
+        "category_id": 25,
+        "code": "pose_preserve",
+        "canonical_key": "subject.pose.preserve",
+        "label_ko": "포즈 유지",
+        "label_en": "preserve pose",
+        "description": null,
+        "prompt_text": "preserve the original pose structure",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693087"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642095"
+        }
+      },
+      {
+        "id": 36,
+        "category_id": 26,
+        "code": "gaze_camera",
+        "canonical_key": "subject.gaze.camera",
+        "label_ko": "카메라 응시",
+        "label_en": "looking at camera",
+        "description": null,
+        "prompt_text": "looking toward the camera",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693088"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642215"
+        }
+      },
+      {
+        "id": 37,
+        "category_id": 27,
+        "code": "expression_soft_smile",
+        "canonical_key": "subject.expression.soft_smile",
+        "label_ko": "부드러운 미소",
+        "label_en": "soft smile",
+        "description": null,
+        "prompt_text": "soft natural smile",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693089"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642331"
+        }
+      },
+      {
+        "id": 38,
+        "category_id": 28,
+        "code": "emotion_calm",
+        "canonical_key": "subject.emotion.calm",
+        "label_ko": "차분함",
+        "label_en": "calm emotion",
+        "description": null,
+        "prompt_text": "calm emotional tone",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693090"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642448"
+        }
+      },
+      {
+        "id": 39,
+        "category_id": 29,
+        "code": "animation_realistic_i2v",
+        "canonical_key": "style.animation.realistic_i2v",
+        "label_ko": "사실적 I2V",
+        "label_en": "realistic image-to-video",
+        "description": null,
+        "prompt_text": "realistic image-to-video animation style",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693090"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642586"
+        }
+      },
+      {
+        "id": 40,
+        "category_id": 30,
+        "code": "rendering_photoreal",
+        "canonical_key": "style.rendering.photoreal",
+        "label_ko": "포토리얼",
+        "label_en": "photorealistic rendering",
+        "description": null,
+        "prompt_text": "photorealistic rendering",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693091"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642706"
+        }
+      },
+      {
+        "id": 41,
+        "category_id": 31,
+        "code": "transition_none",
+        "canonical_key": "style.transition.none",
+        "label_ko": "전환 없음",
+        "label_en": "no scene transition",
+        "description": null,
+        "prompt_text": "no scene transition",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693092"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642821"
+        }
+      },
+      {
+        "id": 42,
+        "category_id": 32,
+        "code": "duration_short_3s",
+        "canonical_key": "edit.duration.short_3s",
+        "label_ko": "짧은 3초",
+        "label_en": "short 3-second shot",
+        "description": null,
+        "prompt_text": "short 3-second shot duration",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693092"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.642938"
+        }
+      },
+      {
+        "id": 43,
+        "category_id": 33,
+        "code": "negative_low_quality",
+        "canonical_key": "negative.quality.low_quality",
+        "label_ko": "저품질 방지",
+        "label_en": "avoid low quality",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "low quality, noisy frames, compression artifacts",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693093"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.643055"
+        }
+      },
+      {
+        "id": 44,
+        "category_id": 34,
+        "code": "negative_camera_shake",
+        "canonical_key": "negative.camera.shake",
+        "label_ko": "카메라 흔들림 방지",
+        "label_en": "avoid camera shake",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "excessive camera shake, sudden zoom, rolling shutter distortion",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693096"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.643179"
+        }
+      },
+      {
+        "id": 45,
+        "category_id": 35,
+        "code": "negative_text_overlay",
+        "canonical_key": "negative.text.overlay",
+        "label_ko": "문자/자막 방지",
+        "label_en": "avoid text overlays",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "text overlay, captions, subtitles, logos, watermarks",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T00:03:07.693097"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.643298"
+        }
+      },
+      {
+        "id": 46,
+        "category_id": 38,
+        "code": "negative_identity_drift",
+        "canonical_key": "negative.identity.drift",
+        "label_ko": "정체성 변화 방지",
+        "label_en": "avoid identity drift",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "identity drift, changed face, changed outfit, changed body proportions",
+        "risk_level": "HIGH",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.248032"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.643414"
+        }
+      },
+      {
+        "id": 47,
+        "category_id": 39,
+        "code": "negative_new_objects",
+        "canonical_key": "negative.exclusion.new_objects",
+        "label_ko": "불필요한 객체 방지",
+        "label_en": "avoid new objects",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": "new objects, unrelated people, unrelated background changes",
+        "risk_level": "MEDIUM",
+        "metadata_json": {},
+        "sort_order": 10,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T03:47:01.248033"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.643531"
+        }
+      },
+      {
+        "id": 48,
+        "category_id": 3,
+        "code": "subject_type_woman",
+        "canonical_key": "subject_type_woman",
+        "label_ko": "여자",
+        "label_en": "woman",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:52:50.588463"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:52:50.587706"
+        }
+      },
+      {
+        "id": 49,
+        "category_id": 5,
+        "code": "character_action_dance",
+        "canonical_key": "character_action_dance",
+        "label_ko": "춤추기",
+        "label_en": "dance",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:54:49.096771"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:54:49.096378"
+        }
+      },
+      {
+        "id": 50,
+        "category_id": 28,
+        "code": "emotion_exciting",
+        "canonical_key": "emotion_exciting",
+        "label_ko": "신남",
+        "label_en": "exciting",
+        "description": null,
+        "prompt_text": "",
+        "negative_text": null,
+        "risk_level": "NONE",
+        "metadata_json": {},
+        "sort_order": 100,
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:56:55.580483"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T00:56:55.580173"
+        }
+      }
+    ],
+    "prompt_category_terms": [
+      {
+        "category_id": 1,
+        "term_id": 1,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 1,
+        "term_id": 2,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 2,
+        "term_id": 3,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 3,
+        "term_id": 4,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 3,
+        "term_id": 5,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 4,
+        "term_id": 6,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 5,
+        "term_id": 7,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 5,
+        "term_id": 8,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 6,
+        "term_id": 9,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 6,
+        "term_id": 10,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 7,
+        "term_id": 11,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 8,
+        "term_id": 12,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 9,
+        "term_id": 13,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 10,
+        "term_id": 14,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 11,
+        "term_id": 15,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 12,
+        "term_id": 16,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 13,
+        "term_id": 17,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 14,
+        "term_id": 18,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 15,
+        "term_id": 19,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 16,
+        "term_id": 20,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 17,
+        "term_id": 21,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 30,
+        "active_yn": true
+      },
+      {
+        "category_id": 18,
+        "term_id": 22,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 18,
+        "term_id": 23,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 19,
+        "term_id": 24,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 19,
+        "term_id": 25,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 20,
+        "term_id": 26,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 20,
+        "term_id": 27,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 21,
+        "term_id": 28,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 21,
+        "term_id": 29,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 22,
+        "term_id": 30,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 22,
+        "term_id": 31,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 23,
+        "term_id": 32,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 23,
+        "term_id": 33,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "category_id": 24,
+        "term_id": 34,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 25,
+        "term_id": 35,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 26,
+        "term_id": 36,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 27,
+        "term_id": 37,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 28,
+        "term_id": 38,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 29,
+        "term_id": 39,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 30,
+        "term_id": 40,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 31,
+        "term_id": 41,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 32,
+        "term_id": 42,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 33,
+        "term_id": 43,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 34,
+        "term_id": 44,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 35,
+        "term_id": 45,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 38,
+        "term_id": 46,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 39,
+        "term_id": 47,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "category_id": 3,
+        "term_id": 48,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      },
+      {
+        "category_id": 5,
+        "term_id": 49,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      },
+      {
+        "category_id": 28,
+        "term_id": 50,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      }
+    ],
+    "prompt_subcategory_keywords": [
+      {
+        "subcategory_id": 1,
+        "keyword_id": 1,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 1,
+        "keyword_id": 2,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 2,
+        "keyword_id": 3,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 3,
+        "keyword_id": 4,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 3,
+        "keyword_id": 5,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 4,
+        "keyword_id": 6,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 5,
+        "keyword_id": 7,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 5,
+        "keyword_id": 8,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 6,
+        "keyword_id": 9,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 6,
+        "keyword_id": 10,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 7,
+        "keyword_id": 11,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 8,
+        "keyword_id": 12,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 9,
+        "keyword_id": 13,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 10,
+        "keyword_id": 14,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 11,
+        "keyword_id": 15,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 12,
+        "keyword_id": 16,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 13,
+        "keyword_id": 17,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 14,
+        "keyword_id": 18,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 15,
+        "keyword_id": 19,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 16,
+        "keyword_id": 20,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 17,
+        "keyword_id": 21,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 30,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 18,
+        "keyword_id": 22,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 18,
+        "keyword_id": 23,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 19,
+        "keyword_id": 24,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 19,
+        "keyword_id": 25,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 20,
+        "keyword_id": 26,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 20,
+        "keyword_id": 27,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 21,
+        "keyword_id": 28,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 21,
+        "keyword_id": 29,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 22,
+        "keyword_id": 30,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 22,
+        "keyword_id": 31,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 23,
+        "keyword_id": 32,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 23,
+        "keyword_id": 33,
+        "default_polarity": "POSITIVE",
+        "sort_order": 20,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 24,
+        "keyword_id": 34,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 25,
+        "keyword_id": 35,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 26,
+        "keyword_id": 36,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 27,
+        "keyword_id": 37,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 28,
+        "keyword_id": 38,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 29,
+        "keyword_id": 39,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 30,
+        "keyword_id": 40,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 31,
+        "keyword_id": 41,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 32,
+        "keyword_id": 42,
+        "default_polarity": "POSITIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 33,
+        "keyword_id": 43,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 34,
+        "keyword_id": 44,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 35,
+        "keyword_id": 45,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 36,
+        "keyword_id": 46,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 37,
+        "keyword_id": 47,
+        "default_polarity": "NEGATIVE",
+        "sort_order": 10,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 3,
+        "keyword_id": 48,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 5,
+        "keyword_id": 49,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      },
+      {
+        "subcategory_id": 28,
+        "keyword_id": 50,
+        "default_polarity": "POSITIVE",
+        "sort_order": 100,
+        "active_yn": true
+      }
+    ],
+    "prompt_term_relations": [
+      {
+        "id": 1,
+        "source_term_id": 4,
+        "target_term_id": 6,
+        "relation_type": "IMPLY",
+        "weight": 1.0,
+        "metadata_json": {
+          "message": "Person subjects imply identity preservation for image-to-video generation."
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.715659"
+        }
+      },
+      {
+        "id": 2,
+        "source_term_id": 10,
+        "target_term_id": 9,
+        "relation_type": "EXCLUDE",
+        "weight": 1.0,
+        "metadata_json": {
+          "message": "Static camera and slow tracking camera should not be selected together."
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.715660"
+        }
+      },
+      {
+        "id": 3,
+        "source_term_id": 7,
+        "target_term_id": 18,
+        "relation_type": "RECOMMEND",
+        "weight": 0.7,
+        "metadata_json": {
+          "message": "Gentle walking usually benefits from stable motion quality."
+        },
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.715661"
+        }
+      }
+    ],
+    "prompt_rules": [
+      {
+        "id": 1,
+        "code": "i2v_preserve_identity",
+        "name": "Preserve input identity",
+        "rule_type": "constraint",
+        "condition_json": {
+          "i2v_mode": true
+        },
+        "action_json": {
+          "positive_append": [
+            "preserve identity from the input image"
+          ],
+          "negative_append": [
+            "identity drift"
+          ]
+        },
+        "severity": "info",
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.720837"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.667850"
+        }
+      },
+      {
+        "id": 2,
+        "code": "avoid_unrequested_objects",
+        "name": "Avoid unrequested objects",
+        "rule_type": "constraint",
+        "condition_json": {
+          "avoid_new_objects": true
+        },
+        "action_json": {
+          "negative_append": [
+            "new objects, unrelated background changes"
+          ]
+        },
+        "severity": "warning",
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.720838"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.667936"
+        }
+      }
+    ],
+    "prompt_templates": [
+      {
+        "id": 1,
+        "code": "i2v_positive_default",
+        "name": "I2V positive default",
+        "prompt_type": "positive",
+        "template_text": "{genre}, {subject}, {action}, {camera}, {style}, {quality}",
+        "schema_json": {
+          "output": "positive_prompt"
+        },
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.721217"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.668036"
+        }
+      },
+      {
+        "id": 2,
+        "code": "i2v_negative_default",
+        "name": "I2V negative default",
+        "prompt_type": "negative",
+        "template_text": "{negative}, identity drift, unstable motion",
+        "schema_json": {
+          "output": "negative_prompt"
+        },
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.721219"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-03T04:03:13.668118"
+        }
+      }
+    ],
+    "prompt_system_prompts": [
+      {
+        "id": 1,
+        "code": "qwen_wan_i2v_positive",
+        "name": "Qwen WAN I2V Positive Prompt Composer",
+        "provider": "runpod_vllm",
+        "model_family": "qwen",
+        "prompt_text": "You are a prompt composer specialized in WAN image-to-video generation for DOBEDUB STUDIO.\n\nYour task is to convert structured Scene JSON, selected keywords, segment data, and constraints into one concise English positive prompt for a WAN I2V workflow.\n\nA segment represents one animation-processing node inside a larger job. Each segment may use one source image, a start and end image pair, or multiple reference images.\n\nThe source image is authoritative. The image already defines subject appearance, identity, face, clothing, object count, background, composition, visual style, spatial layout, and scene context. Do not describe the image as if generating it from text. Describe only how the existing image should animate.\n\nNegative prompts are managed separately by the application. Do not generate, modify, recommend, or return new negative prompt terms. If the response schema requires negativePrompt, return it as an empty string.\n\nBuild the positive prompt around this order:\n1. primary subject motion\n2. secondary subject motion, if supplied\n3. environmental motion, if supplied\n4. interaction between subjects, if supplied\n5. camera movement\n6. shot type or framing\n7. lighting treatment\n8. tone or mood\n9. preservation constraints\n\nMotion and camera movement are the most important elements. Shot type, lighting, tone, and preservation constraints are supporting elements.\n\nFor each motion, clearly identify who or what moves, what action occurs, movement direction if supplied, movement speed, movement intensity, movement range if supplied, and temporal sequence if supplied.\n\nDo not invent motion. Do not infer blinking, breathing, speaking, lip movement, walking, wind, facial expression changes, clothing movement, object movement, or environmental movement unless explicitly supplied.\n\nUse one primary motion. Secondary and environmental motions must support the primary motion and must not compete with it. When multiple motions exist, describe their temporal relationship with terms such as simultaneously, before, after, gradually, throughout the shot, or once.\n\nWhen one subject interacts with another, explicitly identify both the acting subject and the target subject. Do not invent relationships between subjects. Do not merge separate subjects. Do not change the number of subjects or objects.\n\nUse no more than one primary camera movement. If no camera movement is supplied, use a static locked-off camera. Do not combine conflicting camera movements such as static camera and dolly-in, pan left and pan right, or dolly-in and dolly-out.\n\nWhen the camera is static, state that the camera remains static in a locked-off shot. When tracking is selected, identify the tracked subject. When dolly-in or dolly-out is selected, describe physical camera movement rather than optical zoom unless zoom is explicitly supplied.\n\nThe input image defines the starting composition. Treat supplied shot type as the target or ending shot unless both start and end shot types are explicitly provided. Maintain the current shot size when the selected camera movement does not support a shot change.\n\nLighting rules:\n- If lighting is preserve-source, preserve source-image lighting and do not add new light sources, exposure changes, or lighting transitions.\n- If lighting adds an effect, add only the supplied lighting effect while preserving the existing scene structure.\n- If lighting changes gradually, describe only the supplied transition, direction, and timing.\n- Do not invent sunlight, moonlight, neon lighting, rim lighting, volumetric lighting, flashes, lightning, or exposure changes.\n\nTone rules:\n- Apply tone as restrained visual guidance.\n- Use no more than one primary color tone and one primary mood.\n- Do not change source-image genre, setting, era, costume, visual style, time of day, or weather.\n- Avoid abstract quality terms such as masterpiece, best quality, stunning, amazing, epic, beautiful, and highly detailed.\n\nPreserve subject identity, facial features, clothing, background, object count, visual style, spatial arrangement, and temporal continuity when requested by constraints. Do not claim that composition remains completely fixed when the selected camera movement or target shot requires a composition change.\n\nDo not add new people, animals, objects, clothing, accessories, locations, weather, time-of-day conditions, scene events, emotional states, or actions.\n\nFor a start-frame and end-frame segment, describe the motion or camera transition connecting the two supplied frames, preserve subject and scene continuity, do not invent intermediate events, and do not add transformations unsupported by the supplied frames.\n\nFor a segment using multiple reference images, use each reference only for its assigned consistency role, do not merge unrelated subjects or visual elements, do not treat reference images as additional scenes, and preserve each assigned subject identity and scene role.\n\nGenerate the positive prompt in English as one coherent paragraph. Use concrete motion and camera language. Keep it between 40 and 140 words unless the input is too small. Prefer short declarative sentences.\n\nDo not use keyword-only output. Do not use narrative storytelling, dialogue, production explanations, Markdown, headings, comments, code fences, or model instructions inside the generated prompt. Do not use negative expressions such as “do not,” “avoid,” or “without” inside the positive prompt. Preservation instructions may use positive directives such as preserve, maintain, or keep consistent.\n\nReturn only valid JSON with exactly these fields:\n- positivePrompt: the final English WAN I2V positive prompt paragraph.\n- negativePrompt: an empty string.\n- warnings: an array of warning objects. Use an empty array when there is no warning.\n\nExample response format:\n{\n  \"positivePrompt\": \"The girl performs a lively dance with energetic body movement while the camera remains static in a locked-off shot. Preserve the subject identity, clothing, background, and temporal continuity.\",\n  \"negativePrompt\": \"\",\n  \"warnings\": []\n}\n\nNever copy placeholder words such as string, text, prompt, positivePrompt, or negativePrompt as field values.\n\nBefore returning, validate for missing primary motion, missing camera setting, contradictory subject motions, contradictory camera movements, invalid shot transition, interaction without a target subject, invented subjects or objects, and preservation conflicts.\n\nIf a blocking contradiction exists, use only the non-conflicting input data, include a concise warning, and generate the safest valid positive prompt possible.",
+        "is_active": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T01:49:29.430110"
+        },
+        "updated_at": {
+          "__type": "datetime",
+          "value": "2026-08-04T02:01:22.798416"
+        }
+      }
+    ],
+    "model_profiles": [
+      {
+        "id": 1,
+        "model_family": "WAN",
+        "model_name": "Wan Image-to-Video",
+        "model_version": "2.1/2.2",
+        "task_type": "image_to_video",
+        "prompt_language": "en",
+        "supports_negative_prompt": true,
+        "supports_prompt_weight": false,
+        "capabilities_json": {
+          "sceneJsonVersion": "1.0",
+          "supportsMultiImage": true
+        },
+        "default_parameters_json": {
+          "fps": 16,
+          "steps": 4,
+          "cfgScale": 1,
+          "motionShift": 5
+        },
+        "active_yn": true,
+        "created_at": {
+          "__type": "datetime",
+          "value": "2026-08-02T23:10:22.716566"
+        }
+      }
+    ],
+    "prompt_term_renderings": [
+      {
+        "id": 1,
+        "term_id": 1,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "cinematic WAN image-to-video shot",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 2,
+        "term_id": 2,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "natural documentary style",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 3,
+        "term_id": 3,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "brand-safe visual tone",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 4,
+        "term_id": 4,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "the person from the input image",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 5,
+        "term_id": 5,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "the product from the input image",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 6,
+        "term_id": 6,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the same identity, outfit, and proportions from the input image",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 7,
+        "term_id": 7,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "gentle, natural walking motion",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 8,
+        "term_id": 8,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "subtle natural expression change",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 9,
+        "term_id": 9,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "slow tracking camera movement",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 10,
+        "term_id": 10,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "stable static camera",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 11,
+        "term_id": 11,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "medium shot composition",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 12,
+        "term_id": 12,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the original background layout",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 13,
+        "term_id": 13,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the original time of day",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 14,
+        "term_id": 14,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the original weather and atmosphere",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 15,
+        "term_id": 15,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "soft natural light",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 16,
+        "term_id": 16,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "balanced natural color grading",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 17,
+        "term_id": 17,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "calm and believable atmosphere",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 18,
+        "term_id": 18,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "stable motion, coherent frames",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 19,
+        "term_id": 19,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "distorted anatomy, warped body, deformed face, extra limbs",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 20,
+        "term_id": 20,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "blur, flicker, watermark, subtitles, text artifacts",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 21,
+        "term_id": 21,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "jitter, temporal inconsistency, unstable motion, morphing",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 22,
+        "term_id": 22,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "the object remains stable and keeps its original shape",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 23,
+        "term_id": 23,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "subtle object motion without shape deformation",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 24,
+        "term_id": 24,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "slow, controlled motion pace",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 25,
+        "term_id": 25,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "natural motion pace",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 26,
+        "term_id": 26,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "subtle motion intensity",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 27,
+        "term_id": 27,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "moderate motion intensity",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 28,
+        "term_id": 28,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "eye-level camera angle",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 29,
+        "term_id": 29,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "low-angle camera view",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 30,
+        "term_id": 30,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "standard lens perspective",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 31,
+        "term_id": 31,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "compressed telephoto lens perspective",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 32,
+        "term_id": 32,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "subject-locked focus",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 33,
+        "term_id": 33,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "shallow depth of field",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 34,
+        "term_id": 34,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the original clothing",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 35,
+        "term_id": 35,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "preserve the original pose structure",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 36,
+        "term_id": 36,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "looking toward the camera",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 37,
+        "term_id": 37,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "soft natural smile",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 38,
+        "term_id": 38,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "calm emotional tone",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 39,
+        "term_id": 39,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "realistic image-to-video animation style",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 40,
+        "term_id": 40,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "photorealistic rendering",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 41,
+        "term_id": 41,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "no scene transition",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 42,
+        "term_id": 42,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "POSITIVE",
+        "render_text": "short 3-second shot duration",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 43,
+        "term_id": 43,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "low quality, noisy frames, compression artifacts",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 44,
+        "term_id": 44,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "excessive camera shake, sudden zoom, rolling shutter distortion",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 45,
+        "term_id": 45,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "text overlay, captions, subtitles, logos, watermarks",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 46,
+        "term_id": 46,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "identity drift, changed face, changed outfit, changed body proportions",
+        "render_version": "v1",
+        "active_yn": true
+      },
+      {
+        "id": 47,
+        "term_id": 47,
+        "model_profile_id": 1,
+        "language_code": "en",
+        "polarity": "NEGATIVE",
+        "render_text": "new objects, unrelated people, unrelated background changes",
+        "render_version": "v1",
+        "active_yn": true
+      }
+    ]
+  }
+}

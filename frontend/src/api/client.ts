@@ -1,0 +1,746 @@
+export type HealthResponse = {
+  ok: boolean;
+  backend?: string;
+  status?: string;
+  system?: SystemStatusResponse;
+  legacy?: SystemStatusResponse;
+};
+
+export type SystemStatusResponse = {
+  ok: boolean;
+  checkedAt?: string;
+  executionMode?: string;
+  dryRun?: boolean;
+  runpod?: {
+    configured?: boolean;
+    endpointId?: string;
+    baseUrl?: string;
+  };
+  promptLlm?: {
+    provider?: string;
+    configured?: boolean;
+    endpointId?: string;
+    endpointUrl?: string;
+    model?: string;
+    runpodInputMode?: string;
+    timeout?: number;
+    apiKeyConfigured?: boolean;
+  };
+  workflows?: {
+    dir?: string;
+    exists?: boolean;
+    count?: number;
+    items?: string[];
+  };
+  segmentDefaults?: {
+    workflowCount?: number;
+    matchedCount?: number;
+    missingWorkflows?: string[];
+    bundledPath?: { path?: string; exists?: boolean };
+    runtimePath?: { path?: string; exists?: boolean };
+  };
+  metadata?: {
+    manifest?: { exists?: boolean; path?: string };
+    workflowWidgetMap?: { exists?: boolean; path?: string };
+    models?: { exists?: boolean; path?: string };
+  };
+  database?: {
+    persistenceBackend?: string;
+    configured?: boolean;
+    engine?: string;
+    url?: string;
+    migration?: string;
+  };
+  assetStorage?: {
+    backend?: string;
+    s3BucketConfigured?: boolean;
+    s3Prefix?: string;
+  };
+  storage?: {
+    dataDir?: { path?: string; writable?: boolean };
+    outputsDir?: { path?: string; writable?: boolean };
+  };
+};
+
+export type RunpodConnectionResponse = {
+  ok: boolean;
+  message?: string;
+  workers?: {
+    idle?: number;
+    running?: number;
+  };
+  jobs?: {
+    inQueue?: number;
+    inProgress?: number;
+  };
+};
+
+export type WorkflowItem = {
+  id: string;
+  name?: string;
+  label?: string;
+  mode?: string;
+  segmentCount?: number;
+  keyframeCount?: number;
+};
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  email?: string | null;
+  role: "SUPER_ADMIN" | "ADMIN" | "OPERATOR" | "VIEWER" | string;
+  permissions?: string[];
+  rolePermissionCodes?: string[];
+  extraPermissionCodes?: string[];
+  effectivePermissionCodes?: string[];
+  isActive?: boolean;
+  lastLoginAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+export type PermissionGovernance = {
+  roles: Array<{
+    id: number;
+    code: string;
+    name: string;
+    description?: string | null;
+    level: number;
+    isSystem: boolean;
+    isActive: boolean;
+    sortOrder: number;
+    permissionCodes: string[];
+  }>;
+  permissions: Array<{
+    id: number;
+    code: string;
+    domain: string;
+    action: string;
+    name: string;
+    description?: string | null;
+    isSystem: boolean;
+    isActive: boolean;
+    sortOrder: number;
+  }>;
+  resources: Array<{
+    id: number;
+    resourceType: string;
+    resourceKey: string;
+    label: string;
+    requiredPermissionCode: string;
+    routePath?: string | null;
+    method?: string | null;
+    isActive: boolean;
+    sortOrder: number;
+  }>;
+};
+
+export type AdminWorkflow = WorkflowItem & {
+  active?: boolean;
+  status?: string;
+  description?: string;
+  registeredAt?: string | null;
+  updatedAt?: string | null;
+  fileExists?: boolean;
+  paramConfigExists?: boolean;
+  paramConfigGenerated?: boolean;
+  metadataExists?: boolean;
+  metadataNodeCount?: number | null;
+  metadataSubgraphCount?: number | null;
+};
+
+export type AdminUsersResponse = {
+  items: AdminUser[];
+  user?: AdminUser;
+  permissionGovernance?: PermissionGovernance;
+};
+
+export type AdminWorkflowsResponse = {
+  items: AdminWorkflow[];
+  registryPath?: string;
+  registeredWorkflowId?: string;
+  paramConfigGenerated?: boolean;
+  paramConfigJson?: Record<string, unknown>;
+  segmentDefaultsUpdated?: boolean;
+  segmentDefaults?: Record<string, unknown>;
+  metadataUpdated?: boolean;
+  metadataManifest?: Record<string, unknown>;
+};
+
+export type ConfigControl = {
+  key: string;
+  param?: string;
+  label: string;
+  type: "int" | "float" | "string" | "text" | string;
+  min?: number | null;
+  max?: number | null;
+  default?: string | number | null;
+  randomizable?: boolean;
+  options?: string[];
+  description?: string;
+};
+
+export type WorkflowSegmentSchema = {
+  index: number;
+  nodeId?: string;
+  subgraphName?: string;
+  displayName?: string;
+  startImageIndex?: number;
+  endImageIndex?: number;
+  defaultPositivePrompt?: string;
+  defaultNegativePrompt?: string;
+  config?: Record<string, string | number>;
+  configControls?: ConfigControl[];
+};
+
+export type WorkflowSchema = {
+  workflowId: string;
+  name?: string;
+  mode?: string;
+  keyframeCount: number;
+  segmentCount: number;
+  segments: WorkflowSegmentSchema[];
+};
+
+export type SegmentDefaultsResponse = {
+  workflowName?: string;
+  segments?: Array<{
+    id?: string;
+    name?: string;
+    config?: Record<string, string | number>;
+  }>;
+};
+
+export type MetadataStatusResponse = {
+  ok?: boolean;
+  metadataDir?: string;
+  manifest?: Record<string, unknown>;
+};
+
+export type WorkflowWidgetMetadata = {
+  workflowId?: string;
+  name?: string;
+  nodeCount?: number;
+  segments?: Array<Record<string, unknown>>;
+  nodes?: Array<Record<string, unknown>>;
+  models?: Record<string, string[]>;
+};
+
+export type ModelMetadataResponse = {
+  manifest?: Record<string, unknown>;
+  models?: Record<string, string[]>;
+};
+
+export type UploadResponse = {
+  assetId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  downloadUrl: string;
+};
+
+export type OutputAsset = {
+  assetId?: string;
+  fileName?: string;
+  downloadUrl?: string;
+  url?: string;
+  mimeType?: string;
+  kind?: string;
+  outputRole?: string;
+  segmentIndex?: number | null;
+};
+
+export type PromptEntry = {
+  index?: number;
+  text?: string;
+  prompt?: string;
+};
+
+export type PromptTerm = {
+  id: number;
+  code: string;
+  canonicalKey?: string;
+  labelKo?: string;
+  labelEn?: string;
+  description?: string;
+  promptText?: string;
+  negativeText?: string;
+  riskLevel?: string;
+  metadata?: Record<string, unknown>;
+  sortOrder?: number;
+};
+
+export type PromptCategory = {
+  id: number;
+  legacyCategoryId?: number;
+  code: string;
+  groupId?: number;
+  groupCode?: string;
+  groupNameKo?: string;
+  groupNameEn?: string;
+  groupSortOrder?: number;
+  parentCategoryId?: number | null;
+  scopeType?: string;
+  nameKo?: string;
+  nameEn?: string;
+  description?: string;
+  selectionMode?: "single" | "multi" | string;
+  required?: boolean;
+  maxSelectCount?: number | null;
+  sortOrder?: number;
+  terms: PromptTerm[];
+};
+
+export type PromptCategoryGroup = {
+  id: number;
+  code: string;
+  scopeId?: number;
+  scopeCode?: "POSITIVE" | "NEGATIVE" | string | null;
+  scopeType?: "POSITIVE" | "NEGATIVE" | string | null;
+  nameKo?: string;
+  nameEn?: string;
+  description?: string;
+  sortOrder?: number;
+  subcategories: PromptCategory[];
+};
+
+export type PromptCatalogResponse = {
+  groups?: PromptCategoryGroup[];
+  categories: PromptCategory[];
+  rules?: Array<Record<string, unknown>>;
+  templates?: Array<Record<string, unknown>>;
+  relations?: Array<Record<string, unknown>>;
+};
+
+export type PromptSystemPromptResponse = {
+  id?: number;
+  code: string;
+  name: string;
+  provider: string;
+  modelFamily: string;
+  promptText: string;
+  isActive?: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+export type PromptSceneResponse = {
+  requestId: string;
+  outputId: string;
+  provider?: string;
+  workflowId?: string;
+  segmentIndex?: number;
+  language?: string;
+  scene: Record<string, unknown>;
+  constraints: Record<string, unknown>;
+  positivePromptDraft: string;
+  negativePromptDraft: string;
+  usedTermIds: number[];
+  modelProfile?: Record<string, unknown> | null;
+  warnings?: Array<{ code?: string; message?: string; severity?: string }>;
+};
+
+export type PromptGenerateResponse = {
+  requestId: string;
+  outputId: string;
+  provider: string;
+  workflowId?: string;
+  segmentIndex?: number;
+  language?: string;
+  scene: Record<string, unknown>;
+  constraints: Record<string, unknown>;
+  positivePrompt: string;
+  negativePrompt: string;
+  usedTermIds: number[];
+  warnings?: Array<{ code?: string; message?: string; severity?: string }>;
+};
+
+export type InputImage = {
+  index?: number;
+  assetId?: string;
+  fileName?: string;
+  filename?: string;
+};
+
+export type HistorySegment = {
+  index?: number;
+  nodeId?: string;
+  subgraphName?: string;
+  displayName?: string;
+  positivePrompt?: string;
+  negativePrompt?: string;
+  negativePromptAddition?: string;
+  config?: Record<string, string | number>;
+};
+
+export type HistoryItem = {
+  taskId: string;
+  timestamp?: string;
+  workflowId?: string;
+  workflowName?: string;
+  workflow?: string;
+  workerName?: string;
+  user?: { id?: string; name?: string };
+  status?: string;
+  prompt?: string;
+  positivePrompt?: string;
+  negativePrompt?: string;
+  positivePrompts?: PromptEntry[];
+  negativePrompts?: PromptEntry[];
+  segmentCount?: number;
+  segments?: HistorySegment[];
+  keyframes?: Array<{ index?: number; uploadId?: string; fileName?: string }>;
+  configJson?: Record<string, string | number>;
+  config?: Record<string, string | number> | string;
+  wanNodeConfig?: {
+    segments?: Array<HistorySegment & { params?: Array<{ uiKey?: string; value?: string | number }> }>;
+  };
+  fps?: number;
+  seed?: number | string;
+  outputUrl?: string;
+  outputFile?: string;
+  outputAssets?: OutputAsset[];
+  remoteOutputUrls?: string[];
+  inputAssets?: string[];
+  inputImages?: InputImage[];
+};
+
+export type HistoryResponse = {
+  items: HistoryItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+export type JobCreateResponse = {
+  taskId: string;
+  runpodJobId: string;
+  status: string;
+};
+
+export type JobStatusResponse = {
+  taskId: string;
+  runpodJobId: string;
+  status: string;
+  rawStatus?: string;
+  elapsedSeconds?: number;
+  progress?: number;
+  workerSummary?: string;
+  statusLabel?: string;
+  message?: string;
+  outputUrl?: string;
+  outputAssets?: OutputAsset[];
+  cancelRequested?: boolean;
+};
+
+export type TaskPromptReviewFlags = {
+  intentMatched?: boolean;
+  identityPreserved?: boolean;
+  naturalMotion?: boolean;
+  noDistortion?: boolean;
+  backgroundStable?: boolean;
+};
+
+export type TaskPromptItem = {
+  id: number;
+  taskId: string;
+  workflowId: string;
+  segmentIndex: number;
+  modelProfileId?: string | null;
+  modelName?: string | null;
+  promptGenerationOutputId?: string | null;
+  positivePrompt: string;
+  negativePrompt: string;
+  inputAssetIds?: string[];
+  outputAssetIds?: string[];
+  inputAssets?: OutputAsset[];
+  outputAssets?: OutputAsset[];
+  qualityRating?: number | null;
+  qualityComment?: string | null;
+  reuseEligible?: boolean;
+  reviewStatus?: "unreviewed" | "reviewed" | "rejected" | string;
+  reviewFlags?: TaskPromptReviewFlags;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  reuseCount?: number;
+  metadata?: Record<string, unknown>;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+export type TaskPromptResponse = {
+  taskId: string;
+  items: TaskPromptItem[];
+};
+
+export type ReusablePromptResponse = {
+  items: TaskPromptItem[];
+};
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+const SESSION_USER_STORAGE_KEY = "dobedub.react.user.db-auth.v1";
+
+export type AuthSession = {
+  user: AdminUser;
+  accessToken: string;
+  tokenType?: string;
+  expiresAt?: string;
+};
+
+function sessionUserHeaders(path: string): Record<string, string> {
+  if (path === "/api/auth/login" || typeof sessionStorage === "undefined") {
+    return {};
+  }
+  try {
+    const raw = sessionStorage.getItem(SESSION_USER_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+    const parsed = JSON.parse(raw) as Partial<AuthSession>;
+    if (parsed.accessToken) {
+      return {
+        Authorization: `${parsed.tokenType || "Bearer"} ${parsed.accessToken}`
+      };
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function friendlyApiErrorMessage(rawMessage: string, response: Response, path: string) {
+  const trimmed = rawMessage.trim();
+  const contentType = response.headers.get("content-type") || "";
+  const looksHtml = /<html|<!doctype html|<body|<head/i.test(trimmed) || contentType.includes("text/html");
+  const looksGatewayTimeout = /504\s+Gateway\s+Time-out/i.test(trimmed) || /Gateway\s+Time-out/i.test(trimmed);
+
+  if (looksGatewayTimeout) {
+    return `서버 응답이 지연되어 ${path} 요청이 시간 초과되었습니다. 잠시 후 다시 시도해주세요.`;
+  }
+  if (looksHtml) {
+    return `서버가 HTML 오류 페이지를 반환했습니다. ${path} 요청을 다시 시도해주세요.`;
+  }
+  return trimmed || `Request failed: ${response.status}`;
+}
+
+async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...sessionUserHeaders(path),
+      ...(init?.headers || {})
+    },
+    ...init
+  });
+  const rawMessage = await response.text();
+  if (!response.ok) {
+    let message = friendlyApiErrorMessage(rawMessage, response, path);
+    try {
+      const parsed = JSON.parse(rawMessage) as { detail?: unknown; message?: unknown; error?: unknown };
+      const detail = parsed.detail ?? parsed.message ?? parsed.error;
+      if (typeof detail === "string" && detail.trim()) {
+        message = detail.trim();
+      }
+    } catch {
+      // Ignore non-JSON bodies and fall back to a safe, readable message.
+    }
+    throw new Error(message);
+  }
+
+  if (!rawMessage.trim()) {
+    return undefined as T;
+  }
+
+  try {
+    return JSON.parse(rawMessage) as T;
+  } catch {
+    const message = friendlyApiErrorMessage(rawMessage, response, path);
+    throw new Error(message);
+  }
+}
+
+async function requestBlob(path: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: sessionUserHeaders(path)
+  });
+  if (!response.ok) {
+    throw new Error(friendlyApiErrorMessage(await response.text(), response, path));
+  }
+  return response.blob();
+}
+
+export const apiClient = {
+  assetBlob: (path: string) => requestBlob(path),
+  health: () => requestJson<HealthResponse>("/api/health"),
+  systemStatus: () => requestJson<SystemStatusResponse>("/api/system/status"),
+  runpodConnection: () => requestJson<RunpodConnectionResponse>("/api/runpod/connection"),
+  workflows: () => requestJson<WorkflowItem[]>("/api/workflows"),
+  workflowSchema: (workflowId: string) => requestJson<WorkflowSchema>(`/api/workflows/${encodeURIComponent(workflowId)}/schema`),
+  workflowSegmentDefaults: (workflowId: string) =>
+    requestJson<SegmentDefaultsResponse>(`/api/segment-defaults/${encodeURIComponent(workflowId)}`),
+  workflowWidgetMetadata: (workflowId: string) =>
+    requestJson<WorkflowWidgetMetadata>(`/api/workflows/${encodeURIComponent(workflowId)}/widget-metadata`),
+  metadataStatus: () => requestJson<MetadataStatusResponse>("/api/metadata/status"),
+  metadataModels: () => requestJson<ModelMetadataResponse>("/api/metadata/models"),
+  rebuildMetadata: () =>
+    requestJson<{ ok?: boolean; manifest?: Record<string, unknown> }>("/api/metadata/rebuild", {
+      method: "POST"
+    }),
+  manualHtml: async () => {
+    const response = await fetch(`${API_BASE}/manual`, {
+      headers: sessionUserHeaders("/manual")
+    });
+    if (!response.ok) {
+      throw new Error(await response.text() || `Request failed: ${response.status}`);
+    }
+    return response.text();
+  },
+  history: (page = 1, pageSize = 10) => requestJson<HistoryResponse>(`/api/history?page=${page}&pageSize=${pageSize}`),
+  promptCatalog: () => requestJson<PromptCatalogResponse>("/api/prompts/catalog"),
+  promptSystemPrompt: () => requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt"),
+  savePromptSystemPrompt: (payload: Record<string, unknown>) =>
+    requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt", {
+      method: "PUT",
+      body: JSON.stringify(payload)
+    }),
+  promptSceneSchema: () => requestJson<Record<string, unknown>>("/api/prompts/scene-schema"),
+  savePromptCategoryGroup: (payload: Record<string, unknown>, groupId?: number) =>
+    requestJson<PromptCatalogResponse>(groupId ? `/api/prompts/category-groups/${groupId}` : "/api/prompts/category-groups", {
+      method: groupId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    }),
+  deactivatePromptCategoryGroup: (groupId: number) =>
+    requestJson<PromptCatalogResponse>(`/api/prompts/category-groups/${groupId}/deactivate`, {
+      method: "POST"
+    }),
+  savePromptCategory: (payload: Record<string, unknown>, categoryId?: number) =>
+    requestJson<PromptCatalogResponse>(categoryId ? `/api/prompts/categories/${categoryId}` : "/api/prompts/categories", {
+      method: categoryId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    }),
+  deactivatePromptCategory: (categoryId: number) =>
+    requestJson<PromptCatalogResponse>(`/api/prompts/categories/${categoryId}/deactivate`, {
+      method: "POST"
+    }),
+  savePromptTerm: (payload: Record<string, unknown>, termId?: number) =>
+    requestJson<PromptCatalogResponse>(termId ? `/api/prompts/terms/${termId}` : "/api/prompts/terms", {
+      method: termId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    }),
+  deactivatePromptTerm: (termId: number) =>
+    requestJson<PromptCatalogResponse>(`/api/prompts/terms/${termId}/deactivate`, {
+      method: "POST"
+    }),
+  buildPromptScene: (payload: {
+    workflowId: string;
+    segmentIndex: number;
+    termIds: number[];
+    description?: string;
+    constraints?: Record<string, unknown>;
+    language?: string;
+  }) =>
+    requestJson<PromptSceneResponse>("/api/prompts/scene", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  generatePrompt: (payload: {
+    workflowId: string;
+    segmentIndex: number;
+    scene: Record<string, unknown>;
+    constraints?: Record<string, unknown>;
+    termIds?: number[];
+    provider?: string;
+    language?: string;
+  }) =>
+    requestJson<PromptGenerateResponse>("/api/prompts/generate", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  savePromptFeedback: (payload: {
+    outputId: string;
+    taskId?: string;
+    rating?: number;
+    editedPositivePrompt?: string;
+    editedNegativePrompt?: string;
+    notes?: string;
+  }) =>
+    requestJson<{ id: string; outputId: string; rating?: number }>("/api/prompts/feedback", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  deleteHistory: (taskId: string) =>
+    requestJson<{ ok?: boolean; deleted?: boolean }>(`/api/history/${encodeURIComponent(taskId)}/delete`, {
+      method: "POST"
+    }),
+  upload: (payload: { fileName: string; mimeType: string; dataUrl: string }) =>
+    requestJson<UploadResponse>("/api/uploads", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  createJob: (payload: unknown) =>
+    requestJson<JobCreateResponse>("/api/jobs", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  jobStatus: (taskId: string) => requestJson<JobStatusResponse>(`/api/jobs/${encodeURIComponent(taskId)}`),
+  jobPrompts: (taskId: string) => requestJson<TaskPromptResponse>(`/api/jobs/${encodeURIComponent(taskId)}/prompts`),
+  updateJobPromptReview: (taskId: string, segmentIndex: number, payload: Record<string, unknown>) =>
+    requestJson<TaskPromptItem>(`/api/jobs/${encodeURIComponent(taskId)}/prompts/${segmentIndex}/review`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    }),
+  reusablePrompts: (params: { keyword?: string; workflowId?: string; minRating?: number; reviewedOnly?: boolean; reuseEligible?: boolean; limit?: number }) => {
+    const search = new URLSearchParams();
+    if (params.keyword) search.set("keyword", params.keyword);
+    if (params.workflowId) search.set("workflowId", params.workflowId);
+    if (params.minRating) search.set("minRating", String(params.minRating));
+    if (params.reviewedOnly) search.set("reviewedOnly", "true");
+    if (typeof params.reuseEligible === "boolean") search.set("reuseEligible", String(params.reuseEligible));
+    if (params.limit) search.set("limit", String(params.limit));
+    return requestJson<ReusablePromptResponse>(`/api/prompts/reusable?${search.toString()}`);
+  },
+  cancelJob: (taskId: string) =>
+    requestJson<JobStatusResponse>(`/api/jobs/${encodeURIComponent(taskId)}/cancel`, {
+      method: "POST"
+    }),
+  adminUsers: () => requestJson<AdminUsersResponse>("/api/admin/users"),
+  adminPermissions: () => requestJson<PermissionGovernance>("/api/admin/permissions"),
+  saveAdminRolePermissions: (roleCode: string, permissionCodes: string[]) =>
+    requestJson<PermissionGovernance>(`/api/admin/roles/${encodeURIComponent(roleCode)}/permissions`, {
+      method: "PUT",
+      body: JSON.stringify({ permissionCodes })
+    }),
+  saveAdminUser: (payload: Record<string, unknown>, userId?: string) =>
+    requestJson<AdminUsersResponse>(userId ? `/api/admin/users/${encodeURIComponent(userId)}` : "/api/admin/users", {
+      method: userId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    }),
+  deactivateAdminUser: (userId: string) =>
+    requestJson<AdminUsersResponse>(`/api/admin/users/${encodeURIComponent(userId)}/deactivate`, {
+      method: "POST"
+    }),
+  resetAdminUserPassword: (userId: string, password: string) =>
+    requestJson<{ user: AdminUser }>(`/api/admin/users/${encodeURIComponent(userId)}/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ password })
+    }),
+  adminWorkflows: () => requestJson<AdminWorkflowsResponse>("/api/admin/workflows"),
+  registerAdminWorkflow: (payload: Record<string, unknown>) =>
+    requestJson<AdminWorkflowsResponse>("/api/admin/workflows", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  activateAdminWorkflow: (workflowId: string) =>
+    requestJson<AdminWorkflowsResponse>(`/api/admin/workflows/${encodeURIComponent(workflowId)}/activate`, {
+      method: "POST"
+    }),
+  deactivateAdminWorkflow: (workflowId: string) =>
+    requestJson<AdminWorkflowsResponse>(`/api/admin/workflows/${encodeURIComponent(workflowId)}/deactivate`, {
+      method: "POST"
+    }),
+  login: (payload: { id: string; password: string }) =>
+    requestJson<AuthSession>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+};

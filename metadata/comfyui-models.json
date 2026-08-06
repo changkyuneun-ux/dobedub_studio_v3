@@ -1,10 +1,10 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-02T15:43:49+09:00",
+    "generatedAt": "2026-08-06T12:41:56+09:00",
     "source": "workflow-json",
     "workflowDirectory": "workflows",
-    "fingerprint": "051bc3c3c68589973b633f2f657cd2e73eccd3b1f78c3433be9dec5dad56bc40",
-    "workflowCount": 6,
+    "fingerprint": "b8861c884ddb0f5f24fb0be14eceb3eb00c2cd0f6c5a99f16d348277ce2ba4c0",
+    "workflowCount": 8,
     "hasObjectInfoSnapshot": false,
     "sources": [
       {
@@ -78,11 +78,46 @@
         "sha256": "d104153d3d4e62e828e597d6c10ca87889320f399531f92fe6fb123ea67ae20a",
         "sizeBytes": 11233,
         "modifiedAt": "2026-08-02T15:32:37"
+      },
+      {
+        "path": "workflows/Blowbang1.json",
+        "sha256": "5975e9abddf971657f58d60179185af48239595b4a5b9a7dc7b686c33cc47213",
+        "sizeBytes": 6971,
+        "modifiedAt": "2026-08-04T17:54:28"
+      },
+      {
+        "path": "workflows/Blowbang1.paramconfig.json",
+        "sha256": "c0b9f9caf4f9ba45f4244496905d2f37eb53406ebb7c370f5583b0c92d953e81",
+        "sizeBytes": 3508,
+        "modifiedAt": "2026-08-04T12:25:37"
+      },
+      {
+        "path": "workflows/Pickme_Workflow.json",
+        "sha256": "dce8723c28122fd6eaa70c56d1c5d0dda4081024326223c1062b6fbaa174e907",
+        "sizeBytes": 6384,
+        "modifiedAt": "2026-08-06T12:41:56"
+      },
+      {
+        "path": "workflows/Pickme_Workflow.paramconfig.json",
+        "sha256": "f07c46b80dc236fb50085103bb05faf07346811e3ee6301c58df54095aaeb4dc",
+        "sizeBytes": 3342,
+        "modifiedAt": "2026-08-06T12:41:56"
+      },
+      {
+        "path": "data/segment-defaults.json",
+        "sha256": "c2b206970d66c3c57235388f1127a9d1a25524afe78453d4734d805e0f41756c",
+        "sizeBytes": 5721,
+        "modifiedAt": "2026-08-06T12:41:56"
       }
     ]
   },
   "models": {
     "loras": [
+      "NSFW-22-H-e8.safetensors",
+      "NSFW-22-L-e8.safetensors",
+      "doggy_style_sex_front_view_Wan2.2_I2V_Low_v1.0.safetensors",
+      "slop_twerk_HighNoise_merged3_7_v2.safetensors",
+      "slop_twerk_LowNoise_merged3_7_v2.safetensors",
       "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
       "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
     ],

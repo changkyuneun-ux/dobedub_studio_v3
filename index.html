@@ -95,8 +95,6 @@
               <textarea id="negativePrompt" rows="2"></textarea>
             </label>
 
-            <button id="loadPromptButton" class="secondary-button" type="button">Load Past Prompts</button>
-
             <section class="node-config">
               <div class="node-config-title">
                 <h3>Wan Node Config (ComfyUI)</h3>
@@ -165,7 +163,6 @@
             <div class="modal-header">
               <h2 id="historyTitle">Task History & Result List</h2>
               <div>
-                <button id="generateReportButton" class="secondary-button" type="button">Generate Report</button>
                 <button id="closeHistoryButton" class="icon-button" type="button" aria-label="닫기">×</button>
               </div>
             </div>
@@ -226,20 +223,6 @@
               <button id="closeManualButton" class="icon-button" type="button" aria-label="닫기">×</button>
             </div>
             <iframe id="manualFrame" title="dobedub studio 사용자 매뉴얼" src="about:blank"></iframe>
-          </section>
-        </div>
-
-        <div id="promptModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="promptModalTitle">
-          <section class="picker-modal">
-            <div class="modal-header">
-              <h2 id="promptModalTitle">Load Past Prompts</h2>
-              <button id="closePromptModalButton" class="icon-button" type="button" aria-label="닫기">×</button>
-            </div>
-            <div class="picker-tabs">
-              <button class="is-active" type="button" data-prompt-tab="positive">Positive</button>
-              <button type="button" data-prompt-tab="negative">Negative</button>
-            </div>
-            <div id="promptList" class="picker-list"></div>
           </section>
         </div>
 

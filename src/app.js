@@ -47,8 +47,6 @@ const state = {
   cancelRequested: false,
   runVersion: 0,
   segmentDefaults: {},
-  promptOptions: { positive: [], negative: [] },
-  activePromptTab: "positive",
   metadata: null,
   metadataStatus: null,
   metadataModels: null,
@@ -348,10 +346,6 @@ function bindEvents() {
     clearKeyframe(Number(button.dataset.clearKeyframe));
   });
 
-  $("#loadPromptButton").addEventListener("click", () => {
-    openPromptModal();
-  });
-
   $("#resetSegmentConfigButton").addEventListener("click", resetSegmentConfigsToDefaults);
 
   $("#generateButton").addEventListener("click", generateJob);
@@ -366,7 +360,6 @@ function bindEvents() {
     }
   });
   $("#metadataViewButton").addEventListener("click", openMetadataModal);
-  $("#generateReportButton").addEventListener("click", generateReport);
   $("#statusButton").addEventListener("click", async () => {
     $("#statusModal").classList.remove("is-hidden");
     await refreshSystemStatus(true);
@@ -381,16 +374,6 @@ function bindEvents() {
   $("#closeManualButton").addEventListener("click", closeManualModal);
   $("#manualModal").addEventListener("click", (event) => {
     if (event.target.id === "manualModal") closeManualModal();
-  });
-  $("#closePromptModalButton").addEventListener("click", () => $("#promptModal").classList.add("is-hidden"));
-  $("#promptModal").addEventListener("click", (event) => {
-    if (event.target.id === "promptModal") $("#promptModal").classList.add("is-hidden");
-  });
-  document.querySelectorAll("[data-prompt-tab]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.activePromptTab = button.dataset.promptTab;
-      renderPromptModal();
-    });
   });
   $("#closeMetadataModalButton").addEventListener("click", () => $("#metadataModal").classList.add("is-hidden"));
   $("#metadataModal").addEventListener("click", (event) => {
@@ -736,10 +719,17 @@ function renderStatusModal() {
   const modeLabel = status.dryRun ? "Dry-run mode" : "RunPod live mode";
   const runpodLabel = status.runpod.configured ? "Configured" : "Not configured";
   const workflowList = (status.workflows.items || []).slice(0, 6).join(", ");
+  const segmentDefaults = status.segmentDefaults || {};
+  const defaultsOk = (segmentDefaults.workflowCount || 0) > 0 && segmentDefaults.matchedCount === segmentDefaults.workflowCount;
+  const missingDefaults = (segmentDefaults.missingWorkflows || []).join(", ");
+  const metadata = status.metadata || {};
+  const metadataOk = Boolean(metadata.manifest?.exists && metadata.workflowWidgetMap?.exists && metadata.models?.exists);
   $("#statusGrid").innerHTML = `
     ${statusCard("Execution", modeLabel, status.dryRun ? "Actual RunPod calls are disabled." : "Jobs will be submitted to RunPod.", status.ok && !status.dryRun)}
     ${statusCard("RunPod", runpodLabel, `Endpoint: ${escapeHtml(status.runpod.endpointId || "-")}<br />Base: ${escapeHtml(status.runpod.baseUrl || "-")}`, status.runpod.configured)}
     ${statusCard("Workflows", `${status.workflows.count || 0} files`, `${escapeHtml(status.workflows.dir || "-")}<br />${escapeHtml(workflowList || "No workflow files found.")}`, status.workflows.exists && status.workflows.count > 0)}
+    ${statusCard("Segment Defaults", `${segmentDefaults.matchedCount || 0}/${segmentDefaults.workflowCount || 0} matched`, `${escapeHtml(segmentDefaults.bundledPath?.path || "-")}<br />${escapeHtml(defaultsOk ? "All workflow defaults are available." : `Missing: ${missingDefaults || "-"}`)}`, defaultsOk)}
+    ${statusCard("Metadata", metadataOk ? "Ready" : "Check files", `Manifest: ${escapeHtml(metadata.manifest?.exists ? "OK" : "Missing")}<br />Widget map: ${escapeHtml(metadata.workflowWidgetMap?.exists ? "OK" : "Missing")}<br />Models: ${escapeHtml(metadata.models?.exists ? "OK" : "Missing")}`, metadataOk)}
     ${statusCard("Storage", status.storage.outputsDir.writable ? "Writable" : "Check path", `Data: ${escapeHtml(status.storage.dataDir.path)}<br />Outputs: ${escapeHtml(status.storage.outputsDir.path)}`, status.storage.dataDir.writable && status.storage.outputsDir.writable)}
     <p class="status-timestamp">Last checked: ${escapeHtml(status.checkedAt || "-")}</p>
   `;
@@ -1436,53 +1426,6 @@ function selectedHistoryItem() {
   return state.history[state.selectedHistoryIndex] || state.history[0] || null;
 }
 
-async function openPromptModal() {
-  try {
-    state.promptOptions = await apiRequest("/api/prompts");
-  } catch (error) {
-    console.warn(error);
-    state.promptOptions = { positive: [], negative: [] };
-  }
-  state.activePromptTab = "positive";
-  renderPromptModal();
-  $("#promptModal").classList.remove("is-hidden");
-}
-
-function renderPromptModal() {
-  document.querySelectorAll("[data-prompt-tab]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.promptTab === state.activePromptTab);
-  });
-  const prompts = state.promptOptions[state.activePromptTab] || [];
-  $("#promptList").innerHTML = prompts.length
-    ? prompts.map((prompt, index) => `
-        <button class="picker-item" type="button" data-prompt-index="${index}">
-          <strong>${escapeHtml(prompt.label || `Prompt ${index + 1}`)}</strong>
-          <span>${escapeHtml(compactText(prompt.text, 180))}</span>
-        </button>
-      `).join("")
-    : `<p class="empty-picker">저장된 ${state.activePromptTab === "positive" ? "Positive" : "Negative"} 프롬프트가 없습니다.</p>`;
-  document.querySelectorAll("[data-prompt-index]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const prompt = prompts[Number(button.dataset.promptIndex)];
-      applyPromptOption(prompt, state.activePromptTab);
-    });
-  });
-}
-
-function applyPromptOption(prompt, kind) {
-  if (!prompt?.text) return;
-  const segment = getSelectedSegment();
-  if (kind === "negative") {
-    segment.negativePrompt = prompt.text;
-    $("#negativePrompt").value = prompt.text;
-  } else {
-    segment.positivePrompt = prompt.text;
-    $("#positivePrompt").value = prompt.text;
-  }
-  $("#promptModal").classList.add("is-hidden");
-  updatePreviewInfo();
-}
-
 async function openMetadataModal() {
   state.metadataWorkflowId = state.workflow?.id || state.workflows[0]?.id || "";
   $("#metadataWorkflowSelect").innerHTML = state.workflows
@@ -1629,25 +1572,6 @@ function renderMetadataNodes() {
         `).join("")}
       </div>`
     : `<p class="empty-picker">Node metadata가 없습니다.</p>`;
-}
-
-async function generateReport() {
-  const historyItem = selectedHistoryItem();
-  if (!historyItem) {
-    showNotice("Report target is empty.");
-    return;
-  }
-  try {
-    const report = await apiRequest("/api/reports", {
-      method: "POST",
-      body: JSON.stringify({ historyItem: historyItem.raw || historyItem }),
-    });
-    showNotice(`Report generated: ${report.reportId}`);
-    window.open(apiUrl(report.downloadUrl), "_blank");
-  } catch (error) {
-    console.warn(error);
-    showNotice("Report generation failed.");
-  }
 }
 
 function showNotice(message) {

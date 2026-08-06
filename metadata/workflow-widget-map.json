@@ -1,10 +1,10 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-02T15:43:49+09:00",
+    "generatedAt": "2026-08-06T12:41:56+09:00",
     "source": "workflow-json",
     "workflowDirectory": "workflows",
-    "fingerprint": "051bc3c3c68589973b633f2f657cd2e73eccd3b1f78c3433be9dec5dad56bc40",
-    "workflowCount": 6,
+    "fingerprint": "b8861c884ddb0f5f24fb0be14eceb3eb00c2cd0f6c5a99f16d348277ce2ba4c0",
+    "workflowCount": 8,
     "hasObjectInfoSnapshot": false,
     "sources": [
       {
@@ -78,6 +78,36 @@
         "sha256": "d104153d3d4e62e828e597d6c10ca87889320f399531f92fe6fb123ea67ae20a",
         "sizeBytes": 11233,
         "modifiedAt": "2026-08-02T15:32:37"
+      },
+      {
+        "path": "workflows/Blowbang1.json",
+        "sha256": "5975e9abddf971657f58d60179185af48239595b4a5b9a7dc7b686c33cc47213",
+        "sizeBytes": 6971,
+        "modifiedAt": "2026-08-04T17:54:28"
+      },
+      {
+        "path": "workflows/Blowbang1.paramconfig.json",
+        "sha256": "c0b9f9caf4f9ba45f4244496905d2f37eb53406ebb7c370f5583b0c92d953e81",
+        "sizeBytes": 3508,
+        "modifiedAt": "2026-08-04T12:25:37"
+      },
+      {
+        "path": "workflows/Pickme_Workflow.json",
+        "sha256": "dce8723c28122fd6eaa70c56d1c5d0dda4081024326223c1062b6fbaa174e907",
+        "sizeBytes": 6384,
+        "modifiedAt": "2026-08-06T12:41:56"
+      },
+      {
+        "path": "workflows/Pickme_Workflow.paramconfig.json",
+        "sha256": "f07c46b80dc236fb50085103bb05faf07346811e3ee6301c58df54095aaeb4dc",
+        "sizeBytes": 3342,
+        "modifiedAt": "2026-08-06T12:41:56"
+      },
+      {
+        "path": "data/segment-defaults.json",
+        "sha256": "c2b206970d66c3c57235388f1127a9d1a25524afe78453d4734d805e0f41756c",
+        "sizeBytes": 5721,
+        "modifiedAt": "2026-08-06T12:41:56"
       }
     ]
   },
@@ -12793,6 +12823,1896 @@
       ],
       "models": {
         "loras": [
+          "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+          "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
+        ],
+        "text_encoders": [
+          "umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+        ],
+        "unet": [
+          "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+          "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors"
+        ],
+        "vae": [
+          "wan_2.1_vae.safetensors"
+        ]
+      }
+    },
+    "Blowbang1.json": {
+      "workflowId": "Blowbang1.json",
+      "name": "Blowbang1",
+      "nodeCount": 23,
+      "nodes": [
+        {
+          "nodeId": "108",
+          "classType": "SaveVideo",
+          "title": "비디오 저장",
+          "inputs": [
+            {
+              "field": "filename_prefix",
+              "value": "video/ComfyUI",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "format",
+              "value": "mp4",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "codec",
+              "value": "h264",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "video",
+              "sourceNodeId": "140",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "136",
+          "classType": "CLIPTextEncode",
+          "title": "CLIP Text Encode (Negative Prompt)",
+          "inputs": [
+            {
+              "field": "text",
+              "value": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "clip",
+              "sourceNodeId": "172:156",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "140",
+          "classType": "CreateVideo",
+          "title": "비디오 생성",
+          "inputs": [
+            {
+              "field": "fps",
+              "value": 16,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "bit_depth",
+              "value": 8,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "images",
+              "sourceNodeId": "172:141",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143",
+          "classType": "LoadImage",
+          "title": "이미지 로드",
+          "inputs": [
+            {
+              "field": "image",
+              "value": "1.jpg",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "145",
+          "classType": "CLIPTextEncode",
+          "title": "CLIP Text Encode (Positive Prompt)",
+          "inputs": [
+            {
+              "field": "text",
+              "value": "",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "clip",
+              "sourceNodeId": "172:156",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:141",
+          "classType": "VAEDecode",
+          "title": "VAE 디코드",
+          "inputs": [],
+          "links": [
+            {
+              "field": "samples",
+              "sourceNodeId": "172:165",
+              "sourceOutput": 0
+            },
+            {
+              "field": "vae",
+              "sourceNodeId": "172:157",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:155",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:161",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:156",
+          "classType": "CLIPLoader",
+          "title": "CLIP 로드",
+          "inputs": [
+            {
+              "field": "clip_name",
+              "value": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+              "modelBucket": "text_encoders",
+              "options": []
+            },
+            {
+              "field": "type",
+              "value": "wan",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "device",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:157",
+          "classType": "VAELoader",
+          "title": "VAE 로드",
+          "inputs": [
+            {
+              "field": "vae_name",
+              "value": "wan_2.1_vae.safetensors",
+              "modelBucket": "vae",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:158",
+          "classType": "UNETLoader",
+          "title": "확산 모델 로드",
+          "inputs": [
+            {
+              "field": "unet_name",
+              "value": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+              "modelBucket": "unet",
+              "options": []
+            },
+            {
+              "field": "weight_dtype",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:159",
+          "classType": "UNETLoader",
+          "title": "확산 모델 로드",
+          "inputs": [
+            {
+              "field": "unet_name",
+              "value": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+              "modelBucket": "unet",
+              "options": []
+            },
+            {
+              "field": "weight_dtype",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:160",
+          "classType": "ModelSamplingSD3",
+          "title": "모델 샘플링 (SD3)",
+          "inputs": [
+            {
+              "field": "shift",
+              "value": 4.99,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:168",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:161",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:158",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:162",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:159",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:163",
+          "classType": "ModelSamplingSD3",
+          "title": "모델 샘플링 (SD3)",
+          "inputs": [
+            {
+              "field": "shift",
+              "value": 5.000000000000001,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:167",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:164",
+          "classType": "WanImageToVideo",
+          "title": "WAN 비디오 생성 (이미지 → 비디오)",
+          "inputs": [
+            {
+              "field": "width",
+              "value": 720,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "height",
+              "value": 1280,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "length",
+              "value": 161,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "batch_size",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "positive",
+              "sourceNodeId": "145",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "136",
+              "sourceOutput": 0
+            },
+            {
+              "field": "vae",
+              "sourceNodeId": "172:157",
+              "sourceOutput": 0
+            },
+            {
+              "field": "start_image",
+              "sourceNodeId": "143",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:165",
+          "classType": "KSamplerAdvanced",
+          "title": "고급 KSampler",
+          "inputs": [
+            {
+              "field": "add_noise",
+              "value": "disable",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "noise_seed",
+              "value": 0,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "steps",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "cfg",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "sampler_name",
+              "value": "euler",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "scheduler",
+              "value": "simple",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "start_at_step",
+              "value": 2,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "end_at_step",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "return_with_leftover_noise",
+              "value": "disable",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:160",
+              "sourceOutput": 0
+            },
+            {
+              "field": "positive",
+              "sourceNodeId": "172:164",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "172:164",
+              "sourceOutput": 1
+            },
+            {
+              "field": "latent_image",
+              "sourceNodeId": "172:166",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:166",
+          "classType": "KSamplerAdvanced",
+          "title": "고급 KSampler",
+          "inputs": [
+            {
+              "field": "add_noise",
+              "value": "enable",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "noise_seed",
+              "value": 199339479576185,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "steps",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "cfg",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "sampler_name",
+              "value": "euler",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "scheduler",
+              "value": "simple",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "start_at_step",
+              "value": 0,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "end_at_step",
+              "value": 2,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "return_with_leftover_noise",
+              "value": "enable",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:163",
+              "sourceOutput": 0
+            },
+            {
+              "field": "positive",
+              "sourceNodeId": "172:164",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "172:164",
+              "sourceOutput": 1
+            },
+            {
+              "field": "latent_image",
+              "sourceNodeId": "172:164",
+              "sourceOutput": 2
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:167",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "slop_twerk_HighNoise_merged3_7_v2.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:169",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:168",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "slop_twerk_LowNoise_merged3_7_v2.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:170",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:169",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "NSFW-22-H-e8.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:155",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:170",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "NSFW-22-L-e8.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:171",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "172:171",
+          "classType": "LoraLoaderModelOnly",
+          "title": "LoRA 로드 (모델 전용)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "172:162",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        }
+      ],
+      "segments": [
+        {
+          "index": 1,
+          "nodeId": "172:164",
+          "subgraphName": "WAN 비디오 생성 (이미지 → 비디오)",
+          "displayName": "WAN 비디오 생성 (이미지 → 비디오)_1",
+          "classType": "WanImageToVideo",
+          "positiveNode": "145",
+          "negativeNode": "136",
+          "startImageNode": "143",
+          "endImageNode": "",
+          "params": [
+            {
+              "param": "seed",
+              "uiKey": "seed",
+              "label": "Seed",
+              "type": "int",
+              "min": null,
+              "max": null,
+              "default": 199339479576185,
+              "randomizable": true,
+              "sync": false,
+              "options": [],
+              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:166",
+                  "field": "noise_seed",
+                  "classType": "KSamplerAdvanced",
+                  "title": "고급 KSampler"
+                }
+              ]
+            },
+            {
+              "param": "steps",
+              "uiKey": "steps",
+              "label": "Sampling Steps",
+              "type": "int",
+              "min": 1,
+              "max": 50,
+              "default": 4,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "샘플링 반복 횟수입니다. 높을수록 디테일은 늘 수 있지만 생성 시간이 증가합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:165",
+                  "field": "steps",
+                  "classType": "KSamplerAdvanced",
+                  "title": "고급 KSampler"
+                },
+                {
+                  "nodeId": "172:166",
+                  "field": "steps",
+                  "classType": "KSamplerAdvanced",
+                  "title": "고급 KSampler"
+                }
+              ]
+            },
+            {
+              "param": "cfg_scale",
+              "uiKey": "cfgScale",
+              "label": "CFG Scale",
+              "type": "float",
+              "min": 0.0,
+              "max": 12.0,
+              "default": 1,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "프롬프트 반영 강도입니다. 과도하게 높으면 왜곡이나 경직된 움직임이 생길 수 있습니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:165",
+                  "field": "cfg",
+                  "classType": "KSamplerAdvanced",
+                  "title": "고급 KSampler"
+                },
+                {
+                  "nodeId": "172:166",
+                  "field": "cfg",
+                  "classType": "KSamplerAdvanced",
+                  "title": "고급 KSampler"
+                }
+              ]
+            },
+            {
+              "param": "motion_shift",
+              "uiKey": "motionShift",
+              "label": "Motion Shift",
+              "type": "float",
+              "min": 0.0,
+              "max": 10.0,
+              "default": 4.99,
+              "randomizable": false,
+              "sync": true,
+              "options": [],
+              "description": "움직임 변화량입니다. workflow 내 연결된 sampling 노드에 동일하게 반영될 수 있습니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:160",
+                  "field": "shift",
+                  "classType": "ModelSamplingSD3",
+                  "title": "모델 샘플링 (SD3)"
+                },
+                {
+                  "nodeId": "172:163",
+                  "field": "shift",
+                  "classType": "ModelSamplingSD3",
+                  "title": "모델 샘플링 (SD3)"
+                }
+              ]
+            },
+            {
+              "param": "frames",
+              "uiKey": "frames",
+              "label": "Frames",
+              "type": "int",
+              "min": 15,
+              "max": 121,
+              "default": 161,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "생성할 총 프레임 수입니다. 길이와 움직임 범위를 직접 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:164",
+                  "field": "length",
+                  "classType": "WanImageToVideo",
+                  "title": "WAN 비디오 생성 (이미지 → 비디오)"
+                }
+              ]
+            },
+            {
+              "param": "output_fps",
+              "uiKey": "outputFps",
+              "label": "Final Output FPS",
+              "type": "int",
+              "min": 8,
+              "max": 60,
+              "default": 16,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "최종 출력 CreateVideo 노드의 FPS입니다. 세그먼트 FPS와 별도로 최종 결합 영상에 적용됩니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140",
+                  "field": "fps",
+                  "classType": "CreateVideo",
+                  "title": "비디오 생성"
+                }
+              ]
+            },
+            {
+              "param": "bit_depth",
+              "uiKey": "bitDepth",
+              "label": "Final Bit Depth",
+              "type": "int",
+              "min": 8,
+              "max": 16,
+              "default": 8,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "최종 출력 CreateVideo 노드의 bit_depth입니다. 기본값 8을 권장합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140",
+                  "field": "bit_depth",
+                  "classType": "CreateVideo",
+                  "title": "비디오 생성"
+                }
+              ]
+            },
+            {
+              "param": "video_format",
+              "uiKey": "videoFormat",
+              "label": "Final Format",
+              "type": "string",
+              "min": null,
+              "max": null,
+              "default": "mp4",
+              "randomizable": false,
+              "sync": false,
+              "options": [
+                "auto",
+                "mp4"
+              ],
+              "description": "최종 출력 SaveVideo 노드의 format입니다. ComfyUI에서 지원하는 값을 입력합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "108",
+                  "field": "format",
+                  "classType": "SaveVideo",
+                  "title": "비디오 저장"
+                }
+              ]
+            },
+            {
+              "param": "video_codec",
+              "uiKey": "videoCodec",
+              "label": "Final Codec",
+              "type": "string",
+              "min": null,
+              "max": null,
+              "default": "h264",
+              "randomizable": false,
+              "sync": false,
+              "options": [
+                "auto",
+                "h264"
+              ],
+              "description": "최종 출력 SaveVideo 노드의 codec입니다. ComfyUI에서 지원하는 값을 입력합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "108",
+                  "field": "codec",
+                  "classType": "SaveVideo",
+                  "title": "비디오 저장"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": {
+        "loras": [
+          "NSFW-22-H-e8.safetensors",
+          "NSFW-22-L-e8.safetensors",
+          "slop_twerk_HighNoise_merged3_7_v2.safetensors",
+          "slop_twerk_LowNoise_merged3_7_v2.safetensors",
+          "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+          "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
+        ],
+        "text_encoders": [
+          "umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+        ],
+        "unet": [
+          "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+          "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors"
+        ],
+        "vae": [
+          "wan_2.1_vae.safetensors"
+        ]
+      }
+    },
+    "Pickme_Workflow.json": {
+      "workflowId": "Pickme_Workflow.json",
+      "name": "Pickme_Workflow",
+      "nodeCount": 22,
+      "nodes": [
+        {
+          "nodeId": "108",
+          "classType": "SaveVideo",
+          "title": "Save Video",
+          "inputs": [
+            {
+              "field": "filename_prefix",
+              "value": "video/ComfyUI",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "format",
+              "value": "auto",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "codec",
+              "value": "auto",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "video",
+              "sourceNodeId": "94",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "122",
+          "classType": "LoraLoader",
+          "title": "Load LoRA (Model and CLIP)",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "doggy_style_sex_front_view_Wan2.2_I2V_Low_v1.0.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "strength_clip",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "141",
+          "classType": "LoadImage",
+          "title": "Load Image",
+          "inputs": [
+            {
+              "field": "image",
+              "value": "뿔뿔뿔뿔.png",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:127",
+          "classType": "VAELoader",
+          "title": "Load VAE",
+          "inputs": [
+            {
+              "field": "vae_name",
+              "value": "wan_2.1_vae.safetensors",
+              "modelBucket": "vae",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:128",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1.0000000000000002,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:131",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:129",
+          "classType": "VAEDecode",
+          "title": "VAE Decode",
+          "inputs": [],
+          "links": [
+            {
+              "field": "samples",
+              "sourceNodeId": "85",
+              "sourceOutput": 0
+            },
+            {
+              "field": "vae",
+              "sourceNodeId": "143:127",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:130",
+          "classType": "UNETLoader",
+          "title": "Load Diffusion Model",
+          "inputs": [
+            {
+              "field": "unet_name",
+              "value": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+              "modelBucket": "unet",
+              "options": []
+            },
+            {
+              "field": "weight_dtype",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:131",
+          "classType": "UNETLoader",
+          "title": "Load Diffusion Model",
+          "inputs": [
+            {
+              "field": "unet_name",
+              "value": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+              "modelBucket": "unet",
+              "options": []
+            },
+            {
+              "field": "weight_dtype",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:132",
+          "classType": "WanImageToVideo",
+          "title": "WanImageToVideo",
+          "inputs": [
+            {
+              "field": "width",
+              "value": 1280,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "height",
+              "value": 720,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "length",
+              "value": 161,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "batch_size",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "positive",
+              "sourceNodeId": "93",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "89",
+              "sourceOutput": 0
+            },
+            {
+              "field": "vae",
+              "sourceNodeId": "143:127",
+              "sourceOutput": 0
+            },
+            {
+              "field": "start_image",
+              "sourceNodeId": "141",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:133",
+          "classType": "KSamplerAdvanced",
+          "title": "KSampler (Advanced)",
+          "inputs": [
+            {
+              "field": "add_noise",
+              "value": "enable",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "noise_seed",
+              "value": 199339479576185,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "steps",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "cfg",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "sampler_name",
+              "value": "euler",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "scheduler",
+              "value": "simple",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "start_at_step",
+              "value": 0,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "end_at_step",
+              "value": 2,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "return_with_leftover_noise",
+              "value": "enable",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:136",
+              "sourceOutput": 0
+            },
+            {
+              "field": "positive",
+              "sourceNodeId": "143:132",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "143:132",
+              "sourceOutput": 1
+            },
+            {
+              "field": "latent_image",
+              "sourceNodeId": "143:132",
+              "sourceOutput": 2
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:134",
+          "classType": "CLIPLoader",
+          "title": "Load CLIP",
+          "inputs": [
+            {
+              "field": "clip_name",
+              "value": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+              "modelBucket": "text_encoders",
+              "options": []
+            },
+            {
+              "field": "type",
+              "value": "wan",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "device",
+              "value": "default",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:135",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:130",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:136",
+          "classType": "ModelSamplingSD3",
+          "title": "ModelSamplingSD3",
+          "inputs": [
+            {
+              "field": "shift",
+              "value": 5.000000000000001,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:142",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:137",
+          "classType": "ModelSamplingSD3",
+          "title": "ModelSamplingSD3",
+          "inputs": [
+            {
+              "field": "shift",
+              "value": 5.000000000000001,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:138",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:138",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "slop_twerk_LowNoise_merged3_7_v2.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:139",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:139",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "NSFW-22-L-e8.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 3,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:128",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:140",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "NSFW-22-H-e8.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 3,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:135",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "143:142",
+          "classType": "LoraLoaderModelOnly",
+          "title": "Load LoRA",
+          "inputs": [
+            {
+              "field": "lora_name",
+              "value": "slop_twerk_HighNoise_merged3_7_v2.safetensors",
+              "modelBucket": "loras",
+              "options": []
+            },
+            {
+              "field": "strength_model",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:140",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "85",
+          "classType": "KSamplerAdvanced",
+          "title": "KSampler (Advanced)",
+          "inputs": [
+            {
+              "field": "add_noise",
+              "value": "disable",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "noise_seed",
+              "value": 0,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "steps",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "cfg",
+              "value": 1,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "sampler_name",
+              "value": "euler",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "scheduler",
+              "value": "simple",
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "start_at_step",
+              "value": 2,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "end_at_step",
+              "value": 4,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "return_with_leftover_noise",
+              "value": "disable",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "model",
+              "sourceNodeId": "143:137",
+              "sourceOutput": 0
+            },
+            {
+              "field": "positive",
+              "sourceNodeId": "143:132",
+              "sourceOutput": 0
+            },
+            {
+              "field": "negative",
+              "sourceNodeId": "143:132",
+              "sourceOutput": 1
+            },
+            {
+              "field": "latent_image",
+              "sourceNodeId": "143:133",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "89",
+          "classType": "CLIPTextEncode",
+          "title": "CLIP Text Encode (Negative Prompt)",
+          "inputs": [
+            {
+              "field": "text",
+              "value": "photorealistic, realistic skin texture, 3D render, style shift, art style change, face/hand/foot distortion, background movement",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "clip",
+              "sourceNodeId": "143:134",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "93",
+          "classType": "CLIPTextEncode",
+          "title": "CLIP Text Encode (Positive Prompt)",
+          "inputs": [
+            {
+              "field": "text",
+              "value": "",
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "clip",
+              "sourceNodeId": "143:134",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        },
+        {
+          "nodeId": "94",
+          "classType": "CreateVideo",
+          "title": "Create Video",
+          "inputs": [
+            {
+              "field": "fps",
+              "value": 16,
+              "modelBucket": "",
+              "options": []
+            },
+            {
+              "field": "bit_depth",
+              "value": 8,
+              "modelBucket": "",
+              "options": []
+            }
+          ],
+          "links": [
+            {
+              "field": "images",
+              "sourceNodeId": "143:129",
+              "sourceOutput": 0
+            }
+          ],
+          "hasObjectInfo": false
+        }
+      ],
+      "segments": [
+        {
+          "index": 1,
+          "nodeId": "143:132",
+          "subgraphName": "WanImageToVideo",
+          "displayName": "WanImageToVideo_1",
+          "classType": "WanImageToVideo",
+          "positiveNode": "93",
+          "negativeNode": "89",
+          "startImageNode": "141",
+          "endImageNode": "",
+          "params": [
+            {
+              "param": "seed",
+              "uiKey": "seed",
+              "label": "Seed",
+              "type": "int",
+              "min": null,
+              "max": null,
+              "default": 199339479576185,
+              "randomizable": true,
+              "sync": false,
+              "options": [],
+              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:133",
+                  "field": "noise_seed",
+                  "classType": "KSamplerAdvanced",
+                  "title": "KSampler (Advanced)"
+                }
+              ]
+            },
+            {
+              "param": "steps",
+              "uiKey": "steps",
+              "label": "Sampling Steps",
+              "type": "int",
+              "min": 1,
+              "max": 50,
+              "default": 4,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "샘플링 반복 횟수입니다. 높을수록 디테일은 늘 수 있지만 생성 시간이 증가합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:133",
+                  "field": "steps",
+                  "classType": "KSamplerAdvanced",
+                  "title": "KSampler (Advanced)"
+                }
+              ]
+            },
+            {
+              "param": "cfg_scale",
+              "uiKey": "cfgScale",
+              "label": "CFG Scale",
+              "type": "float",
+              "min": 0.0,
+              "max": 12.0,
+              "default": 1,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "프롬프트 반영 강도입니다. 과도하게 높으면 왜곡이나 경직된 움직임이 생길 수 있습니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:133",
+                  "field": "cfg",
+                  "classType": "KSamplerAdvanced",
+                  "title": "KSampler (Advanced)"
+                }
+              ]
+            },
+            {
+              "param": "motion_shift",
+              "uiKey": "motionShift",
+              "label": "Motion Shift",
+              "type": "float",
+              "min": 0.0,
+              "max": 10.0,
+              "default": 5.000000000000001,
+              "randomizable": false,
+              "sync": true,
+              "options": [],
+              "description": "움직임 변화량입니다. workflow 내 연결된 sampling 노드에 동일하게 반영될 수 있습니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:136",
+                  "field": "shift",
+                  "classType": "ModelSamplingSD3",
+                  "title": "ModelSamplingSD3"
+                },
+                {
+                  "nodeId": "143:137",
+                  "field": "shift",
+                  "classType": "ModelSamplingSD3",
+                  "title": "ModelSamplingSD3"
+                }
+              ]
+            },
+            {
+              "param": "frames",
+              "uiKey": "frames",
+              "label": "Frames",
+              "type": "int",
+              "min": 15,
+              "max": 121,
+              "default": 161,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "생성할 총 프레임 수입니다. 길이와 움직임 범위를 직접 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:132",
+                  "field": "length",
+                  "classType": "WanImageToVideo",
+                  "title": "WanImageToVideo"
+                }
+              ]
+            },
+            {
+              "param": "output_fps",
+              "uiKey": "outputFps",
+              "label": "Final Output FPS",
+              "type": "int",
+              "min": 8,
+              "max": 60,
+              "default": 16,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "최종 출력 CreateVideo 노드의 FPS입니다. 세그먼트 FPS와 별도로 최종 결합 영상에 적용됩니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "94",
+                  "field": "fps",
+                  "classType": "CreateVideo",
+                  "title": "Create Video"
+                }
+              ]
+            },
+            {
+              "param": "bit_depth",
+              "uiKey": "bitDepth",
+              "label": "Final Bit Depth",
+              "type": "int",
+              "min": 8,
+              "max": 16,
+              "default": 8,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "최종 출력 CreateVideo 노드의 bit_depth입니다. 기본값 8을 권장합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "94",
+                  "field": "bit_depth",
+                  "classType": "CreateVideo",
+                  "title": "Create Video"
+                }
+              ]
+            },
+            {
+              "param": "video_format",
+              "uiKey": "videoFormat",
+              "label": "Final Format",
+              "type": "string",
+              "min": null,
+              "max": null,
+              "default": "auto",
+              "randomizable": false,
+              "sync": false,
+              "options": [
+                "auto",
+                "mp4"
+              ],
+              "description": "최종 출력 SaveVideo 노드의 format입니다. ComfyUI에서 지원하는 값을 입력합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "108",
+                  "field": "format",
+                  "classType": "SaveVideo",
+                  "title": "Save Video"
+                }
+              ]
+            },
+            {
+              "param": "video_codec",
+              "uiKey": "videoCodec",
+              "label": "Final Codec",
+              "type": "string",
+              "min": null,
+              "max": null,
+              "default": "auto",
+              "randomizable": false,
+              "sync": false,
+              "options": [
+                "auto",
+                "h264"
+              ],
+              "description": "최종 출력 SaveVideo 노드의 codec입니다. ComfyUI에서 지원하는 값을 입력합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "108",
+                  "field": "codec",
+                  "classType": "SaveVideo",
+                  "title": "Save Video"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": {
+        "loras": [
+          "NSFW-22-H-e8.safetensors",
+          "NSFW-22-L-e8.safetensors",
+          "doggy_style_sex_front_view_Wan2.2_I2V_Low_v1.0.safetensors",
+          "slop_twerk_HighNoise_merged3_7_v2.safetensors",
+          "slop_twerk_LowNoise_merged3_7_v2.safetensors",
           "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
           "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
         ],

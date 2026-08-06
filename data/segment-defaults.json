@@ -226,5 +226,45 @@
         }
       }
     ]
+  },
+  "Blowbang1.json": {
+    "workflowName": "Blowbang1",
+    "segments": [
+      {
+        "id": "segment-1",
+        "name": "WAN 비디오 생성 (이미지 → 비디오)_1",
+        "config": {
+          "steps": 4,
+          "cfgScale": 1,
+          "motionShift": 4.99,
+          "frames": 161,
+          "outputFps": 16,
+          "bitDepth": 8,
+          "videoFormat": "mp4",
+          "videoCodec": "h264",
+          "fps": 16
+        }
+      }
+    ]
+  },
+  "Pickme_Workflow.json": {
+    "workflowName": "Pickme_Workflow",
+    "segments": [
+      {
+        "id": "segment-1",
+        "name": "WanImageToVideo_1",
+        "config": {
+          "steps": 4,
+          "cfgScale": 1,
+          "motionShift": 5.000000000000001,
+          "frames": 161,
+          "outputFps": 16,
+          "bitDepth": 8,
+          "videoFormat": "auto",
+          "videoCodec": "auto",
+          "fps": 16
+        }
+      }
+    ]
   }
 }

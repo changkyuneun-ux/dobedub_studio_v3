@@ -1,27 +1,29 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
+from backend.app.core.config import get_settings
+from backend.app.services.segment_defaults_loader import get_workflow_segment_defaults
+from backend.app.services.workflow_parser import (
+    list_workflows as parse_workflow_list,
+    workflow_schema as parse_workflow_schema,
+)
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-import server  # noqa: E402
+def bundled_segment_defaults_path(settings):
+    return settings.project_root / "data" / "segment-defaults.json"
 
 
 def list_workflows() -> list[dict]:
-    return server.list_workflows()
+    settings = get_settings()
+    from backend.app.services.admin_service import is_workflow_active
+
+    return [workflow for workflow in parse_workflow_list(settings.workflows_dir) if is_workflow_active(str(workflow.get("id") or ""))]
 
 
 def get_workflow_schema(workflow_id: str) -> dict:
-    return server.workflow_schema(workflow_id)
+    settings = get_settings()
+    return parse_workflow_schema(workflow_id, settings.workflows_dir)
 
 
 def get_segment_defaults(workflow_id: str) -> dict:
-    return server.workflow_segment_defaults(workflow_id)
-
-
-def get_widget_metadata(workflow_id: str) -> dict:
-    return server.workflow_widget_metadata(workflow_id)
+    settings = get_settings()
+    return get_workflow_segment_defaults(workflow_id, settings.data_dir, bundled_segment_defaults_path(settings))

@@ -1,17 +1,71 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import inspect
 
+from backend.app.api.manual import router as manual_router
+from backend.app.api.web import router as web_router
+from backend.app.api.v1.admin import router as admin_router
+from backend.app.api.v1.auth import router as auth_router
+from backend.app.api.v1.assets import router as assets_router
+from backend.app.api.v1.configs import router as configs_router
 from backend.app.api.v1.health import router as health_router
+from backend.app.api.v1.history import router as history_router
+from backend.app.api.v1.jobs import router as jobs_router
 from backend.app.api.v1.metadata import router as metadata_router
+from backend.app.api.v1.prompts import router as prompts_router
+from backend.app.api.v1.reports import router as reports_router
+from backend.app.api.v1.segment_defaults import router as segment_defaults_router
+from backend.app.api.v1.system import router as system_router
 from backend.app.api.v1.workflows import router as workflows_router
 from backend.app.core.config import get_settings
+from backend.app.db.session import engine
+from backend.app.services.studio_api_service import ensure_storage_dirs
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+def _ensure_database_schema() -> None:
+    if os.environ.get("RUN_SERVER_AUTO_MIGRATE", "0") != "1":
+        return
+
+    try:
+        table_names = set(inspect(engine).get_table_names())
+    except Exception as exc:
+        raise RuntimeError("Database is not reachable or DATABASE_URL is invalid") from exc
+
+    if "users" in table_names:
+        return
+
+    from alembic import command
+    from alembic.config import Config
+
+    config = Config(str(get_settings().project_root / "alembic.ini"))
+    LOGGER.info("users table missing: running alembic upgrade head for first-time schema bootstrap.")
+    command.upgrade(config, "head")
+
+
+@asynccontextmanager
+async def _lifecycle(_: FastAPI):
+    _ensure_database_schema()
+    yield
 
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title=settings.app_name)
+    ensure_storage_dirs()
+    app = FastAPI(
+        title=settings.app_name,
+        docs_url="/api-docs",
+        redoc_url="/api-redoc",
+        lifespan=_lifecycle,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -19,9 +73,45 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(health_router, prefix=settings.api_prefix)
-    app.include_router(workflows_router, prefix=settings.api_prefix)
-    app.include_router(metadata_router, prefix=settings.api_prefix)
+
+    @app.middleware("http")
+    async def no_cache_studio_assets(request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/studio"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+    api_routers = [
+        health_router,
+        admin_router,
+        auth_router,
+        assets_router,
+        workflows_router,
+        segment_defaults_router,
+        metadata_router,
+        prompts_router,
+        jobs_router,
+        history_router,
+        configs_router,
+        reports_router,
+        system_router,
+    ]
+    for prefix in (settings.api_prefix, "/api"):
+        for router in api_routers:
+            app.include_router(router, prefix=prefix)
+    app.include_router(manual_router)
+    docs_dir = settings.project_root / "docs"
+    if docs_dir.exists():
+        app.mount("/docs", StaticFiles(directory=str(docs_dir)), name="studio-docs")
+    src_dir = settings.project_root / "src"
+    if src_dir.exists():
+        app.mount("/src", StaticFiles(directory=str(src_dir)), name="studio-src")
+    frontend_assets_dir = settings.project_root / "frontend" / "dist" / "assets"
+    if frontend_assets_dir.exists():
+        app.mount("/studio/assets", StaticFiles(directory=str(frontend_assets_dir)), name="studio-react-assets")
+    app.include_router(web_router)
     return app
 
 

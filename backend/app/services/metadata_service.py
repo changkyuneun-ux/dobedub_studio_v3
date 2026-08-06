@@ -1,19 +1,32 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
+from backend.app.core.config import get_settings
+from backend.app.services.metadata_loader import (
+    metadata_status as load_metadata_status,
+    model_metadata as load_model_metadata,
+    workflow_widget_metadata as load_workflow_widget_metadata,
+)
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-import server  # noqa: E402
+def metadata_paths():
+    settings = get_settings()
+    bundled_segment_defaults_path = settings.project_root / "data" / "segment-defaults.json"
+    return (
+        settings.project_root,
+        settings.workflows_dir,
+        settings.data_dir,
+        settings.metadata_dir,
+        bundled_segment_defaults_path,
+    )
 
 
 def get_metadata_status() -> dict:
-    return server.metadata_status()
+    return load_metadata_status(*metadata_paths())
 
 
 def get_model_metadata() -> dict:
-    return server.model_metadata()
+    return load_model_metadata(*metadata_paths())
+
+
+def get_workflow_widget_metadata(workflow_id: str) -> dict:
+    return load_workflow_widget_metadata(workflow_id, *metadata_paths())
