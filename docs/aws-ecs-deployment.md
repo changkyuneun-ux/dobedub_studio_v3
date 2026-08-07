@@ -34,6 +34,14 @@ RUNPOD_DRY_RUN=0
 RUNPOD_API_KEY=<secret>
 RUNPOD_ENDPOINT_ID=<endpoint-id>
 RUNPOD_BASE_URL=https://api.runpod.ai/v2
+RUNPOD_SANDBOX_NETWORK_VOLUME_ID=<sandbox-network-volume-id>
+RUNPOD_SANDBOX_TEMPLATE_ID=<sandbox-template-id>
+RUNPOD_SANDBOX_GPU_TYPE_ID=NVIDIA GeForce RTX 5090
+RUNPOD_SANDBOX_GPU_COUNT=1
+RUNPOD_SANDBOX_DEPLOY_NAME=dobedub_comfyUI_Sandbox
+RUNPOD_SANDBOX_POD_API_KEY=<secret>
+RUNPOD_SANDBOX_POD_REST_URL=https://rest.runpod.io/v1
+RUNPOD_SANDBOX_POD_TIMEOUT=20
 PROMPT_LLM_PROVIDER=runpod_vllm
 PROMPT_LLM_API_KEY=<secret>
 PROMPT_LLM_ENDPOINT_ID=<qwen-endpoint-id>
@@ -45,6 +53,8 @@ RUN_SERVER_AUTO_MIGRATE=0
 ```
 
 `RUNPOD_API_KEY`, `PROMPT_LLM_API_KEY`, `DATABASE_URL`, `AUTH_JWT_SECRET`는 Secrets Manager 또는 SSM Parameter Store 참조로 주입합니다. `PROMPT_LLM_API_KEY`가 같은 RunPod key를 쓰는 경우에도 별도 secret으로 분리해 두면 endpoint 교체가 쉽습니다. `DATABASE_SSL_CA`는 AWS RDS 콘솔이 안내하는 `global-bundle.pem` 경로를 container 안의 실제 파일 위치로 지정합니다. `DATABASE_SSL_VERIFY_IDENTITY=1`은 RDS 권장 접속 방식과 맞춥니다. `RUN_SERVER_AUTO_MIGRATE=0`으로 두고, migration은 one-off task로 분리합니다.
+
+Sandbox Pod 운영을 사용할 때는 `RUNPOD_SANDBOX_POD_API_KEY`를 Secrets Manager 참조로 주입합니다. 현재 RunPod API key와 같은 키를 사용하더라도 별도 환경변수 이름으로 주입해야 하며, Pod ID나 Pod 이름은 migration에 따라 바뀔 수 있으므로 고정 selector로 사용하지 않습니다. `RUNPOD_SANDBOX_NETWORK_VOLUME_ID`를 기본 selector로, `RUNPOD_SANDBOX_TEMPLATE_ID`를 보조 selector로 사용합니다.
 
 인증은 `Authorization: Bearer <JWT>`만 허용합니다. `AUTH_TRUST_PROXY_HEADERS` 및 `X-User-*` 헤더 기반 인증은 지원하지 않으므로, ECS task definition에서도 해당 환경변수를 제거합니다.
 

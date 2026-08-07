@@ -19,6 +19,7 @@
 - [ ] image만 새 immutable tag로 교체하고, task role/execution role, log group, port `7860`, EFS volume과 mount `/data/outputs`는 유지한다.
 - [ ] 환경값을 확인한다: `PERSISTENCE_BACKEND=db`, `STORAGE_BACKEND=local`, `STUDIO_DATA_DIR=/data/outputs/dobedub-studio`, `OUTPUTS_DIR=/data/outputs/dobedub-studio/outputs`, `RUN_SERVER_AUTO_MIGRATE=0`, `RUNPOD_DRY_RUN=0`.
 - [ ] `DATABASE_URL`, `RUNPOD_API_KEY`, `PROMPT_LLM_API_KEY`, `AUTH_JWT_SECRET`는 Secrets Manager 참조인지 확인한다.
+- [ ] Sandbox Pod 운영을 사용하는 경우 `RUNPOD_SANDBOX_POD_API_KEY`도 Secrets Manager 참조인지 확인하고, `RUNPOD_SANDBOX_NETWORK_VOLUME_ID`, `RUNPOD_SANDBOX_TEMPLATE_ID`, GPU type/count를 현재 RunPod Sandbox 구성과 일치시킨다.
 - [ ] `DATABASE_SSL_CA=/app/certs/global-bundle.pem`, `DATABASE_SSL_VERIFY_IDENTITY=1`을 확인한다.
 - [ ] `AUTH_TRUST_PROXY_HEADERS` 환경변수가 task definition에 없는지 확인한다. 인증은 JWT bearer token만 사용한다.
 
