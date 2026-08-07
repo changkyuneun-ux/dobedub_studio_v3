@@ -29,6 +29,16 @@ class Settings:
     runpod_endpoint_id: str = ""
     runpod_base_url: str = "https://api.runpod.ai/v2"
     runpod_timeout: int = 30
+    sandbox_pod_id: str = ""
+    sandbox_pod_name: str = ""
+    sandbox_pod_network_volume_id: str = ""
+    sandbox_pod_template_id: str = ""
+    sandbox_pod_gpu_type_id: str = ""
+    sandbox_pod_gpu_count: int = 1
+    sandbox_pod_deploy_name: str = "dobedub_comfyUI_Sandbox"
+    sandbox_pod_api_key: str = ""
+    sandbox_pod_rest_url: str = "https://rest.runpod.io/v1"
+    sandbox_pod_timeout: int = 20
     prompt_llm_provider: str = "mock"
     prompt_llm_api_key: str = ""
     prompt_llm_endpoint_id: str = ""
@@ -48,6 +58,14 @@ def get_settings() -> Settings:
         runpod_timeout = int(os.environ.get("RUNPOD_TIMEOUT", "30"))
     except ValueError:
         runpod_timeout = 30
+    try:
+        sandbox_pod_timeout = int(os.environ.get("RUNPOD_SANDBOX_POD_TIMEOUT", "20"))
+    except ValueError:
+        sandbox_pod_timeout = 20
+    try:
+        sandbox_pod_gpu_count = max(1, int(os.environ.get("RUNPOD_SANDBOX_GPU_COUNT", "1")))
+    except ValueError:
+        sandbox_pod_gpu_count = 1
     try:
         prompt_llm_timeout = int(os.environ.get("PROMPT_LLM_TIMEOUT", "45"))
     except ValueError:
@@ -81,6 +99,16 @@ def get_settings() -> Settings:
         runpod_endpoint_id=os.environ.get("RUNPOD_ENDPOINT_ID", ""),
         runpod_base_url=os.environ.get("RUNPOD_BASE_URL", "https://api.runpod.ai/v2"),
         runpod_timeout=runpod_timeout,
+        sandbox_pod_id=os.environ.get("RUNPOD_SANDBOX_POD_ID", ""),
+        sandbox_pod_name=os.environ.get("RUNPOD_SANDBOX_POD_NAME", ""),
+        sandbox_pod_network_volume_id=os.environ.get("RUNPOD_SANDBOX_NETWORK_VOLUME_ID", ""),
+        sandbox_pod_template_id=os.environ.get("RUNPOD_SANDBOX_TEMPLATE_ID", ""),
+        sandbox_pod_gpu_type_id=os.environ.get("RUNPOD_SANDBOX_GPU_TYPE_ID", ""),
+        sandbox_pod_gpu_count=sandbox_pod_gpu_count,
+        sandbox_pod_deploy_name=os.environ.get("RUNPOD_SANDBOX_DEPLOY_NAME", "dobedub_comfyUI_Sandbox"),
+        sandbox_pod_api_key=os.environ.get("RUNPOD_SANDBOX_POD_API_KEY", ""),
+        sandbox_pod_rest_url=os.environ.get("RUNPOD_SANDBOX_POD_REST_URL", "https://rest.runpod.io/v1"),
+        sandbox_pod_timeout=sandbox_pod_timeout,
         prompt_llm_provider=os.environ.get("PROMPT_LLM_PROVIDER", "mock").strip().lower() or "mock",
         prompt_llm_api_key=os.environ.get("PROMPT_LLM_API_KEY", ""),
         prompt_llm_endpoint_id=os.environ.get("PROMPT_LLM_ENDPOINT_ID", ""),

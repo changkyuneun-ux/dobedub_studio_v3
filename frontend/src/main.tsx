@@ -26,6 +26,7 @@ import {
   SegmentDefaultsResponse,
   PromptTerm,
   RunpodConnectionResponse,
+  SandboxPodStatus,
   SystemStatusResponse,
   UploadResponse,
   WorkflowItem,
@@ -117,11 +118,13 @@ const ADMIN_USER_PERMISSIONS = ["users:read"];
 const ADMIN_PERMISSION_PERMISSIONS = ["roles:read"];
 const ADMIN_WORKFLOW_PERMISSIONS = ["workflows:write", "workflows:activate"];
 const ADMIN_CATALOG_PERMISSIONS = ["prompt-catalog:write"];
+const ADMIN_SANDBOX_POD_PERMISSIONS = ["sandbox:read"];
 const ADMIN_CONSOLE_PERMISSIONS = [
   ...ADMIN_USER_PERMISSIONS,
   ...ADMIN_PERMISSION_PERMISSIONS,
   ...ADMIN_WORKFLOW_PERMISSIONS,
-  ...ADMIN_CATALOG_PERMISSIONS
+  ...ADMIN_CATALOG_PERMISSIONS,
+  ...ADMIN_SANDBOX_POD_PERMISSIONS
 ];
 
 function canUseAdminConsole(user: User | null) {
@@ -142,6 +145,10 @@ function canUseAdminWorkflows(user: User | null) {
 
 function canUseAdminCatalog(user: User | null) {
   return canUseAny(user, ADMIN_CATALOG_PERMISSIONS);
+}
+
+function canUseAdminSandboxPod(user: User | null) {
+  return canUseAny(user, ADMIN_SANDBOX_POD_PERMISSIONS);
 }
 
 const PROMPT_SCOPE_ORDER = ["positive", "negative"];
@@ -459,8 +466,9 @@ function StudioShell({
   const [logText, setLogText] = useState("");
   const [latestJob, setLatestJob] = useState<JobStatusResponse | null>(null);
   const [outputAssets, setOutputAssets] = useState<OutputAsset[]>([]);
-	  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const workflowSelectionLocked = running || cancelRequested;
 
   async function loadWorkflowIntoState(workflowId: string, options?: { preserveNotice?: boolean }) {
     setError("");
@@ -939,6 +947,9 @@ function StudioShell({
   async function loadWorkflows(preferredWorkflowId?: string) {
     const workflowResponse = await apiClient.workflows();
     setWorkflows(workflowResponse || []);
+    if (workflowSelectionLocked) {
+      return;
+    }
     const defaultWorkflow = (workflowResponse || []).find((workflow) => workflow.id === preferredWorkflowId)
       || (workflowResponse || []).find((workflow) => workflow.id === selectedWorkflow)
       || (workflowResponse || []).find((workflow) => workflow.id === "1-images.json")
@@ -1267,6 +1278,10 @@ function StudioShell({
   }
 
   async function applyHistoryRework(item: HistoryItem) {
+    if (workflowSelectionLocked) {
+      setModalNotice("생성 작업이 종료된 후 재작업 정보를 불러올 수 있습니다.");
+      return;
+    }
     const targetWorkflowId = workflowIdFromHistoryItem(item, workflows, selectedWorkflow);
     if (!targetWorkflowId) {
       setModalNotice("재작업에 사용할 워크플로우를 찾지 못했습니다.");
@@ -1420,13 +1435,26 @@ function StudioShell({
           <h2>Workflow List</h2>
           <span>{health?.system?.database?.persistenceBackend || "json"}</span>
         </div>
-        <select value={selectedWorkflow} onChange={(event) => setSelectedWorkflow(event.target.value)}>
+        <select
+          aria-describedby={workflowSelectionLocked ? "workflow-selection-lock" : undefined}
+          disabled={workflowSelectionLocked}
+          title={workflowSelectionLocked ? "생성 중에는 워크플로우를 변경할 수 없습니다." : undefined}
+          value={selectedWorkflow}
+          onChange={(event) => {
+            if (workflowSelectionLocked) {
+              setNotice("생성 중에는 워크플로우를 변경할 수 없습니다. 완료 또는 실패 후 다시 선택하세요.");
+              return;
+            }
+            setSelectedWorkflow(event.target.value);
+          }}
+        >
           {workflows.map((workflow) => (
             <option key={workflow.id} value={workflow.id}>
               Workflow Type: Wan {workflow.label || workflow.name || workflow.id} ({workflow.keyframeCount || 1} keyframes)
             </option>
           ))}
         </select>
+        {workflowSelectionLocked ? <p className="workflow-selection-lock" id="workflow-selection-lock">생성 중에는 워크플로우 변경이 잠깐 잠깁니다. 현재 작업이 완료 또는 실패하면 다시 선택할 수 있습니다.</p> : null}
         <div className="workflow-meta">
           <span>{schema?.keyframeCount || selected?.keyframeCount || 0} input image(s)</span>
           <span>{schema?.segmentCount || selected?.segmentCount || 0} subgraph segment(s)</span>
@@ -1880,7 +1908,7 @@ type PromptCatalogAdminScope = {
   groups: PromptCategoryGroup[];
 };
 
-type AdminTab = "users" | "permissions" | "workflows" | "catalog";
+type AdminTab = "users" | "permissions" | "workflows" | "catalog" | "sandbox";
 
 const ADMIN_ROLE_GUIDE = [
   { role: "SUPER_ADMIN", description: "전체 운영 및 시스템 설정 권한. 기본 관리자 계정에만 권장합니다." },
@@ -1906,7 +1934,9 @@ const ADMIN_PERMISSION_OPTIONS = [
   { value: "prompts:review", label: "프롬프트 리뷰", description: "품질 등급, 코멘트, 재사용 가능 여부 관리" },
   { value: "metadata:read", label: "메타데이터 조회", description: "Workflow metadata 조회" },
   { value: "metadata:rebuild", label: "메타데이터 재생성", description: "Workflow metadata rebuild" },
-  { value: "system:read", label: "시스템 상태 조회", description: "ComfyUI/Qwen/DB 상태 확인" }
+  { value: "system:read", label: "시스템 상태 조회", description: "ComfyUI/Qwen/DB 상태 확인" },
+  { value: "sandbox:read", label: "Sandbox Pod 조회", description: "전용 RunPod Pod 상태와 HTTP 서비스 조회" },
+  { value: "sandbox:control", label: "Sandbox Pod 제어", description: "전용 RunPod Pod 시작 및 중지" }
 ];
 
 function adminUserFormFrom(user: AdminUser | null): Record<string, string> {
@@ -2038,11 +2068,13 @@ function AdminConsoleModal({
   const canManagePermissions = canUseAdminPermissions(user);
   const canManageWorkflows = canUseAdminWorkflows(user);
   const canManageCatalog = canUseAdminCatalog(user);
+  const canManageSandboxPod = canUseAdminSandboxPod(user);
   const availableAdminTabs = [
     canManageUsers ? "users" : null,
     canManagePermissions ? "permissions" : null,
     canManageWorkflows ? "workflows" : null,
-    canManageCatalog ? "catalog" : null
+    canManageCatalog ? "catalog" : null,
+    canManageSandboxPod ? "sandbox" : null
   ].filter(Boolean) as AdminTab[];
   const [activeTab, setActiveTab] = useState<AdminTab>(availableAdminTabs[0] || "users");
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -2065,6 +2097,10 @@ function AdminConsoleModal({
   });
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("");
+  const [sandboxPod, setSandboxPod] = useState<SandboxPodStatus | null>(null);
+  const [sandboxPodLoading, setSandboxPodLoading] = useState(false);
+  const [sandboxPodPendingAction, setSandboxPodPendingAction] = useState<"start" | "stop" | null>(null);
+  const sandboxPodAutoLoadAttempted = useRef(false);
 
   useEffect(() => {
     void loadAdminData();
@@ -2081,6 +2117,17 @@ function AdminConsoleModal({
       onCatalogVisible();
     }
   }, [activeTab, canManageCatalog, catalog, catalogLoading]);
+
+  useEffect(() => {
+    if (activeTab !== "sandbox") {
+      sandboxPodAutoLoadAttempted.current = false;
+      return;
+    }
+    if (canManageSandboxPod && !sandboxPodAutoLoadAttempted.current) {
+      sandboxPodAutoLoadAttempted.current = true;
+      void loadSandboxPod();
+    }
+  }, [activeTab, canManageSandboxPod]);
 
   useEffect(() => {
     setUserForm(adminUserFormFrom(selectedUser));
@@ -2275,6 +2322,32 @@ function AdminConsoleModal({
     }
   }
 
+  async function loadSandboxPod() {
+    setSandboxPodLoading(true);
+    setNotice("");
+    try {
+      setSandboxPod(await apiClient.sandboxPodStatus());
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sandbox Pod status load failed");
+    } finally {
+      setSandboxPodLoading(false);
+    }
+  }
+
+  async function controlSandboxPod(action: "start" | "stop") {
+    setSandboxPodLoading(true);
+    setNotice("");
+    try {
+      const response = action === "start" ? await apiClient.startSandboxPod() : await apiClient.stopSandboxPod();
+      setSandboxPod(response);
+      setNotice(response.message || (action === "start" ? "Sandbox Pod 시작을 요청했습니다." : "Sandbox Pod 중지를 요청했습니다."));
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sandbox Pod control failed");
+    } finally {
+      setSandboxPodLoading(false);
+    }
+  }
+
   return (
     <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="adminTitle" onMouseDown={(event) => {
       if (event.target === event.currentTarget) {
@@ -2285,7 +2358,7 @@ function AdminConsoleModal({
         <div className="modal-header">
           <div>
             <h2 id="adminTitle">Admin Console</h2>
-            <p>사용자, 워크플로우, Prompt Catalog 운영 관리를 수행합니다.</p>
+            <p>사용자, 워크플로우, Prompt Catalog 및 Sandbox Pod 운영 관리를 수행합니다.</p>
           </div>
           <div className="modal-actions">
             <button className="icon-button" type="button" onClick={onClose}>x</button>
@@ -2297,6 +2370,7 @@ function AdminConsoleModal({
           {canManagePermissions ? <button className={activeTab === "permissions" ? "is-active" : ""} type="button" onClick={() => setActiveTab("permissions")}>Roles & Permissions</button> : null}
           {canManageWorkflows ? <button className={activeTab === "workflows" ? "is-active" : ""} type="button" onClick={() => setActiveTab("workflows")}>Workflows</button> : null}
           {canManageCatalog ? <button className={activeTab === "catalog" ? "is-active" : ""} type="button" onClick={() => setActiveTab("catalog")}>Prompt Catalog</button> : null}
+          {canManageSandboxPod ? <button className={activeTab === "sandbox" ? "is-active" : ""} type="button" onClick={() => setActiveTab("sandbox")}>Sandbox Pod</button> : null}
         </div>
         {!availableAdminTabs.length ? <p className="modal-notice">사용 가능한 Admin 관리 권한이 없습니다.</p> : null}
         {activeTab === "users" && canManageUsers ? (
@@ -2579,6 +2653,46 @@ function AdminConsoleModal({
             </section>
           </div>
         ) : null}
+        {activeTab === "sandbox" && canManageSandboxPod ? (
+          <section className="admin-form sandbox-pod-panel">
+            <div className="section-title">
+              <h3>Sandbox Pod</h3>
+              <span>{sandboxPod?.runtimeStatus || sandboxPod?.desiredStatus || "NOT CHECKED"}</span>
+            </div>
+            <p className="muted-text">일상적인 영상 생성용 Serverless와 분리된 전용 Pod입니다. 여기서는 Pod 상태와 노출된 HTTP 서비스만 관리합니다.</p>
+            {!sandboxPod && sandboxPodLoading ? <p className="muted-text">Sandbox Pod 상태를 확인 중입니다.</p> : null}
+            {sandboxPod ? (
+              <>
+                <div className="admin-detail-card">
+                  <table>
+                    <tbody>
+                      <tr><td>Pod ID</td><td>{sandboxPod.podId || "-"}</td></tr>
+                      <tr><td>Pod Name</td><td>{sandboxPod.podName || "-"}</td></tr>
+                      <tr><td>Resolved By</td><td>{sandboxPod.resolvedBy || "Pod ID (legacy)"}</td></tr>
+                      <tr><td>Status</td><td>{sandboxPod.desiredStatus || "UNKNOWN"}</td></tr>
+                      <tr><td>Service Status</td><td>{sandboxPod.runtimeStatus || "NOT CHECKED"}</td></tr>
+                      <tr><td>Last Started</td><td>{sandboxPod.lastStartedAt || "-"}</td></tr>
+                      <tr><td>Last Status Change</td><td>{sandboxPod.lastStatusChange || "-"}</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <section className="sandbox-service-list">
+                  <div className="section-title"><h4>HTTP Services</h4><span>{sandboxPod.httpServices.length}</span></div>
+                  {sandboxPod.httpServices.length ? sandboxPod.httpServices.map((service) => (
+                    <a className="sandbox-service-link" href={service.url} key={service.url} rel="noreferrer" target="_blank">
+                      <strong>{service.label || `HTTP ${service.internalPort}`}</strong><span>{service.url}</span>
+                    </a>
+                  )) : <p className="muted-text">{sandboxPod.message || "노출된 HTTP 서비스가 없습니다."}</p>}
+                </section>
+              </>
+            ) : null}
+            <div className="modal-actions">
+              <button className="secondary-button" disabled={sandboxPodLoading} type="button" onClick={() => void loadSandboxPod()}>Refresh Status</button>
+              {canUse(user, "sandbox:control") && ["EXITED", "TERMINATED"].includes(sandboxPod?.desiredStatus || "") ? <button className="primary-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false} type="button" onClick={() => setSandboxPodPendingAction("start")}>Deploy Sandbox Pod</button> : null}
+              {canUse(user, "sandbox:control") ? <button className="danger-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false || sandboxPod.desiredStatus === "EXITED" || sandboxPod.desiredStatus === "TERMINATED"} type="button" onClick={() => setSandboxPodPendingAction("stop")}>Stop Pod</button> : null}
+            </div>
+          </section>
+        ) : null}
         {activeTab === "catalog" && canManageCatalog ? (
           <section className="admin-catalog-panel">
             <div className="admin-catalog-toolbar">
@@ -2599,6 +2713,18 @@ function AdminConsoleModal({
               onDeactivateTerm={onDeactivateTerm}
             />
           </section>
+        ) : null}
+        {sandboxPodPendingAction ? (
+          <SandboxPodConfirmModal
+            action={sandboxPodPendingAction}
+            status={sandboxPod?.desiredStatus || "UNKNOWN"}
+            onCancel={() => setSandboxPodPendingAction(null)}
+            onConfirm={() => {
+              const action = sandboxPodPendingAction;
+              setSandboxPodPendingAction(null);
+              void controlSandboxPod(action);
+            }}
+          />
         ) : null}
       </section>
     </div>
@@ -4181,6 +4307,43 @@ function PromptReuseModal({
             );
           })}
           {!items.length && !loading ? <p className="muted-text">검색 결과가 없습니다. Task History의 Prompt Review에서 재사용 가능으로 저장한 프롬프트가 검색됩니다.</p> : null}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SandboxPodConfirmModal({
+  action,
+  status,
+  onCancel,
+  onConfirm
+}: {
+  action: "start" | "stop";
+  status: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const deploy = action === "start";
+  const title = action === "stop" ? "Sandbox Pod 중지" : "Sandbox Pod 배포";
+  const message = action === "stop"
+    ? "Sandbox Pod를 중지하시겠습니까? HTTP 서비스가 즉시 사용할 수 없게 됩니다."
+    : deploy
+      ? "중지된 Pod 대신 새 Sandbox Pod를 생성하시겠습니까? GPU 할당이 시작되며 비용이 발생할 수 있습니다."
+      : "새 Sandbox Pod를 배포하시겠습니까? GPU 할당이 시작되며 비용이 발생할 수 있습니다.";
+  const confirmLabel = action === "stop" ? "중지" : "배포";
+
+  return (
+    <div className="modal-layer confirm-layer" role="dialog" aria-modal="true" aria-labelledby="sandboxPodConfirmTitle">
+      <section className="confirm-modal">
+        <div className="modal-header">
+          <h2 id="sandboxPodConfirmTitle">{title}</h2>
+          <button className="icon-button" type="button" aria-label="닫기" onClick={onCancel}>x</button>
+        </div>
+        <p>{message}</p>
+        <div className="confirm-actions">
+          <button className="secondary-button" type="button" onClick={onCancel}>취소</button>
+          <button className={action === "stop" ? "danger-button" : "primary-button"} type="button" onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </section>
     </div>

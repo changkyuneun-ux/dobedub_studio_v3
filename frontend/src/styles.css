@@ -489,6 +489,18 @@ textarea {
   gap: 14px;
 }
 
+.workflow-selection-lock {
+  color: var(--blue-2);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: -5px 0 0;
+}
+
+.work-panel > select:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 .config-panel {
   background: var(--surface-2);
   border: 1px solid #3b4148;
@@ -1866,6 +1878,41 @@ textarea {
 
 .admin-form.single {
   max-width: 720px;
+}
+
+.sandbox-pod-panel {
+  max-width: 920px;
+  overflow-y: auto;
+}
+
+.sandbox-service-list {
+  display: grid;
+  gap: 8px;
+}
+
+.sandbox-service-link {
+  align-items: center;
+  background: #10161d;
+  border: 1px solid #315e9d;
+  border-radius: 6px;
+  color: var(--text);
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 100px minmax(0, 1fr);
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.sandbox-service-link:hover {
+  border-color: var(--blue-2);
+  background: #183153;
+}
+
+.sandbox-service-link span {
+  color: var(--blue-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-catalog-panel {

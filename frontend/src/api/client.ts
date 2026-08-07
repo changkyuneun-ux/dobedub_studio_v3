@@ -167,6 +167,24 @@ export type AdminWorkflowsResponse = {
   metadataManifest?: Record<string, unknown>;
 };
 
+export type SandboxPodStatus = {
+  configured: boolean;
+  message?: string;
+  podId?: string;
+  podName?: string | null;
+  resolvedBy?: string;
+  desiredStatus?: string;
+  runtimeStatus?: string;
+  lastStartedAt?: string | null;
+  lastStatusChange?: string | null;
+  locked?: boolean;
+  httpServices: Array<{
+    internalPort: number;
+    url: string;
+    label?: string;
+  }>;
+};
+
 export type ConfigControl = {
   key: string;
   param?: string;
@@ -741,6 +759,9 @@ export const apiClient = {
     requestJson<AdminWorkflowsResponse>(`/api/admin/workflows/${encodeURIComponent(workflowId)}/deactivate`, {
       method: "POST"
     }),
+  sandboxPodStatus: () => requestJson<SandboxPodStatus>("/api/admin/sandbox-pod"),
+  startSandboxPod: () => requestJson<SandboxPodStatus>("/api/admin/sandbox-pod/start", { method: "POST" }),
+  stopSandboxPod: () => requestJson<SandboxPodStatus>("/api/admin/sandbox-pod/stop", { method: "POST" }),
   login: (payload: { id: string; password: string }) =>
     requestJson<AuthSession>("/api/auth/login", {
       method: "POST",

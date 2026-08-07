@@ -18,6 +18,7 @@ RESOURCE_CATALOG = [
     ("MENU", "top.admin.roles", "Admin > Permission Catalog", "roles:read", "/studio/admin", None, 52),
     ("MENU", "top.admin.workflows", "Admin > Workflows", "workflows:write", "/studio/admin", None, 53),
     ("MENU", "top.admin.catalog", "Admin > Prompt Catalog", "prompt-catalog:write", "/studio/admin", None, 54),
+    ("MENU", "top.admin.sandbox_pod", "Admin > Sandbox Pod", "sandbox:read", "/studio/admin", None, 55),
     ("ACTION", "action.metadata_rebuild", "Rebuild Metadata", "metadata:rebuild", None, None, 100),
     ("ACTION", "action.admin_user_save", "Save User", "users:write", None, None, 110),
     ("ACTION", "action.admin_role_save", "Save Role Permissions", "roles:write", None, None, 120),
@@ -30,6 +31,8 @@ RESOURCE_CATALOG = [
     ("ACTION", "action.generate_video", "Generate Video", "jobs:run", None, None, 190),
     ("ACTION", "action.cancel_generation", "Cancel Generation", "jobs:cancel", None, None, 200),
     ("ACTION", "action.history_delete", "Delete History", "history:delete", None, None, 210),
+    ("ACTION", "action.sandbox_pod_start", "Start Sandbox Pod", "sandbox:control", None, None, 220),
+    ("ACTION", "action.sandbox_pod_stop", "Stop Sandbox Pod", "sandbox:control", None, None, 221),
     ("API", "api.admin.users", "Admin Users API", "users:read", "/api/admin/users", "GET", 300),
     ("API", "api.admin.users_write", "Admin User Write API", "users:write", "/api/admin/users", "POST/PUT", 301),
     ("API", "api.admin.roles", "Admin Roles API", "roles:read", "/api/admin/permissions", "GET", 310),
@@ -43,6 +46,8 @@ RESOURCE_CATALOG = [
     ("API", "api.metadata_rebuild", "Metadata Rebuild API", "metadata:rebuild", "/api/metadata/rebuild", "POST", 351),
     ("API", "api.prompts", "Prompt Builder API", "prompts:build", "/api/prompts", "POST", 360),
     ("API", "api.prompt_reuse", "Reusable Prompt API", "prompts:reuse", "/api/prompts/reusable", "GET", 361),
+    ("API", "api.admin.sandbox_pod", "Sandbox Pod Status API", "sandbox:read", "/api/admin/sandbox-pod", "GET", 370),
+    ("API", "api.admin.sandbox_pod_control", "Sandbox Pod Control API", "sandbox:control", "/api/admin/sandbox-pod/start|stop", "POST", 371),
 ]
 
 

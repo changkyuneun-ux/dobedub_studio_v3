@@ -21,6 +21,9 @@
 | 2026-08-05 | 구버전 캡처 이미지 사용 | v3 현재 화면 14장 신규 캡처 후 전면 재작성 | 본 문서 기준 |
 | 2026-08-07 | Scene Detail 자유 입력 안내가 단순 예시 중심 | 권장 입력 순서, 라벨형 예시, Qwen 정규화 규칙 반영 | 자연스러운 I2V 프롬프트 생성 |
 | 2026-08-07 | Node Config에서 Seed 값을 직접 입력하거나 Randomize 버튼으로 변경 | 영상 생성 직전에 서버가 새 Seed를 자동 적용하고 결과 정보에만 표시 | 활성 KSampler의 실제 적용값 기준 |
+| 2026-08-07 | Sandbox Pod 연결 정보가 별도 관리되지 않음 | Admin의 Sandbox Pod 탭에서 전용 Pod 시작/중지, 상태 및 HTTP 서비스 주소 조회 | 영상 생성용 Serverless와 분리 |
+| 2026-08-07 | Sandbox Pod ID/이름을 고정 설정 | Network Volume ID와 Template ID로 현재 Pod ID와 HTTP URL을 매 요청마다 재해결 | RunPod migration 대응 |
+| 2026-08-07 | Sandbox Pod의 여러 HTTP 포트와 단순 RUNNING 상태만 표시 | ComfyUI `8188` 단일 서비스 주소와 `INITIALIZING`/`READY` 준비 상태 표시, 중지 후에는 Template·Network Volume 기반 새 Pod 배포 | Sandbox 운영 화면 현행화 |
 
 ## 목차
 
@@ -46,9 +49,10 @@
 20. [Roles & Permissions](#20-Roles-Permissions)
 21. [워크플로우 관리](#21-워크플로우-관리)
 22. [Prompt Catalog 관리](#22-Prompt-Catalog-관리)
-23. [User Manual 사용법](#23-User-Manual-사용법)
-24. [운영 시 주의사항](#24-운영-시-주의사항)
-25. [문제 해결](#25-문제-해결)
+23. [Sandbox Pod 관리](#23-Sandbox-Pod-관리)
+24. [User Manual 사용법](#24-User-Manual-사용법)
+25. [운영 시 주의사항](#25-운영-시-주의사항)
+26. [문제 해결](#26-문제-해결)
 
 ## 1. 서비스 개요
 
@@ -64,7 +68,7 @@ dobedub studio는 이미지를 영상으로 변환하기 위한 ComfyUI workflow
 - RunPod Serverless ComfyUI 작업 실행
 - 작업 이력, 결과 영상, 입력/출력 asset 조회
 - Prompt Review, 품질 등급, 코멘트, 재사용 가능 여부 관리
-- 사용자, 권한, workflow, Prompt Catalog 관리
+- 사용자, 권한, workflow, Prompt Catalog, Sandbox Pod 관리
 
 v3는 기존 v2 대비 작업 단위 관리와 관리자 기능이 강화되었습니다. 특히 작업 생성 시 job/task ID를 기준으로 prompt, input asset, output asset, workflow task 정보가 연결되도록 확장하고 있습니다.
 
@@ -556,6 +560,7 @@ Admin Console은 다음 탭으로 구성됩니다.
 - `Roles & Permissions`
 - `Workflows`
 - `Prompt Catalog`
+- `Sandbox Pod`
 
 관리자 화면은 운영 데이터에 직접 영향을 주므로 권한이 없는 사용자에게는 메뉴가 보이지 않거나 기능이 비활성화됩니다.
 
@@ -619,6 +624,13 @@ Admin Console은 다음 탭으로 구성됩니다.
 3. Role 기본 권한에 포함할지 결정
 4. 사용자별 Extra Permissions 필요 여부 결정
 5. 메뉴 노출과 버튼 활성화 동작 확인
+
+`Sandbox Pod` 기능에는 다음 권한을 사용합니다.
+
+- `sandbox:read`: 전용 Pod 상태와 HTTP 서비스 주소 조회
+- `sandbox:control`: 전용 Pod 시작/중지
+
+기존 ADMIN/OPERATOR 역할에는 이 권한이 자동으로 포함되지 않습니다. 필요한 역할 또는 사용자에게만 명시적으로 부여합니다.
 
 ## 21. 워크플로우 관리
 
@@ -701,7 +713,41 @@ Prompt Catalog 구조:
 
 사용자 입력 필드만 표시하고, 내부 기술 필드나 상속 기본값은 화면에 노출하지 않습니다.
 
-## 23. User Manual 사용법
+## 23. Sandbox Pod 관리
+
+`Sandbox Pod` 탭은 일반적인 영상 생성 작업을 위한 화면이 아닙니다. 영상 생성은 기존 RunPod Serverless ComfyUI endpoint를 계속 사용하며, 이 탭은 테스트/샌드박스 전용 Pod의 HTTP 서비스 주소를 확인하기 위한 별도 운영 기능입니다.
+
+![그림 16. Admin Console의 Sandbox Pod 상태 및 ComfyUI 접속 주소](manual-assets/v3-16-admin-sandbox-pod.png)
+
+표시 정보:
+
+- Pod ID와 현재 상태
+- `Service Status`
+  - `INITIALIZING`: Pod는 실행 중이지만 ComfyUI HTTP `8188`이 아직 준비되지 않은 상태
+  - `READY`: Pod가 `RUNNING`이고 ComfyUI HTTP `8188` 응답까지 확인된 상태
+- 마지막 시작/상태 변경 시각
+- ComfyUI 전용 HTTP `8188` proxy URL
+
+동작:
+
+1. `Refresh Status`로 RunPod Pod 상태와 HTTP 노출 포트를 다시 조회합니다.
+2. `Service Status`가 `INITIALIZING`이면 잠시 기다린 뒤 `Refresh Status`를 다시 누릅니다.
+3. `READY`가 표시된 뒤 `HTTP 8188` URL을 열어 ComfyUI에 접속합니다. `8080`, `8888` 등 다른 내부 포트는 이 앱에서 제공하지 않습니다.
+4. 사용이 끝나면 `Stop Pod`를 누르고 Studio 내부 확인 모달에서 `중지`를 선택합니다.
+5. 중지된 Pod는 기존 호스트의 GPU 여유 부족으로 재개에 실패할 수 있습니다. 이때 표시되는 `Deploy Sandbox Pod`를 누르고 확인 모달에서 `배포`를 선택하면 Template, Network Volume, GPU 설정을 기준으로 새 Pod를 요청합니다.
+6. 새 Pod 배포 뒤에는 `INITIALIZING` 상태가 표시될 수 있습니다. ComfyUI가 준비될 때까지 `Refresh Status`로 확인하고, `READY`가 된 뒤 접속합니다.
+
+주의사항:
+
+- `RUNPOD_SANDBOX_NETWORK_VOLUME_ID`, `RUNPOD_SANDBOX_POD_API_KEY`는 기존 `RUNPOD_ENDPOINT_ID`, `RUNPOD_API_KEY`와 분리해 관리합니다.
+- RunPod migration은 새 Pod ID, proxy URL, Pod 이름을 만들거나 변경할 수 있습니다. 따라서 ID/이름이 아닌 전용 Network Volume ID를 기본 selector로 사용하고, 앱이 매 요청마다 현재 Pod를 찾아 사용합니다.
+- Pod를 Template로 배포했다면 `RUNPOD_SANDBOX_TEMPLATE_ID`를 함께 설정해 selector를 더 엄격하게 만듭니다.
+- 새 Pod 배포에는 `RUNPOD_SANDBOX_GPU_TYPE_ID`, `RUNPOD_SANDBOX_GPU_COUNT`, `RUNPOD_SANDBOX_DEPLOY_NAME`도 필요합니다. 현재 Sandbox 기준 GPU는 `NVIDIA GeForce RTX 5090`, 수량은 `1`입니다.
+- selector에 여러 Pod가 일치하면 앱은 임의로 선택하지 않고 제어를 중단합니다. Sandbox 용도로는 하나의 Network Volume을 하나의 Pod에만 연결하세요.
+- API 키는 화면이나 응답에 표시되지 않습니다.
+- Pod template에서 ComfyUI `8188/http` 포트를 노출하지 않으면 접속 URL과 `READY` 상태가 표시되지 않습니다.
+
+## 24. User Manual 사용법
 
 `User Manual` 버튼을 누르면 이 매뉴얼이 앱 내부 모달로 열립니다.
 
@@ -722,9 +768,9 @@ Prompt Catalog 구조:
 - 화면 캡처 이미지
 - 문제 해결 항목
 
-## 24. 운영 시 주의사항
+## 25. 운영 시 주의사항
 
-### 24.1 작업 실행 전 확인
+### 25.1 작업 실행 전 확인
 
 - ComfyUI 상태가 ONLINE인지 확인합니다.
 - Qwen 프롬프트 생성을 사용할 경우 Qwen 상태가 ONLINE인지 확인합니다.
@@ -732,7 +778,7 @@ Prompt Catalog 구조:
 - 현재 선택 subgraph가 의도한 subgraph인지 확인합니다.
 - Negative Prompt 기본값이 유지되는지 확인합니다.
 
-### 24.2 workflow 변경 시
+### 25.2 workflow 변경 시
 
 workflow를 바꾸면 다음 값이 초기화됩니다.
 
@@ -743,7 +789,7 @@ workflow를 바꾸면 다음 값이 초기화됩니다.
 - Wan Node Config 기본값
 - Payload Preview
 
-### 24.3 Prompt Review 운영
+### 25.3 Prompt Review 운영
 
 좋은 결과를 만든 prompt는 반드시 Task History에서 리뷰합니다.
 
@@ -759,7 +805,7 @@ workflow를 바꾸면 다음 값이 초기화됩니다.
 
 이 과정을 거친 prompt만 Prompt Reuse에서 안정적으로 재활용할 수 있습니다.
 
-### 24.4 관리자 변경 시
+### 25.4 관리자 변경 시
 
 Admin Console에서 변경한 내용은 운영 기능에 직접 영향을 줍니다.
 
@@ -767,8 +813,9 @@ Admin Console에서 변경한 내용은 운영 기능에 직접 영향을 줍니
 - Role Permission 변경은 해당 Role 사용자 전체에 영향을 줍니다.
 - workflow를 비활성화하면 메인 Workflow List에서 사라집니다.
 - Prompt Catalog 변경은 Prompt Builder key word 목록에 반영됩니다.
+- Sandbox Pod 권한을 부여한 역할은 전용 Pod의 상태 조회 또는 시작/중지를 수행할 수 있습니다.
 
-## 25. 문제 해결
+## 26. 문제 해결
 
 | 증상 | 확인 항목 | 조치 |
 | --- | --- | --- |
@@ -782,5 +829,8 @@ Admin Console에서 변경한 내용은 운영 기능에 직접 영향을 줍니
 | Download MP4 실패 | asset path/storage | output file 존재 여부와 storage backend 확인 |
 | workflow가 목록에 없음 | workflow active 여부 | Admin > Workflows에서 활성화 확인 |
 | 새 workflow 기본값이 없음 | param config / segment defaults | workflow 저장 시 자동 생성 여부 확인 |
+| Sandbox Pod 메뉴가 보이지 않음 | `sandbox:read` 권한 | Roles & Permissions 또는 Extra Permissions에 조회 권한 추가 |
+| Sandbox Pod가 `INITIALIZING`에 머무름 | Pod 상태, ComfyUI 8188 기동 상태 | 잠시 기다린 뒤 Refresh Status를 누르고 RunPod Pod 로그 확인 |
+| Sandbox HTTP URL이 없음 | Pod 상태, `8188/http` 포트 노출 | Pod template에서 `8188/http`를 노출하고 상태를 새로고침 |
 
 매뉴얼 화면 자체가 비어 있거나 이미지가 나오지 않으면 `docs/dobedub-studio-user-manual.md`와 `docs/manual-assets` 파일이 배포 패키지에 포함되어 있는지 확인합니다.
