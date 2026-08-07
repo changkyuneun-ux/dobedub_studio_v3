@@ -24,6 +24,22 @@ class JobRuntime:
     record_job: Callable[[dict], None] | None = None
 
 
+def generation_seed_from_patch_summary(patch_summary: dict | None) -> int | None:
+    value = ((patch_summary or {}).get("seed") or {}).get("value")
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def config_without_seed(config: dict | None) -> dict:
+    return {
+        key: value
+        for key, value in (config or {}).items()
+        if str(key).lower() != "seed"
+    }
+
+
 def submit_runpod_job(runtime: JobRuntime, payload: dict) -> dict:
     workflow, images, patch_summary = runtime.prepare_workflow_for_job(payload)
     response = runtime.runpod_request("POST", "/run", runtime.build_runpod_payload(workflow, images))
@@ -68,6 +84,7 @@ def create_job(runtime: JobRuntime, payload: dict) -> dict:
         "startedAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "payload": payload,
         "firstConfig": first_config,
+        "generationSeed": generation_seed_from_patch_summary(runpod_data.get("patchSummary")),
         "patchSummary": runpod_data.get("patchSummary") or {},
         "runpodSubmit": runpod_data.get("runpodSubmit") or {},
         "inputAssets": [
@@ -173,6 +190,7 @@ def job_status(runtime: JobRuntime, task_id: str) -> dict:
         "workerSummary": "RunPod serverless" if job.get("executionMode") == "runpod" else "dry-run worker",
         "statusLabel": localized_job_status(job),
         "message": job_status_message(job),
+        "generationSeed": job.get("generationSeed"),
         "outputUrl": job.get("outputUrl", ""),
         "outputAssets": job.get("outputAssets", []),
         "cancelRequested": bool(job.get("cancelRequested")),
@@ -224,7 +242,7 @@ def save_job_history(runtime: JobRuntime, job: dict):
     user = payload.get("user") or {}
     segments = payload.get("segments") or []
     first_segment = segments[0] if segments else {}
-    config = first_segment.get("config") or job.get("firstConfig") or {}
+    config = config_without_seed(first_segment.get("config") or job.get("firstConfig") or {})
     wan_node_config = runtime.build_wan_node_config_snapshot(job["workflowId"], segments)
     job["wanNodeConfig"] = wan_node_config
     runtime.append_history({
@@ -258,7 +276,7 @@ def save_job_history(runtime: JobRuntime, job: dict):
         "configJson": config,
         "wanNodeConfig": wan_node_config,
         "fps": config.get("fps", 16),
-        "seed": config.get("seed", 4920381920),
+        "generationSeed": job.get("generationSeed"),
         "outputUrl": job.get("outputUrl", ""),
         "outputAssets": job.get("outputAssets", []),
         "remoteOutputUrls": job.get("remoteOutputUrls", []),

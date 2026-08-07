@@ -397,6 +397,7 @@ export type HistoryItem = {
   };
   fps?: number;
   seed?: number | string;
+  generationSeed?: number | string;
   outputUrl?: string;
   outputFile?: string;
   outputAssets?: OutputAsset[];
@@ -416,6 +417,7 @@ export type JobCreateResponse = {
   taskId: string;
   runpodJobId: string;
   status: string;
+  generationSeed?: number | string;
 };
 
 export type JobStatusResponse = {
@@ -430,6 +432,7 @@ export type JobStatusResponse = {
   message?: string;
   outputUrl?: string;
   outputAssets?: OutputAsset[];
+  generationSeed?: number | string;
   cancelRequested?: boolean;
 };
 

@@ -358,7 +358,7 @@ def report_markdown(payload: dict) -> str:
         f"- Workflow: {item.get('workflowId') or item.get('workflow') or item.get('workflowName') or '-'}",
         f"- Status: {item.get('status', '-')}",
         f"- FPS: {config.get('fps') or item.get('fps') or '-'}",
-        f"- Seed: {config.get('seed') or item.get('seed') or '-'}",
+        f"- Applied Seed: {item.get('generationSeed') or config.get('seed') or item.get('seed') or '-'}",
         f"- Segments: {item.get('segmentCount') or len(segments) or item.get('segments') or '-'}",
         "",
         "## Prompt",

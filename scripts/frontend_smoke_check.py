@@ -79,9 +79,10 @@ def main() -> None:
     assert "function ManualModal" in main_tsx
     assert 'sandbox="allow-same-origin"' in main_tsx
     assert 'sandbox="allow-scripts"' not in main_tsx
-    assert "function createRandomSeed()" in main_tsx
-    assert "seed-randomize-button" in main_tsx
-    assert 'className="config-row seed-config-row"' in main_tsx
+    assert "function createRandomSeed()" not in main_tsx
+    assert "seed-randomize-button" not in main_tsx
+    assert "SeedConfigRow" not in main_tsx
+    assert "Applied Seed:" in main_tsx
     assert "function MetadataModal" in main_tsx
     assert "function AdminConsoleModal" in main_tsx
     assert "Admin Console" in main_tsx
@@ -270,7 +271,7 @@ def main() -> None:
     assert "grid-template-rows: auto 108px auto;" in styles_css
     assert "height: 190px;" in styles_css
     assert ".selected-keyword-text" in styles_css
-    assert ".seed-config-row" in styles_css
+    assert ".seed-config-row" not in styles_css
     assert "overflow-wrap: anywhere;" in styles_css
     assert "height: 100%;" in styles_css
     assert "overscroll-behavior: contain;" in styles_css

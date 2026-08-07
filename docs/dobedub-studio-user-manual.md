@@ -20,6 +20,7 @@
 | 2026-08-05 | 로그인/권한 설명 미흡 | JWT 로그인, 사용자/역할/권한, 기능별 메뉴 노출 기준 반영 | Admin Console 기준 |
 | 2026-08-05 | 구버전 캡처 이미지 사용 | v3 현재 화면 14장 신규 캡처 후 전면 재작성 | 본 문서 기준 |
 | 2026-08-07 | Scene Detail 자유 입력 안내가 단순 예시 중심 | 권장 입력 순서, 라벨형 예시, Qwen 정규화 규칙 반영 | 자연스러운 I2V 프롬프트 생성 |
+| 2026-08-07 | Node Config에서 Seed 값을 직접 입력하거나 Randomize 버튼으로 변경 | 영상 생성 직전에 서버가 새 Seed를 자동 적용하고 결과 정보에만 표시 | 활성 KSampler의 실제 적용값 기준 |
 
 ## 목차
 
@@ -373,9 +374,11 @@ System Prompt는 Qwen이 WAN I2V용 Positive/Negative Prompt를 어떤 규칙으
 | Final Bit Depth | 최종 CreateVideo 출력 bit depth |
 | Final Format | SaveVideo format. 예: auto, mp4 |
 | Final Codec | SaveVideo codec. 예: auto, h264 |
-| Seed | 결과 재현용 값 |
+| Applied Seed | 생성 직전에 서버가 자동 생성하여 실제 활성 KSampler에 적용한 값. 결과 확인용으로만 표시 |
 
 `세그먼트 설정 초기화` 버튼을 누르면 현재 workflow/subgraph의 기본값으로 되돌립니다.
+
+Seed는 Wan Node Config에서 직접 입력하거나 변경하지 않습니다. `GENERATE VIDEO`를 누를 때마다 서버가 새 값을 자동 생성하고, 실제 새 노이즈를 만드는 KSampler에만 적용합니다. `add_noise=disable`인 보조 KSampler는 변경하지 않습니다. 이 값은 샘플링 횟수나 영상 길이를 바꾸지 않으며, 생성 결과를 확인하기 위한 식별값입니다. 재작업을 실행해도 새 Seed가 자동 생성됩니다.
 
 주의:
 
@@ -405,7 +408,7 @@ System Prompt는 Qwen이 WAN I2V용 Positive/Negative Prompt를 어떤 규칙으
 
 Generation Info에는 다음 정보가 표시됩니다.
 
-- Seed
+- Applied Seed: 해당 작업에 실제 적용된 서버 자동 생성값
 - FPS
 - Positive Prompt
 - workflow
@@ -460,6 +463,8 @@ Task History는 작업 단위로 생성 요청과 결과를 관리합니다.
 ### 14.2 재작업
 
 `재작업` 버튼을 누르면 해당 작업의 입력 이미지, prompt, Wan Node Config가 메인 생성 화면으로 복원됩니다.
+
+재작업은 입력 이미지와 프롬프트, Wan Node Config를 복원하지만 Seed는 복원하지 않습니다. 새 작업은 새 자동 Seed로 실행됩니다.
 
 목적:
 

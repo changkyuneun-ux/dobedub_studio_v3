@@ -14,7 +14,6 @@ PARAM_UI_KEYS = {
     "steps": "steps",
     "cfg_scale": "cfgScale",
     "motion_shift": "motionShift",
-    "seed": "seed",
     "bit_depth": "bitDepth",
     "video_format": "videoFormat",
     "video_codec": "videoCodec",
@@ -28,7 +27,6 @@ PARAM_LABELS = {
     "steps": "Sampling Steps",
     "cfg_scale": "CFG Scale",
     "motion_shift": "Motion Shift",
-    "seed": "Seed",
     "bit_depth": "Final Bit Depth",
     "video_format": "Final Format",
     "video_codec": "Final Codec",
@@ -42,7 +40,6 @@ PARAM_DESCRIPTIONS = {
     "steps": "샘플링 반복 횟수입니다. 높을수록 디테일은 늘 수 있지만 생성 시간이 증가합니다.",
     "cfg_scale": "프롬프트 반영 강도입니다. 과도하게 높으면 왜곡이나 경직된 움직임이 생길 수 있습니다.",
     "motion_shift": "움직임 변화량입니다. workflow 내 연결된 sampling 노드에 동일하게 반영될 수 있습니다.",
-    "seed": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
     "bit_depth": "최종 출력 비디오의 비트 깊이입니다. 기본값 8을 권장합니다.",
     "video_format": "SaveVideo format 값입니다. ComfyUI 환경에서 지원하는 값만 사용해야 하며 기본값은 auto입니다.",
     "video_codec": "SaveVideo codec 값입니다. ComfyUI 환경에서 지원하는 값만 사용해야 하며 기본값은 auto입니다.",
@@ -77,7 +74,13 @@ def load_param_config(workflow_id: str, workflows_dir: Path) -> dict | None:
     path = workflows_dir / f"{base}.paramconfig.json"
     if not path.exists():
         return None
-    return read_json(path)
+    config = read_json(path)
+    # Generation seeds are assigned server-side for every task. Ignore legacy
+    # paramconfig entries so old workflow metadata cannot re-enable a UI control.
+    for segment in config.get("segments") or []:
+        if isinstance(segment, dict):
+            (segment.get("params") or {}).pop("seed", None)
+    return config
 
 
 def find_load_image_nodes(workflow: dict) -> list[str]:
@@ -214,7 +217,6 @@ def default_config(index: int) -> dict:
         "steps": 20,
         "cfgScale": 5.0,
         "motionShift": 1.0,
-        "seed": 4920381920 + index - 1,
     }
 
 
@@ -283,15 +285,23 @@ def find_nodes_by_class(workflow: dict, node_ids: list[str], class_type: str) ->
     return [node_id for node_id in node_ids if workflow.get(node_id, {}).get("class_type") == class_type]
 
 
-def first_nonzero_seed_target(workflow: dict, node_ids: list[str]) -> dict | None:
-    for node_id in find_nodes_by_class(workflow, node_ids, "KSamplerAdvanced"):
-        value = direct_input_value(workflow, node_id, "noise_seed")
-        if isinstance(value, int) and value:
-            return {"node": node_id, "field": "noise_seed"}
-    for node_id in find_nodes_by_class(workflow, node_ids, "KSamplerAdvanced"):
-        if "noise_seed" in (workflow.get(node_id, {}).get("inputs") or {}):
-            return {"node": node_id, "field": "noise_seed"}
-    return None
+def active_noise_seed_targets(workflow: dict, video_node_id: str | None = None) -> list[dict]:
+    """Return only samplers that create a new latent-noise pattern.
+
+    KSamplerAdvanced nodes with ``add_noise=disable`` consume an existing latent.
+    Their seed must remain untouched to preserve the workflow's high/low-noise path.
+    """
+    targets = []
+    for node_id in find_nodes_by_class(workflow, scoped_node_ids(workflow, video_node_id), "KSamplerAdvanced"):
+        inputs = workflow.get(node_id, {}).get("inputs") or {}
+        if str(inputs.get("add_noise") or "").lower() != "enable":
+            continue
+        target = linked_or_direct_target(workflow, node_id, "noise_seed")
+        if target:
+            target = {**target, "samplerNode": node_id}
+        if target and target not in targets:
+            targets.append(target)
+    return targets
 
 
 def sampler_targets(workflow: dict, node_ids: list[str], field: str) -> list[dict]:
@@ -338,12 +348,6 @@ def param_spec(targets: list[dict], param_type: str, default, **extra) -> dict |
 def segment_param_spec(workflow: dict, video_node_id: str | None, *, include_final_output: bool) -> dict:
     node_ids = scoped_node_ids(workflow, video_node_id)
     params = {}
-
-    seed_target = first_nonzero_seed_target(workflow, node_ids)
-    seed_value = target_value(workflow, seed_target)
-    spec = param_spec([seed_target] if seed_target else [], "int", seed_value, randomizable=True)
-    if spec:
-        params["seed"] = spec
 
     steps_targets = sampler_targets(workflow, node_ids, "steps")
     if not steps_targets:

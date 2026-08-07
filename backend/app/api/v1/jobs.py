@@ -22,6 +22,7 @@ def create_job(payload: dict, _: CurrentUser = Depends(require_permission("jobs:
         "taskId": job["taskId"],
         "runpodJobId": job["runpodJobId"],
         "status": "queued",
+        "generationSeed": job.get("generationSeed"),
     }
 
 

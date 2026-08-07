@@ -43,7 +43,12 @@ class DbStudioRepository:
         task_id = item.get("taskId") or f"task_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
         user = self._ensure_user(item.get("user") or {}, item.get("workerName"))
         started_at = parse_datetime(item.get("timestamp")) or datetime.utcnow()
-        config = item.get("configJson") or item.get("config") or {}
+        raw_config = item.get("configJson") or item.get("config") or {}
+        config = {
+            key: value
+            for key, value in raw_config.items()
+            if str(key).lower() != "seed"
+        }
         task = self.session.get(WorkflowTask, task_id)
         if not task:
             task = WorkflowTask(id=task_id, created_at=started_at, updated_at=datetime.utcnow())
@@ -63,7 +68,24 @@ class DbStudioRepository:
         task.config_json = config
         task.wan_node_config = item.get("wanNodeConfig") or {}
         task.patch_summary = item.get("patchSummary") or {}
-        task.payload_json = item
+        sanitized_segments = []
+        for segment in item.get("segments") or []:
+            if not isinstance(segment, dict):
+                sanitized_segments.append(segment)
+                continue
+            sanitized_segment = dict(segment)
+            if isinstance(segment.get("config"), dict):
+                sanitized_segment["config"] = {
+                    key: value for key, value in segment["config"].items()
+                    if str(key).lower() != "seed"
+                }
+            sanitized_segments.append(sanitized_segment)
+        task.payload_json = {
+            **item,
+            "configJson": config,
+            "segments": sanitized_segments,
+            "generationSeed": item.get("generationSeed") or item.get("seed"),
+        }
         task.runpod_submit_json = item.get("runpodSubmit") or {}
         task.runpod_status_json = item.get("runpodStatus") or {}
         task.updated_at = datetime.utcnow()
@@ -338,6 +360,10 @@ class DbStudioRepository:
         item.setdefault("configJson", task.config_json or {})
         item.setdefault("wanNodeConfig", task.wan_node_config or {})
         item.setdefault("patchSummary", task.patch_summary or {})
+        item.setdefault(
+            "generationSeed",
+            ((task.patch_summary or {}).get("seed") or {}).get("value"),
+        )
         item.setdefault("inputAssets", [link.asset_id for link in sorted(task.input_assets, key=lambda link: link.slot_index)])
         item["outputAssets"] = [
             hydrate_output_asset(

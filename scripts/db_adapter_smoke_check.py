@@ -81,7 +81,8 @@ def main() -> None:
             "positivePrompts": [{"index": 1, "text": "positive smoke prompt"}],
             "negativePrompts": [{"index": 1, "text": "negative smoke prompt"}],
             "segmentCount": 1,
-            "configJson": {"fps": 16, "steps": 4, "cfgScale": 1, "motionShift": 5, "seed": 1234},
+            "configJson": {"fps": 16, "steps": 4, "cfgScale": 1, "motionShift": 5},
+            "generationSeed": 1234,
             "wanNodeConfig": {"segments": [{"index": 1, "nodes": {"sampler": {"steps": 4}}}]},
             "outputAssets": [{
                 "assetId": output["assetId"],
@@ -98,7 +99,7 @@ def main() -> None:
                 "index": 1,
                 "positivePrompt": "positive smoke prompt",
                 "negativePromptAddition": "negative smoke prompt",
-                "config": {"fps": 16, "steps": 4, "cfgScale": 1, "motionShift": 5, "seed": 1234},
+                "config": {"fps": 16, "steps": 4, "cfgScale": 1, "motionShift": 5},
             }],
             "patchSummary": {"images": [{"node": "1", "image": "sample.png"}]},
         }
@@ -107,6 +108,8 @@ def main() -> None:
         assert history[0]["inputImages"][0]["assetId"] == upload["assetId"]
         assert history[0]["outputAssets"][0]["assetId"] == output["assetId"]
         assert history[0]["wanNodeConfig"]["segments"][0]["nodes"]["sampler"]["steps"] == 4
+        assert history[0]["generationSeed"] == 1234
+        assert "seed" not in history[0]["configJson"]
 
         configs = repo.append_config({
             "configId": "config_db_adapter_smoke",

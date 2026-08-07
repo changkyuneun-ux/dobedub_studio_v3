@@ -1092,13 +1092,13 @@ function StudioShell({
       }
       setSegments((items) => items.map((segment, index) => {
         const source = defaultSegments[index] || defaultSegments[0] || {};
-        const currentSeed = segment.config.seed ?? segment.config.Seed;
+        const { seed: _seed, Seed: _legacySeed, ...currentConfig } = segment.config;
+        const { seed: _defaultSeed, Seed: _legacyDefaultSeed, ...defaultConfig } = source.config || {};
         return {
           ...segment,
           config: {
-            ...segment.config,
-            ...(source.config || {}),
-            ...(currentSeed !== undefined ? { seed: currentSeed } : {})
+            ...currentConfig,
+            ...defaultConfig
           }
         };
       }));
@@ -1486,13 +1486,6 @@ function StudioShell({
               onChange={(value) => updateConfigValue(control.key, value, control)}
             />
           ))}
-          {selectedSegment ? (
-            <SeedConfigRow
-              value={selectedSegment.config.seed ?? selectedSegment.config.Seed ?? ""}
-              onChange={(value) => updateConfigValue("seed", value, { key: "seed", label: "Seed", type: "int" })}
-              onRandomize={() => updateConfigValue("seed", String(createRandomSeed()), { key: "seed", label: "Seed", type: "int" })}
-            />
-          ) : null}
         </div>
         <div className="generation-actions">
           <button className="primary-button" type="button" disabled={running || !canUse(user, "jobs:run")} onClick={generateVideo}>
@@ -1549,7 +1542,7 @@ function StudioShell({
                   <video src={displayOutputMediaUrl} controls playsInline preload="metadata" />
                   <div className="result-info">
                     <p>File: {displayOutput?.fileName || displayOutput?.assetId || "generated output"}</p>
-                    <p>Seed: {selectedSegment?.config.seed || selectedSegment?.config.Seed || "-"}</p>
+                    <p>Applied Seed: {latestJob?.generationSeed || "-"}</p>
                     <p>FPS: {selectedSegment?.config.fps || selectedSegment?.config.FPS || "-"}</p>
                     <p>Segments: {segments.length}</p>
                   </div>
@@ -1565,7 +1558,7 @@ function StudioShell({
               <div className="info-row">
                 <div className="thumb-scene" aria-hidden="true" />
                 <div>
-                  <p>Seed: <strong>{selectedSegment?.config.seed || selectedSegment?.config.Seed || "-"}</strong></p>
+                  <p>Applied Seed: <strong>{latestJob?.generationSeed || "-"}</strong></p>
                   <p>FPS: <strong>{selectedSegment?.config.fps || selectedSegment?.config.FPS || "-"}</strong></p>
                 </div>
               </div>
@@ -3905,7 +3898,7 @@ function HistoryDetail({
           ) : (
             <div className="empty-video">생성된 MP4 파일이 없습니다.</div>
           )}
-          <p>File: {output?.fileName || item.outputFile || "-"}<br />Seed: {item.seed || item.configJson?.seed || "-"}<br />FPS: {item.fps || item.configJson?.fps || "-"}<br />Segments: {item.segmentCount || item.segments?.length || 1}</p>
+          <p>File: {output?.fileName || item.outputFile || "-"}<br />Applied Seed: {item.generationSeed || item.seed || item.configJson?.seed || "-"}<br />FPS: {item.fps || item.configJson?.fps || "-"}<br />Segments: {item.segmentCount || item.segments?.length || 1}</p>
           <button className="secondary-button" type="button" onClick={() => onDownload(item)}>Download MP4</button>
         </div>
       ) : (
@@ -4569,36 +4562,6 @@ function ConfigRow({
   );
 }
 
-function createRandomSeed(): number {
-  const maxSeed = Number.MAX_SAFE_INTEGER;
-  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    const values = new Uint32Array(2);
-    crypto.getRandomValues(values);
-    // Keep the value within JavaScript's exact-integer range before it is serialized to JSON.
-    return Math.max(1, values[0] * 0x200000 + (values[1] >>> 11));
-  }
-  return Math.max(1, Math.floor(Math.random() * maxSeed));
-}
-
-function SeedConfigRow({
-  value,
-  onChange,
-  onRandomize
-}: {
-  value: string | number | null;
-  onChange: (value: string) => void;
-  onRandomize: () => void;
-}) {
-  return (
-    <div className="config-row seed-config-row">
-      <span>Seed</span>
-      <input type="number" value={String(value ?? "")} onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value)} />
-      <button className="seed-randomize-button" type="button" onClick={onRandomize}>Randomize</button>
-      <em>결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.</em>
-    </div>
-  );
-}
-
 function createSegmentsFromSchema(schema: WorkflowSchema): SegmentState[] {
   return (schema.segments || []).map((segment, index) => ({
     index: segment.index || index + 1,
@@ -4631,6 +4594,11 @@ function createSegmentsFromHistory(schema: WorkflowSchema, item: HistoryItem): S
       source.negativePrompt ||
       item.negativePrompt ||
       segment.negativePrompt;
+    const { seed: _baseSeed, Seed: _legacyBaseSeed, ...baseConfig } = segment.config;
+    const { seed: _historySeed, Seed: _legacyHistorySeed, ...historyConfig } = item.configJson || {};
+    const { seed: _sourceSeed, Seed: _legacySourceSeed, ...sourceConfig } = source.config || {};
+    const wanConfig = configFromWanNodeSegment(wanSource);
+    const { seed: _wanSeed, Seed: _legacyWanSeed, ...wanConfigWithoutSeed } = wanConfig;
     return {
       ...segment,
       positivePrompt: positive,
@@ -4638,10 +4606,10 @@ function createSegmentsFromHistory(schema: WorkflowSchema, item: HistoryItem): S
       negativePrompt: negative,
       negativePromptAddition: source.negativePromptAddition || negative,
       config: {
-        ...segment.config,
-        ...(item.configJson || {}),
-        ...(source.config || {}),
-        ...configFromWanNodeSegment(wanSource)
+        ...baseConfig,
+        ...historyConfig,
+        ...sourceConfig,
+        ...wanConfigWithoutSeed
       }
     };
   });

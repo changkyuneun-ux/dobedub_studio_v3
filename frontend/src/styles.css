@@ -1007,32 +1007,6 @@ textarea {
   min-height: 18px;
 }
 
-.seed-randomize-button {
-  align-self: center;
-  background: #18345a;
-  border: 1px solid var(--blue);
-  border-radius: 5px;
-  color: #dbeafe;
-  cursor: pointer;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  min-height: 30px;
-  padding: 4px 8px;
-}
-
-.seed-randomize-button:hover {
-  background: #1d4f85;
-}
-
-.seed-config-row {
-  grid-template-columns: 108px minmax(180px, 0.72fr) max-content minmax(230px, 1fr);
-}
-
-.seed-config-row .seed-randomize-button {
-  white-space: nowrap;
-}
-
 .metadata-modal {
   grid-template-rows: auto auto auto auto minmax(0, 1fr);
   width: min(1220px, calc(100vw - 48px));
@@ -3169,14 +3143,6 @@ textarea {
 
   .manual-search-toolbar {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .seed-config-row {
-    grid-template-columns: 108px minmax(160px, 1fr) max-content;
-  }
-
-  .seed-config-row em {
-    grid-column: 2 / -1;
   }
 
   .manual-search-toolbar label,

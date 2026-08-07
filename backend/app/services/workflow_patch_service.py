@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import secrets
 from datetime import datetime
 from pathlib import Path
 from typing import Callable
@@ -10,6 +11,7 @@ from backend.app.services.workflow_parser import PARAM_LABELS, PARAM_UI_KEYS
 
 
 I2V_INPUT_IMAGE_REQUIRED_MESSAGE = "입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다."
+MAX_GENERATION_SEED = (1 << 53) - 1
 
 
 def validate_i2v_input_images(payload: dict, workflow: dict, segments: list[dict]) -> None:
@@ -115,7 +117,6 @@ def ui_config_to_param_config(node_config: dict) -> dict:
         "steps": node_config.get("steps"),
         "cfg_scale": node_config.get("cfgScale", node_config.get("cfg_scale")),
         "motion_shift": node_config.get("motionShift", node_config.get("motion_shift")),
-        "seed": node_config.get("seed"),
         "bit_depth": node_config.get("bitDepth", node_config.get("bit_depth")),
         "video_format": node_config.get("videoFormat", node_config.get("video_format")),
         "video_codec": node_config.get("videoCodec", node_config.get("video_codec")),
@@ -129,6 +130,32 @@ def values_equal(left, right) -> bool:
         return abs(float(left) - float(right)) < 1e-9
     except (TypeError, ValueError):
         return str(left) == str(right)
+
+
+def apply_automatic_generation_seed(workflow: dict, segments: list[dict]) -> dict:
+    """Assign one server-generated seed to the active sampler of every segment."""
+    generation_seed = secrets.randbelow(MAX_GENERATION_SEED) + 1
+    scope_segments = segments or [{"video_node": None}]
+    applied = []
+    for index, segment in enumerate(scope_segments, start=1):
+        for target in workflow_parser.active_noise_seed_targets(workflow, segment.get("video_node")):
+            node_id = str(target.get("node") or "")
+            field = str(target.get("field") or "")
+            if not node_id or not field or not workflow.get(node_id):
+                continue
+            workflow[node_id].setdefault("inputs", {})[field] = generation_seed
+            applied.append({
+                "segment": index,
+                "samplerNode": target.get("samplerNode"),
+                "node": node_id,
+                "field": field,
+                "value": generation_seed,
+            })
+    return {
+        "mode": "automatic",
+        "value": generation_seed if applied else None,
+        "targets": applied,
+    }
 
 
 def apply_node_config_to_workflow(
@@ -147,6 +174,8 @@ def apply_node_config_to_workflow(
         params = segment_spec.get("params") or {}
         node_config = ui_config_to_param_config(segment.get("config") or {})
         for param_name, param_spec in params.items():
+            if param_name == "seed":
+                continue
             value = node_config.get(param_name, param_spec.get("default"))
             if value is None:
                 continue
@@ -185,6 +214,8 @@ def build_wan_node_config_snapshot(
         ui_values = ui_config_to_param_config(segment.get("config") or {})
         param_items = []
         for param_name, param_spec in params.items():
+            if param_name == "seed":
+                continue
             ui_key = PARAM_UI_KEYS.get(param_name, param_name)
             value = ui_values.get(param_name, param_spec.get("default"))
             param_items.append({
@@ -259,4 +290,5 @@ def prepare_workflow_for_job(
         )
 
     patch_summary["nodeConfig"] = apply_node_config_to_workflow(workflow, workflow_id, segment_payloads, workflows_dir)
+    patch_summary["seed"] = apply_automatic_generation_seed(workflow, segments)
     return workflow, images, patch_summary

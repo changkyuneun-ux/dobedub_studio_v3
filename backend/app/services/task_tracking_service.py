@@ -137,6 +137,7 @@ def restore_job_from_task(task_id: str) -> dict | None:
             "payload": payload,
             "firstConfig": first_config,
             "patchSummary": task.patch_summary or {},
+            "generationSeed": history_item.get("generationSeed"),
             "runpodSubmit": task.runpod_submit_json or {},
             "runpodStatus": task.runpod_status_json or {},
             "inputAssets": history_item.get("inputAssets") or [],
@@ -284,6 +285,27 @@ def _record_job_status(session: Session, job: dict, *, resolve_asset: Callable[[
     _sync_task_prompt_outputs(session, task, job)
 
 
+def _payload_without_seed(payload: dict) -> dict:
+    sanitized = dict(payload)
+    segments = payload.get("segments")
+    if not isinstance(segments, list):
+        return sanitized
+    sanitized_segments = []
+    for segment in segments:
+        if not isinstance(segment, dict):
+            sanitized_segments.append(segment)
+            continue
+        sanitized_segment = dict(segment)
+        config = segment.get("config")
+        if isinstance(config, dict):
+            sanitized_segment["config"] = {
+                key: value for key, value in config.items() if str(key).lower() != "seed"
+            }
+        sanitized_segments.append(sanitized_segment)
+    sanitized["segments"] = sanitized_segments
+    return sanitized
+
+
 def _upsert_task(session: Session, job: dict) -> WorkflowTask:
     payload = job.get("payload") or {}
     user_payload = payload.get("user") or {}
@@ -300,7 +322,15 @@ def _upsert_task(session: Session, job: dict) -> WorkflowTask:
 
     segments = payload.get("segments") or []
     first_segment = segments[0] if segments else {}
-    first_config = first_segment.get("config") or job.get("firstConfig") or {}
+    raw_first_config = first_segment.get("config") or job.get("firstConfig") or {}
+    first_config = {
+        key: value
+        for key, value in raw_first_config.items()
+        if str(key).lower() != "seed"
+    }
+    stored_payload = _payload_without_seed(payload)
+    if job.get("generationSeed") is not None:
+        stored_payload["generationSeed"] = job.get("generationSeed")
     status = str(job.get("status") or "queued")
     completed_at = now if status.upper() in TERMINAL_STATES else task.completed_at
 
@@ -325,7 +355,7 @@ def _upsert_task(session: Session, job: dict) -> WorkflowTask:
     task.config_json = first_config
     task.wan_node_config = job.get("wanNodeConfig") or {}
     task.patch_summary = job.get("patchSummary") or {}
-    task.payload_json = payload
+    task.payload_json = stored_payload
     task.runpod_submit_json = job.get("runpodSubmit") or {}
     task.runpod_status_json = job.get("runpodStatus") or {}
     task.updated_at = now
@@ -572,6 +602,10 @@ def _task_to_history_item(task: WorkflowTask, assets_by_id: dict[str, dict]) -> 
     item.setdefault("configJson", task.config_json or {})
     item.setdefault("wanNodeConfig", task.wan_node_config or {})
     item.setdefault("patchSummary", task.patch_summary or {})
+    item.setdefault(
+        "generationSeed",
+        ((task.patch_summary or {}).get("seed") or {}).get("value"),
+    )
     input_links = sorted(task.input_assets, key=lambda link: link.slot_index)
     item["inputAssets"] = [link.asset_id for link in input_links]
     item["inputImages"] = item.get("inputImages") or hydrate_input_images(item, assets_by_id)

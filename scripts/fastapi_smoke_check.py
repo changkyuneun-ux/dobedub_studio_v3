@@ -82,6 +82,8 @@ def main():
         assert response.status_code == 200, response.text
         defaults = response.json()
         assert len(defaults["segments"]) == 1
+        assert "seed" not in defaults["segments"][0].get("config", {})
+        assert all(control.get("key", "").lower() != "seed" for control in defaults["segments"][0].get("configControls", []))
 
         response = client.get("/api/v1/workflows/1-images.json/widget-metadata", headers=admin_headers)
         assert response.status_code == 200, response.text
@@ -144,7 +146,10 @@ def main():
 
         response = client.post("/api/jobs", headers=admin_headers, json=job_payload)
         assert response.status_code == 201, response.text
-        task_id = response.json()["taskId"]
+        created_job = response.json()
+        task_id = created_job["taskId"]
+        assert isinstance(created_job.get("generationSeed"), int)
+        assert created_job["generationSeed"] > 0
         response = client.get("/api/history?page=1&pageSize=10", headers=admin_headers)
         assert response.status_code == 200, response.text
         assert all(item.get("status") in {"Completed", "Failed"} for item in response.json()["items"])
@@ -157,6 +162,7 @@ def main():
                 break
             time.sleep(0.1)
         assert last_status["status"] == "success", last_status
+        assert last_status.get("generationSeed") == created_job["generationSeed"]
 
         response = client.get("/api/history?page=1&pageSize=10", headers=admin_headers)
         assert response.status_code == 200, response.text
@@ -165,6 +171,18 @@ def main():
         history_item = next(item for item in history["items"] if item.get("taskId") == task_id)
         assert history_item["inputAssets"] == [upload["assetId"]]
         assert history_item["inputImages"][0]["assetId"] == upload["assetId"]
+        assert history_item.get("generationSeed") == created_job["generationSeed"]
+        assert "seed" not in history_item.get("configJson", {})
+        seed_patch = history_item.get("patchSummary", {}).get("seed", {})
+        assert seed_patch.get("mode") == "automatic"
+        assert seed_patch.get("value") == created_job["generationSeed"]
+        assert seed_patch.get("targets")
+        from backend.app.services import workflow_parser
+        workflow = workflow_parser.load_workflow("1-images.json", PROJECT_ROOT / "workflows")
+        for target in seed_patch["targets"]:
+            sampler = workflow.get(str(target.get("samplerNode")), {})
+            assert sampler.get("class_type") == "KSamplerAdvanced"
+            assert str((sampler.get("inputs") or {}).get("add_noise")).lower() == "enable"
 
         response = client.get("/api/prompts", headers=admin_headers)
         assert response.status_code == 200, response.text
