@@ -86,6 +86,9 @@ def main() -> None:
     assert "function MetadataModal" in main_tsx
     assert "function AdminConsoleModal" in main_tsx
     assert "Admin Console" in main_tsx
+    assert "admin-sandbox-layout" in main_tsx
+    assert "sandbox-pod-details" in main_tsx
+    assert "Service Status" in main_tsx
     assert "Users" in main_tsx
     assert "Roles & Permissions" in main_tsx
     assert "Workflows" in main_tsx

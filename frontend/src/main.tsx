@@ -2654,44 +2654,42 @@ function AdminConsoleModal({
           </div>
         ) : null}
         {activeTab === "sandbox" && canManageSandboxPod ? (
-          <section className="admin-form sandbox-pod-panel">
-            <div className="section-title">
-              <h3>Sandbox Pod</h3>
-              <span>{sandboxPod?.runtimeStatus || sandboxPod?.desiredStatus || "NOT CHECKED"}</span>
-            </div>
-            <p className="muted-text">일상적인 영상 생성용 Serverless와 분리된 전용 Pod입니다. 여기서는 Pod 상태와 노출된 HTTP 서비스만 관리합니다.</p>
-            {!sandboxPod && sandboxPodLoading ? <p className="muted-text">Sandbox Pod 상태를 확인 중입니다.</p> : null}
-            {sandboxPod ? (
-              <>
-                <div className="admin-detail-card">
-                  <table>
-                    <tbody>
-                      <tr><td>Pod ID</td><td>{sandboxPod.podId || "-"}</td></tr>
-                      <tr><td>Pod Name</td><td>{sandboxPod.podName || "-"}</td></tr>
-                      <tr><td>Resolved By</td><td>{sandboxPod.resolvedBy || "Pod ID (legacy)"}</td></tr>
-                      <tr><td>Status</td><td>{sandboxPod.desiredStatus || "UNKNOWN"}</td></tr>
-                      <tr><td>Service Status</td><td>{sandboxPod.runtimeStatus || "NOT CHECKED"}</td></tr>
-                      <tr><td>Last Started</td><td>{sandboxPod.lastStartedAt || "-"}</td></tr>
-                      <tr><td>Last Status Change</td><td>{sandboxPod.lastStatusChange || "-"}</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <section className="sandbox-service-list">
-                  <div className="section-title"><h4>HTTP Services</h4><span>{sandboxPod.httpServices.length}</span></div>
-                  {sandboxPod.httpServices.length ? sandboxPod.httpServices.map((service) => (
-                    <a className="sandbox-service-link" href={service.url} key={service.url} rel="noreferrer" target="_blank">
-                      <strong>{service.label || `HTTP ${service.internalPort}`}</strong><span>{service.url}</span>
-                    </a>
-                  )) : <p className="muted-text">{sandboxPod.message || "노출된 HTTP 서비스가 없습니다."}</p>}
-                </section>
-              </>
-            ) : null}
-            <div className="modal-actions">
-              <button className="secondary-button" disabled={sandboxPodLoading} type="button" onClick={() => void loadSandboxPod()}>Refresh Status</button>
-              {canUse(user, "sandbox:control") && ["EXITED", "TERMINATED"].includes(sandboxPod?.desiredStatus || "") ? <button className="primary-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false} type="button" onClick={() => setSandboxPodPendingAction("start")}>Deploy Sandbox Pod</button> : null}
-              {canUse(user, "sandbox:control") ? <button className="danger-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false || sandboxPod.desiredStatus === "EXITED" || sandboxPod.desiredStatus === "TERMINATED"} type="button" onClick={() => setSandboxPodPendingAction("stop")}>Stop Pod</button> : null}
-            </div>
-          </section>
+          <div className="admin-sandbox-layout">
+            <section className="admin-form sandbox-pod-panel">
+              <div className="section-title">
+                <h3>Sandbox Pod</h3>
+                <span>{sandboxPod?.runtimeStatus || sandboxPod?.desiredStatus || "NOT CHECKED"}</span>
+              </div>
+              <p className="muted-text">일상적인 영상 생성용 Serverless와 분리된 전용 Pod입니다. 여기서는 Pod 상태와 노출된 HTTP 서비스만 관리합니다.</p>
+              {!sandboxPod && sandboxPodLoading ? <p className="muted-text">Sandbox Pod 상태를 확인 중입니다.</p> : null}
+              {sandboxPod ? (
+                <>
+                  <dl className="sandbox-pod-details">
+                    <div><dt>Pod ID</dt><dd>{sandboxPod.podId || "-"}</dd></div>
+                    <div><dt>Pod Name</dt><dd>{sandboxPod.podName || "-"}</dd></div>
+                    <div><dt>Resolved By</dt><dd>{sandboxPod.resolvedBy || "Pod ID (legacy)"}</dd></div>
+                    <div><dt>Status</dt><dd>{sandboxPod.desiredStatus || "UNKNOWN"}</dd></div>
+                    <div><dt>Service Status</dt><dd>{sandboxPod.runtimeStatus || "NOT CHECKED"}</dd></div>
+                    <div><dt>Last Started</dt><dd>{sandboxPod.lastStartedAt || "-"}</dd></div>
+                    <div><dt>Last Status Change</dt><dd>{sandboxPod.lastStatusChange || "-"}</dd></div>
+                  </dl>
+                  <section className="sandbox-service-list">
+                    <div className="section-title"><h4>HTTP Services</h4><span>{sandboxPod.httpServices.length}</span></div>
+                    {sandboxPod.httpServices.length ? sandboxPod.httpServices.map((service) => (
+                      <a className="sandbox-service-link" href={service.url} key={service.url} rel="noreferrer" target="_blank">
+                        <strong>{service.label || `HTTP ${service.internalPort}`}</strong><span>{service.url}</span>
+                      </a>
+                    )) : <p className="muted-text">{sandboxPod.message || "노출된 HTTP 서비스가 없습니다."}</p>}
+                  </section>
+                </>
+              ) : null}
+              <div className="modal-actions">
+                <button className="secondary-button" disabled={sandboxPodLoading} type="button" onClick={() => void loadSandboxPod()}>Refresh Status</button>
+                {canUse(user, "sandbox:control") && ["EXITED", "TERMINATED"].includes(sandboxPod?.desiredStatus || "") ? <button className="primary-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false} type="button" onClick={() => setSandboxPodPendingAction("start")}>Deploy Sandbox Pod</button> : null}
+                {canUse(user, "sandbox:control") ? <button className="danger-button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false || sandboxPod.desiredStatus === "EXITED" || sandboxPod.desiredStatus === "TERMINATED"} type="button" onClick={() => setSandboxPodPendingAction("stop")}>Stop Pod</button> : null}
+              </div>
+            </section>
+          </div>
         ) : null}
         {activeTab === "catalog" && canManageCatalog ? (
           <section className="admin-catalog-panel">

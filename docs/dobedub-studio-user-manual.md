@@ -24,6 +24,7 @@
 | 2026-08-07 | Sandbox Pod 연결 정보가 별도 관리되지 않음 | Admin의 Sandbox Pod 탭에서 전용 Pod 시작/중지, 상태 및 HTTP 서비스 주소 조회 | 영상 생성용 Serverless와 분리 |
 | 2026-08-07 | Sandbox Pod ID/이름을 고정 설정 | Network Volume ID와 Template ID로 현재 Pod ID와 HTTP URL을 매 요청마다 재해결 | RunPod migration 대응 |
 | 2026-08-07 | Sandbox Pod의 여러 HTTP 포트와 단순 RUNNING 상태만 표시 | ComfyUI `8188` 단일 서비스 주소와 `INITIALIZING`/`READY` 준비 상태 표시, 중지 후에는 Template·Network Volume 기반 새 Pod 배포 | Sandbox 운영 화면 현행화 |
+| 2026-08-07 | 창 높이가 낮을 때 Sandbox Pod 상세 표의 하단 행이 접힘 | 반응형 2열 상세 행과 내부 스크롤로 변경하여 Pod 상태, 서비스 상태, 시작/변경 시각을 유지 | Admin Console 화면 안정화 |
 
 ## 목차
 

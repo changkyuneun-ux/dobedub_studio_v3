@@ -1808,6 +1808,12 @@ textarea {
   overflow: hidden;
 }
 
+.admin-sandbox-layout {
+  grid-row: 4;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .admin-list,
 .admin-form {
   background: var(--surface);
@@ -1881,8 +1887,59 @@ textarea {
 }
 
 .sandbox-pod-panel {
-  max-width: 920px;
+  align-content: start;
+  height: 100%;
+  max-width: none;
   overflow-y: auto;
+  width: 100%;
+}
+
+.sandbox-pod-details {
+  background: #10161d;
+  border: 1px solid #303741;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  overflow: hidden;
+}
+
+.sandbox-pod-details > div {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  min-height: 38px;
+}
+
+.sandbox-pod-details > div:nth-child(n + 3) {
+  border-top: 1px solid #303741;
+}
+
+.sandbox-pod-details > div:nth-child(odd):not(:last-child) {
+  border-right: 1px solid #303741;
+}
+
+.sandbox-pod-details > div:last-child {
+  grid-column: 1 / -1;
+}
+
+.sandbox-pod-details dt,
+.sandbox-pod-details dd {
+  align-self: center;
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding: 9px 10px;
+}
+
+.sandbox-pod-details dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.sandbox-pod-details dd {
+  color: var(--text);
+  font-weight: 650;
 }
 
 .sandbox-service-list {
@@ -3208,6 +3265,7 @@ textarea {
   }
 
   .admin-layout,
+  .admin-sandbox-layout,
   .catalog-admin-layout,
   .catalog-term-layout,
   .catalog-form-grid {
@@ -3215,8 +3273,39 @@ textarea {
   }
 
   .admin-layout,
+  .admin-sandbox-layout,
   .catalog-admin-layout {
     overflow-y: auto;
+  }
+
+  .sandbox-pod-panel {
+    height: auto;
+    max-width: none;
+  }
+
+  .sandbox-pod-details > div {
+    gap: 6px;
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-pod-details {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-pod-details > div:nth-child(odd):not(:last-child) {
+    border-right: 0;
+  }
+
+  .sandbox-pod-details > div:nth-child(n + 2) {
+    border-top: 1px solid #303741;
+  }
+
+  .sandbox-pod-details dt {
+    padding-bottom: 0;
+  }
+
+  .sandbox-pod-details dd {
+    padding-top: 0;
   }
 
   .admin-list,
