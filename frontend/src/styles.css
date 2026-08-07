@@ -1761,6 +1761,27 @@ textarea {
   margin: 0;
 }
 
+.scene-detail-order {
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+.scene-detail-example {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.scene-detail-example summary {
+  color: var(--blue-2);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.scene-detail-example p {
+  margin-top: 6px;
+}
+
 .scene-detail-textarea {
   min-height: 92px;
   resize: vertical;

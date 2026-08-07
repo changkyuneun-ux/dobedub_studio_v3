@@ -9,7 +9,7 @@ from backend.app.db.models import PromptSystemPrompt
 DEFAULT_SYSTEM_PROMPT_CODE = "qwen_wan_i2v_positive"
 
 
-DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT = """You are a prompt composer specialized in WAN image-to-video generation for DOBEDUB STUDIO.
+LEGACY_DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT = """You are a prompt composer specialized in WAN image-to-video generation for DOBEDUB STUDIO.
 
 Your task is to convert structured Scene JSON, selected keywords, segment data, and constraints into one concise English positive prompt for a WAN I2V workflow.
 
@@ -89,6 +89,21 @@ Before returning, validate for missing primary motion, missing camera setting, c
 If a blocking contradiction exists, use only the non-conflicting input data, include a concise warning, and generate the safest valid positive prompt possible."""
 
 
+SCENE_DETAIL_NORMALIZATION_RULES = """Scene Detail normalization rules:
+- Scene Detail may be written in Korean or English as free text, comma-separated notes, or labeled lines. Interpret labels such as subject, character, person, target, relationship, action, interaction, camera, framing, angle, expression, emotion, lighting, mood, and their Korean equivalents.
+- Normalize the supplied information internally before writing the prompt. Use this semantic order regardless of the input order: subject and relationship, primary motion, secondary motion and interaction, timing, camera movement and framing, expression/lighting/mood, then preservation constraints.
+- Treat selected keywords and structured Scene JSON fields as authoritative when they conflict with Scene Detail. Use Scene Detail only to fill explicitly supplied details that are not already represented.
+- When multiple subjects are supplied, keep each subject's motion and interaction target distinct. Remove repeated phrases instead of describing the same detail twice.
+- If Scene Detail is an unlabeled phrase list, infer only clear subject, action, camera, and visual-expression information. Do not invent missing relationships, motions, subjects, objects, or camera changes.
+- If no camera instruction is supplied, use a static locked-off camera. If no visual-expression instruction is supplied, preserve the source image appearance and mood."""
+
+
+DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT = LEGACY_DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT.replace(
+    "Build the positive prompt around this order:",
+    f"{SCENE_DETAIL_NORMALIZATION_RULES}\n\nBuild the positive prompt around this order:",
+)
+
+
 def get_prompt_system_prompt(session: Session, code: str = DEFAULT_SYSTEM_PROMPT_CODE) -> dict:
     prompt = _get_or_create_prompt_system_prompt(session, code)
     return _prompt_payload(prompt)
@@ -118,6 +133,12 @@ def active_prompt_system_prompt_text(session: Session, code: str = DEFAULT_SYSTE
 def _get_or_create_prompt_system_prompt(session: Session, code: str) -> PromptSystemPrompt:
     prompt = session.scalar(select(PromptSystemPrompt).where(PromptSystemPrompt.code == code))
     if prompt:
+        # Upgrade only the untouched v1 template. User-authored prompt text remains intact.
+        if code == DEFAULT_SYSTEM_PROMPT_CODE and prompt.prompt_text == LEGACY_DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT:
+            prompt.prompt_text = DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT
+            session.add(prompt)
+            session.commit()
+            session.refresh(prompt)
         return prompt
     prompt = PromptSystemPrompt(
         code=code,

@@ -137,9 +137,17 @@ def main():
             }],
             "user": {"id": "dobedub", "name": "장균은"},
         }
+        missing_image_payload = {**job_payload, "keyframes": [{"index": 1, "uploadId": None, "fileName": "example.png"}]}
+        response = client.post("/api/jobs", headers=admin_headers, json=missing_image_payload)
+        assert response.status_code == 400, response.text
+        assert response.json()["detail"] == "입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다."
+
         response = client.post("/api/jobs", headers=admin_headers, json=job_payload)
         assert response.status_code == 201, response.text
         task_id = response.json()["taskId"]
+        response = client.get("/api/history?page=1&pageSize=10", headers=admin_headers)
+        assert response.status_code == 200, response.text
+        assert all(item.get("status") in {"Completed", "Failed"} for item in response.json()["items"])
         last_status = {}
         for _ in range(80):
             response = client.get(f"/api/jobs/{task_id}", headers=admin_headers)

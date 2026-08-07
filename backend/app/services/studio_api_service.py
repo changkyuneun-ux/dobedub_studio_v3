@@ -25,6 +25,7 @@ from backend.app.services.task_tracking_service import (
 
 
 JOBS: dict[str, dict] = {}
+HISTORY_TERMINAL_STATUSES = {"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}
 
 
 def ensure_storage_dirs() -> None:
@@ -43,7 +44,11 @@ def load_history() -> list[dict]:
         db_items = []
     with studio_repository() as repository:
         legacy_items = repository.load_history()
-    return _merge_history_items(db_items, legacy_items)
+    return [
+        item
+        for item in _merge_history_items(db_items, legacy_items)
+        if str(item.get("status") or "").upper() in HISTORY_TERMINAL_STATUSES
+    ]
 
 
 def paginated_history(page: int = 1, page_size: int = 50) -> dict:
@@ -197,7 +202,11 @@ def asset_to_runpod_image(asset_id: str, fallback_name: str | None = None) -> di
 
 def build_runpod_images(payload: dict) -> list[dict]:
     images = []
-    for keyframe in payload.get("keyframes") or []:
+    keyframes = sorted(
+        (keyframe for keyframe in payload.get("keyframes") or [] if isinstance(keyframe, dict)),
+        key=lambda keyframe: int(keyframe.get("index") or 0),
+    )
+    for keyframe in keyframes:
         upload_id = keyframe.get("uploadId")
         if not upload_id:
             continue

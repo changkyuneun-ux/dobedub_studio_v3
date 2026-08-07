@@ -106,7 +106,8 @@ def main() -> None:
     assert "onCatalogVisible" in main_tsx
     assert 'activeTab === "catalog" && canManageCatalog && !catalog && !catalogLoading' in main_tsx
     assert "Reload Catalog" not in main_tsx
-    assert "Refresh Catalog" in main_tsx
+    assert "리프레시 빌더" in main_tsx
+    assert "function refreshPromptBuilder()" in main_tsx
     assert "adminUserFormFrom" in main_tsx
     assert "adminPermissionsFromText" in main_tsx
     assert "function PromptBuilderModal" in main_tsx
@@ -162,6 +163,8 @@ def main() -> None:
     assert "const canBuildScene = hasPositiveInput;" in main_tsx
     assert "const positivePrompt = generated?.positivePrompt || positiveKeywordDraft || sceneDetailDraft;" in main_tsx
     assert "Scene Detail" in main_tsx
+    assert "권장 순서: 대상/관계" in main_tsx
+    assert "입력 예시 보기" in main_tsx
     assert "sceneDescription={promptSceneDescription}" in main_tsx
     assert "description: promptSceneDescription.trim()" in main_tsx
     assert "Build Scene JSON" not in main_tsx
@@ -175,7 +178,9 @@ def main() -> None:
     assert "selectionMode" in main_tsx
     assert "findPromptTermCategory" in main_tsx
     assert "Clear Selection" in main_tsx
-    assert "Refresh Catalog" in main_tsx
+    assert "리프레시 빌더" in main_tsx
+    assert "setPromptSelectedTermIds([]);" in main_tsx
+    assert "setPromptSceneDescription(\"\");" in main_tsx
     assert "Apply Generated Prompt" in main_tsx
     assert "Apply Keyword / Scene Draft" in main_tsx
     assert "buildPromptSceneRequest" in main_tsx
@@ -323,6 +328,7 @@ def main() -> None:
     assert "DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT" in system_prompt_service
     assert "Negative prompts are managed separately" in system_prompt_service
     assert "active_prompt_system_prompt_text" in system_prompt_service
+    assert "Scene Detail normalization rules" in system_prompt_service
 
     router = (PROJECT_ROOT / "frontend/src/router.ts").read_text(encoding="utf-8")
     assert "/studio/login" in router

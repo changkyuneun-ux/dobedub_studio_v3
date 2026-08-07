@@ -52,6 +52,11 @@ def create_job(runtime: JobRuntime, payload: dict) -> dict:
     if not runtime.dry_run:
         runpod_data = submit_runpod_job(runtime, payload)
         execution_mode = "runpod"
+    else:
+        # Dry-run must follow the same i2v input validation path as an actual
+        # submission, otherwise an empty-image task can slip into history.
+        _workflow, _images, patch_summary = runtime.prepare_workflow_for_job(payload)
+        runpod_data["patchSummary"] = patch_summary
     runtime.jobs[task_id] = {
         "taskId": task_id,
         "runpodJobId": runpod_data["runpodJobId"],

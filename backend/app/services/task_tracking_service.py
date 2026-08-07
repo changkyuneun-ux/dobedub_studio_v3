@@ -15,6 +15,7 @@ from backend.app.services.json_repository import hydrate_input_images, hydrate_o
 
 
 TERMINAL_STATES = {"COMPLETED", "SUCCESS", "FAILED", "CANCELLED", "TIMED_OUT"}
+HISTORY_RESULT_STATES = {"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}
 REVIEW_FLAG_LABELS = {
     "intentMatched": "프롬프트 의도 반영 intent matched prompt intent",
     "identityPreserved": "이미지 정체성 유지 identity preserved",
@@ -35,7 +36,11 @@ def record_job_status(job: dict, *, resolve_asset: Callable[[str], tuple[dict, P
 def task_history_items(page: int | None = None, page_size: int | None = None) -> list[dict]:
     session = SessionLocal()
     try:
-        id_statement = select(WorkflowTask.id).order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
+        id_statement = (
+            select(WorkflowTask.id)
+            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES))
+            .order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
+        )
         if page is not None and page_size is not None:
             safe_page = max(1, int(page))
             safe_page_size = max(1, min(200, int(page_size)))
@@ -66,7 +71,12 @@ def task_history_items(page: int | None = None, page_size: int | None = None) ->
 def task_history_total() -> int:
     session = SessionLocal()
     try:
-        return int(session.scalar(select(func.count()).select_from(WorkflowTask)) or 0)
+        statement = (
+            select(func.count())
+            .select_from(WorkflowTask)
+            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES))
+        )
+        return int(session.scalar(statement) or 0)
     finally:
         session.close()
 

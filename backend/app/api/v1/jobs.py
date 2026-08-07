@@ -14,7 +14,9 @@ def create_job(payload: dict, _: CurrentUser = Depends(require_permission("jobs:
         raise HTTPException(status_code=400, detail="workflowId is required")
     try:
         job = studio_api_service.create_job(payload)
-    except (FileNotFoundError, KeyError, ValueError, RuntimeError) as exc:
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (FileNotFoundError, KeyError, RuntimeError) as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return {
         "taskId": job["taskId"],

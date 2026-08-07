@@ -666,7 +666,7 @@ function StudioShell({
     }
   }
 
-  async function loadPromptCatalog() {
+  async function loadPromptCatalog(successNotice = "") {
     setPromptBuilderLoading(true);
     setPromptBuilderNotice("");
     try {
@@ -674,6 +674,8 @@ function StudioShell({
       setPromptCatalog(catalog);
       if (!promptCatalogHasTerms(catalog)) {
         setPromptBuilderNotice("Prompt catalog가 비어 있습니다. Admin Console에서 카테고리와 key word를 등록하세요.");
+      } else if (successNotice) {
+        setPromptBuilderNotice(successNotice);
       }
     } catch (error) {
       setPromptCatalog(null);
@@ -681,6 +683,15 @@ function StudioShell({
     } finally {
       setPromptBuilderLoading(false);
     }
+  }
+
+  async function refreshPromptBuilder() {
+    setPromptBuilderPanel("keywords");
+    setPromptSelectedTermIds([]);
+    setPromptScene(null);
+    setPromptGenerated(null);
+    setPromptSceneDescription("");
+    await loadPromptCatalog("빌더 화면을 초기화하고 카탈로그를 새로고침했습니다.");
   }
 
   async function loadPromptSystemPrompt() {
@@ -1289,7 +1300,7 @@ function StudioShell({
     }
     const missing = keyframes.filter((keyframe) => !keyframe.upload?.assetId);
     if (missing.length) {
-      setError(`필요한 입력 이미지가 비어 있습니다: Image ${missing.map((item) => item.index).join(", ")}`);
+      setError("입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다.");
       return;
     }
     setRunning(true);
@@ -1685,7 +1696,7 @@ function StudioShell({
         segmentName={selectedSegment?.displayName || ""}
         baseNegativePrompt={selectedSegment?.defaultNegativePrompt || selectedSegment?.negativePrompt || ""}
         onClose={() => setPromptBuilderOpen(false)}
-        onReload={() => void loadPromptCatalog()}
+        onRefreshBuilder={() => void refreshPromptBuilder()}
         onReloadSystemPrompt={() => void loadPromptSystemPrompt()}
         onSaveSystemPrompt={() => void savePromptSystemPrompt()}
         onSystemPromptTextChange={setPromptSystemPromptText}
@@ -2616,7 +2627,7 @@ function PromptBuilderModal({
   segmentName,
   baseNegativePrompt,
   onClose,
-  onReload,
+  onRefreshBuilder,
   onReloadSystemPrompt,
   onSaveSystemPrompt,
   onSystemPromptTextChange,
@@ -2641,7 +2652,7 @@ function PromptBuilderModal({
   segmentName: string;
   baseNegativePrompt: string;
   onClose: () => void;
-  onReload: () => void;
+  onRefreshBuilder: () => void;
   onReloadSystemPrompt: () => void;
   onSaveSystemPrompt: () => void;
   onSystemPromptTextChange: (value: string) => void;
@@ -2727,7 +2738,7 @@ function PromptBuilderModal({
             <p>{workflowName || "-"} · {segmentName || "선택된 서브그래프"}</p>
           </div>
           <div className="modal-actions">
-            <button className="secondary-button" type="button" disabled={loading} onClick={onReload}>Refresh Catalog</button>
+            <button className="secondary-button" type="button" disabled={loading} onClick={onRefreshBuilder}>리프레시 빌더</button>
             <button className="icon-button" type="button" onClick={onClose}>x</button>
           </div>
         </div>
@@ -2856,13 +2867,18 @@ function PromptBuilderModal({
                 <span>Optional</span>
               </div>
               <p className="muted-text">선택한 key word만으로 부족한 장면 설명을 입력합니다. 이 값은 Generate Prompt 실행 시 자동 생성되는 Scene JSON에 반영됩니다.</p>
+              <p className="scene-detail-order">권장 순서: 대상/관계 → 주요 동작 → 보조 동작·상호작용 → 카메라 → 표현·분위기</p>
               <textarea
                 className="scene-detail-textarea"
-                placeholder="예: input character turns slightly toward the camera with a calm expression"
+                placeholder={"주체/관계: 여성 1명, 남성 1명\n주요 동작: 여성은 고개를 들고 손으로 바닥을 짚는다\n보조 동작/상호작용: 남성은 옆에서 바라본다\n카메라: 측면 미디엄 샷, 아이레벨, 고정 카메라\n표현/분위기: 긴장된 표정, 자연스러운 실내 조명"}
                 value={sceneDescription}
                 rows={4}
                 onChange={(event) => onSceneDescriptionChange(event.target.value)}
               />
+              <details className="scene-detail-example">
+                <summary>입력 예시 보기</summary>
+                <p>원본 이미지의 외형·의상·배경은 유지하고, 새로 움직일 대상·동작·카메라 변화 중심으로 입력하세요. 자연스러운 영문 프롬프트는 Generate Prompt로 생성합니다.</p>
+              </details>
             </div>
             <button className="primary-button" type="button" disabled={loading || !canBuildScene} onClick={onGenerate}>
               {loading ? "GENERATING..." : "Generate Prompt"}

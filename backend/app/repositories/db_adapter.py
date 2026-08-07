@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.app.db.models import Asset, ConfigSnapshot, TaskInputAsset, TaskOutputAsset, TaskPrompt, User, WorkflowTask
@@ -33,7 +33,9 @@ class DbStudioRepository:
 
     def load_history(self) -> list[dict]:
         tasks = self.session.scalars(
-            select(WorkflowTask).order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
+            select(WorkflowTask)
+            .where(func.upper(WorkflowTask.status).in_({"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}))
+            .order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
         ).all()
         return [self._task_to_history_item(task) for task in tasks]
 

@@ -1158,7 +1158,6 @@ def _build_scene_v1(payload: dict, grouped: dict[str, list[str]], constraints: d
     ]
     description = _clean_scene_string(payload.get("description"))
     summary_parts = _dedupe([
-        description,
         *subject_values,
         *appearance_attributes,
         *actions,

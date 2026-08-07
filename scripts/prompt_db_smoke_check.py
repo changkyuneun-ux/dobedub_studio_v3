@@ -62,8 +62,12 @@ def main() -> None:
 
         from fastapi.testclient import TestClient
         from backend.app.main import app
+        from backend.app.db.models import PromptSystemPrompt
         from backend.app.db.session import SessionLocal
         from backend.app.services.prompt_builder_service import apply_example_prompt_catalog
+        from backend.app.services.prompt_system_prompt_service import (
+            LEGACY_DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT,
+        )
 
         raw_client = TestClient(app)
         admin_headers = login_headers(raw_client)
@@ -329,7 +333,7 @@ def main() -> None:
         description_scene = description_response.json()["scene"]
         description_scene_item = description_scene["scenes"][0]
         assert description_scene_item["description"] == "main person gently turns toward the camera"
-        assert "main person gently turns toward the camera" in description_scene_item["summary"]
+        assert "main person gently turns toward the camera" not in description_scene_item["summary"]
         assert "entities" not in description_scene_item
         assert "relations" not in description_scene_item
         assert validate_scene_json_v1_with_schema(description_scene) == []
@@ -345,7 +349,7 @@ def main() -> None:
         description_only_scene = description_only_response.json()
         description_only_item = description_only_scene["scene"]["scenes"][0]
         assert description_only_scene["usedTermIds"] == []
-        assert description_only_item["summary"] == "girl dance exciting"
+        assert description_only_item["summary"] == ""
         assert description_only_item["description"] == "girl dance exciting"
         assert validate_scene_json_v1_with_schema(description_only_scene["scene"]) == []
 
@@ -432,6 +436,18 @@ def main() -> None:
         assert system_prompt["modelFamily"] == "qwen"
         assert "DOBEDUB STUDIO" in system_prompt["promptText"]
         assert "Negative prompts are managed separately" in system_prompt["promptText"]
+        assert "Scene Detail normalization rules" in system_prompt["promptText"]
+        assert "regardless of the input order" in system_prompt["promptText"]
+
+        # Only the untouched legacy template is upgraded; custom text is handled below.
+        with SessionLocal() as db:
+            stored_system_prompt = db.get(PromptSystemPrompt, system_prompt["id"])
+            assert stored_system_prompt is not None
+            stored_system_prompt.prompt_text = LEGACY_DEFAULT_QWEN_WAN_I2V_SYSTEM_PROMPT
+            db.commit()
+        upgraded_system_prompt_response = client.get("/api/prompts/system-prompt")
+        assert upgraded_system_prompt_response.status_code == 200, upgraded_system_prompt_response.text
+        assert "Scene Detail normalization rules" in upgraded_system_prompt_response.json()["promptText"]
 
         custom_system_prompt_text = (
             "CUSTOM QWEN SYSTEM PROMPT. Return only valid JSON with positivePrompt, "

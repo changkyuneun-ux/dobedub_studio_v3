@@ -9,6 +9,30 @@ from backend.app.services import metadata_loader, workflow_parser
 from backend.app.services.workflow_parser import PARAM_LABELS, PARAM_UI_KEYS
 
 
+I2V_INPUT_IMAGE_REQUIRED_MESSAGE = "입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다."
+
+
+def validate_i2v_input_images(payload: dict, workflow: dict, segments: list[dict]) -> None:
+    """Require one uploaded asset for every image input the selected i2v workflow needs."""
+    required_count = workflow_parser.keyframe_count(workflow, segments)
+    if required_count < 1:
+        raise ValueError(I2V_INPUT_IMAGE_REQUIRED_MESSAGE)
+
+    uploaded_keyframes = [
+        keyframe
+        for keyframe in payload.get("keyframes") or []
+        if isinstance(keyframe, dict) and str(keyframe.get("uploadId") or "").strip()
+    ]
+    uploaded_indices = [str(keyframe.get("index") or "") for keyframe in uploaded_keyframes]
+    expected_indices = set(range(1, required_count + 1))
+    if (
+        len(uploaded_keyframes) != required_count
+        or not all(index.isdigit() for index in uploaded_indices)
+        or {int(index) for index in uploaded_indices} != expected_indices
+    ):
+        raise ValueError(I2V_INPUT_IMAGE_REQUIRED_MESSAGE)
+
+
 def apply_keyframe_images(workflow: dict, image_names: list[str], segments: list[dict] | None = None) -> list[dict]:
     applied = []
     for node_id, file_name in zip(workflow_parser.find_keyframe_images_ordered(workflow, segments), image_names):
@@ -203,6 +227,7 @@ def prepare_workflow_for_job(
     workflow = workflow_parser.load_workflow(workflow_id, workflows_dir)
     segments = workflow_parser.find_segments(workflow)
     segment_payloads = payload.get("segments") or []
+    validate_i2v_input_images(payload, workflow, segments)
     images = build_runpod_images(payload)
     image_names = [image["name"] for image in images]
     output_summary = existing_save_video_outputs(workflow, workflow_id, segments)
