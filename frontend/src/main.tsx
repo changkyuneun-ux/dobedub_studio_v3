@@ -334,7 +334,7 @@ function TopBar({
         <span>DOBEDUB STUDIO</span>
       </div>
       <nav className="toolbar" aria-label="주요 메뉴">
-        <button className={route === "create.load" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
+        <button className={route === "create.load" || route === "create.prompt" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
         {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
         {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
         {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
@@ -631,6 +631,332 @@ function Create2aScreen({
           <div>세그먼트는 <strong>이미지 사이의 전환 구간</strong>입니다. 워크플로가 자동 계산하며 사용자가 개수를 바꿀 수 없습니다.</div>
         </div>
       </div>
+    </AppShell>
+  );
+}
+
+// E-02 · 2b "S2 프롬프트 구성" — design_handoff_dobedub_v3/2 Create.dc.html의 두 번째
+// 화면. 카탈로그 트리 조회·용어 선택·규칙 위반/필수 누락 경고·Generate/Apply 흐름은
+// 전부 구버전 PromptBuilderModal이 이미 갖고 있던 로직(C-01 경고 그룹핑 포함)을
+// 그대로 재사용한다 - 새로 만든 것은 화면 구조와 스타일뿐이다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - "직접 입력" 모드 칩 — 기존 로직에 그런 별도 모드가 없다(생성 없이 바로 Apply하면
+//   그게 직접 입력이다). 없는 상태를 만들어 붙이지 않았다.
+// - "비어있는 세그먼트에도 함께 적용" 체크박스 — 여러 세그먼트에 한 번에 적용하는
+//   기능이 백엔드/기존 로직 어디에도 없다. 임의로 만들지 않았다.
+// - 카탈로그 트리의 scope→group→category 3단 아코디언 — scope 탭 + category 목록
+//   2단으로 단순화했다. 그룹 단위 접고 펼치기는 이후 다듬을 항목.
+// - "라이브러리 재사용" — 4c(E-03) 전용 화면이 아직 없어 기존 PromptReuseModal을
+//   임시로 그대로 띄운다(구버전 테마 팝업이 잠깐 겹쳐 보이는 것은 알고 있음).
+function Create2bScreen({
+  user,
+  health,
+  workflowName,
+  segments,
+  selectedSegmentIndex,
+  onSelectSegment,
+  catalog,
+  loading,
+  notice,
+  selectedTermIds,
+  activePanel,
+  systemPrompt,
+  systemPromptText,
+  scene,
+  generated,
+  sceneDescription,
+  baseNegativePrompt,
+  onReloadSystemPrompt,
+  onSaveSystemPrompt,
+  onSystemPromptTextChange,
+  onPanelChange,
+  onToggleTerm,
+  onSceneDescriptionChange,
+  onClearSelection,
+  onGenerate,
+  onApply,
+  onOpenPromptReuse,
+  onNext
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  workflowName: string;
+  segments: SegmentState[];
+  selectedSegmentIndex: number;
+  onSelectSegment: (index: number) => void;
+  catalog: PromptCatalogResponse | null;
+  loading: boolean;
+  notice: string;
+  selectedTermIds: number[];
+  activePanel: "keywords" | "systemPrompt";
+  systemPrompt: PromptSystemPromptResponse | null;
+  systemPromptText: string;
+  scene: PromptSceneResponse | null;
+  generated: PromptGenerateResponse | null;
+  sceneDescription: string;
+  baseNegativePrompt: string;
+  onReloadSystemPrompt: () => void;
+  onSaveSystemPrompt: () => void;
+  onSystemPromptTextChange: (value: string) => void;
+  onPanelChange: (panel: "keywords" | "systemPrompt") => void;
+  onToggleTerm: (termId: number) => void;
+  onSceneDescriptionChange: (value: string) => void;
+  onClearSelection: (termIds?: number[]) => void;
+  onGenerate: () => void;
+  onApply: (promptOverride?: {
+    positivePrompt?: string;
+    negativePrompt?: string;
+    negativePromptAddition?: string;
+    source?: string;
+  }) => void;
+  onOpenPromptReuse: () => void;
+  onNext: () => void;
+}) {
+  const selectedSegment = segments.find((segment) => segment.index === selectedSegmentIndex) || segments[0];
+  const categories = promptCatalogCategories(catalog);
+  const renderScopes = promptCatalogRenderScopes(categories);
+  const [activeScopeKey, setActiveScopeKey] = useState<"positive" | "negative">("positive");
+  const activeScope = renderScopes.find((scope) => scope.key === activeScopeKey) || renderScopes[0];
+  const selectedKeywords = selectedPromptKeywordsByScope(categories, selectedTermIds);
+  const positiveKeywordDraft = promptKeywordText(selectedKeywords.positive);
+  const negativeKeywordDraft = promptKeywordText(selectedKeywords.negative);
+  const sceneDetailDraft = sceneDescription.trim();
+  const hasPositiveInput = Boolean(positiveKeywordDraft || sceneDetailDraft);
+  const positivePrompt = generated?.positivePrompt || positiveKeywordDraft || sceneDetailDraft;
+  const negativePromptAddition = generated?.negativePrompt || negativeKeywordDraft;
+  const negativePrompt = combinePromptText(baseNegativePrompt, negativePromptAddition);
+  const warnings = [...(scene?.warnings || []), ...(generated?.warnings || [])];
+  const warningGroups = groupPromptWarningsBySeverity(warnings);
+  const hasBlockingWarning = warningGroups.some((group) => group.severity === "error");
+  const applyLabel = generated ? "Apply Generated Prompt" : "Apply Keyword / Scene Draft";
+  const configuredSegmentCount = segments.filter((segment) => segment.positivePrompt.trim()).length;
+  const nextSegment = segments.find((segment) => segment.index === selectedSegmentIndex + 1);
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow={`STEP 2 / 4 · SEG ${String(selectedSegmentIndex).padStart(2, "0")} · 프롬프트`}
+      headerTitle="세그먼트 설정"
+      headerActions={
+        <>
+          <button className="v3-secondary-button" type="button" onClick={onOpenPromptReuse}>Prompt Reuse</button>
+          <span className="v3-header-hint">Run은 실행 전 확인 단계에서 · 설정 {configuredSegmentCount}/{segments.length}</span>
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>SEGMENTS · {workflowName || "-"} → {segments.length}</div>
+          {segments.map((segment) => (
+            <button
+              key={segment.index}
+              type="button"
+              className={`v3-segment-nav-item ${segment.index === selectedSegmentIndex ? "is-active" : ""}`}
+              onClick={() => onSelectSegment(segment.index)}
+            >
+              <div className="v3-segment-nav-head">
+                <span>SEG {String(segment.index).padStart(2, "0")}</span>
+                <span>{segment.positivePrompt.trim() ? "작성됨" : "비어있음"}</span>
+              </div>
+              <div className="v3-segment-nav-meta">KF {segment.startImageIndex} → KF {segment.endImageIndex}</div>
+            </button>
+          ))}
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title-row">
+            <div className="v3-panel-title">생성 결과</div>
+            {warningGroups.length ? <span className="v3-panel-badge">확인 필요 {warnings.length}건</span> : null}
+          </div>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <span className="v3-label">POSITIVE</span>
+              <span className="v3-card-header-meta">{generated ? `Qwen · ${generated.provider}` : "Draft"}</span>
+            </div>
+            <div className="v3-prompt-text-block">{positivePrompt || "-"}</div>
+          </div>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <span className="v3-label">NEGATIVE</span>
+              <span className="v3-card-header-meta">내장 + 추가분</span>
+            </div>
+            <div className="v3-prompt-text-block">{negativePrompt || "-"}</div>
+          </div>
+          <div className="v3-summary-card">
+            <div className="v3-label">SCENE JSON</div>
+            <pre className="v3-scene-json">{scene ? JSON.stringify(scene.scene, null, 2) : "{}"}</pre>
+          </div>
+          <p className="v3-muted-text">여기서 만든 프롬프트는 저장되지 않습니다 · Task History 평가에서 재사용 등록해야 라이브러리에 들어갑니다</p>
+          <div className="v3-inline-actions">
+            <button
+              className="v3-primary-button v3-flex-button"
+              type="button"
+              disabled={(!hasPositiveInput && !generated) || hasBlockingWarning}
+              onClick={() => onApply({
+                positivePrompt,
+                negativePrompt,
+                negativePromptAddition,
+                source: generated ? "Generated Prompt" : "Prompt Builder"
+              })}
+            >
+              {applyLabel} — SEG {String(selectedSegmentIndex).padStart(2, "0")}
+            </button>
+          </div>
+          <div className="v3-inline-actions">
+            <button className="v3-secondary-button v3-flex-button" type="button" onClick={onOpenPromptReuse}>라이브러리 재사용</button>
+          </div>
+          <div className="v3-note-block">
+            <div className="v3-label">적용 후 이동</div>
+            <div className="v3-inline-actions">
+              {nextSegment ? (
+                <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => onSelectSegment(nextSegment.index)}>
+                  SEG {String(nextSegment.index).padStart(2, "0")} 프롬프트 →
+                </button>
+              ) : null}
+              <button className="v3-secondary-button v3-flex-button" type="button" onClick={onNext}>노드 구성값 설정 →</button>
+            </div>
+            <p className="v3-muted-text">영상 생성은 세그먼트 단위가 아닙니다 · 모든 세그먼트 설정 후 실행 전 확인에서 한 번에 제출됩니다</p>
+          </div>
+        </>
+      }
+    >
+      <div className="v3-pill-row">
+        <button
+          type="button"
+          className={`v3-pill ${activePanel === "keywords" ? "is-active" : ""}`}
+          onClick={() => onPanelChange("keywords")}
+        >
+          Keyword Builder
+        </button>
+        <button
+          type="button"
+          className={`v3-pill ${activePanel === "systemPrompt" ? "is-active" : ""}`}
+          onClick={() => {
+            onPanelChange("systemPrompt");
+            if (!systemPrompt) {
+              onReloadSystemPrompt();
+            }
+          }}
+        >
+          System Prompt 편집
+        </button>
+        <span className="v3-pill-meta">selected {selectedTermIds.length}</span>
+      </div>
+
+      <div className="v3-note-row">
+        <span className="v3-label">이 단계</span>
+        <span><strong>프롬프트 생성</strong>은 텍스트만 만듭니다 · 영상 생성(GPU)은 STEP 3 실행 전 확인에서</span>
+      </div>
+
+      {warningGroups.length ? (
+        <div className="v3-warning-block">
+          {warningGroups.map((group) => (
+            <div className={`v3-warning-row severity-${group.severity}`} key={group.severity}>
+              {group.items.map((warning, index) => (
+                <div className="v3-warning-line" key={`${warning.code || group.severity}-${index}`}>
+                  <span className="v3-warning-bullet" />
+                  <span>{warning.message || warning.code}</span>
+                  <span className="v3-warning-tag">{group.severity === "error" ? "BLOCK · 적용 비활성" : "WARN · 진행 가능"}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {activePanel === "systemPrompt" ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">System Prompt</div>
+            <span className="v3-card-header-meta">{systemPrompt?.provider || "runpod_vllm"}</span>
+          </div>
+          <div className="v3-system-prompt-body">
+            <p className="v3-muted-text">{systemPrompt?.name || "Qwen WAN I2V Positive Prompt Composer"} · {systemPrompt?.code || "qwen_wan_i2v_positive"}</p>
+            <textarea
+              className="v3-system-prompt-textarea"
+              value={systemPromptText}
+              spellCheck={false}
+              onChange={(event) => onSystemPromptTextChange(event.target.value)}
+            />
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button" type="button" disabled={loading} onClick={onReloadSystemPrompt}>Reload</button>
+              <button className="v3-primary-button" type="button" disabled={loading || !systemPromptText.trim()} onClick={onSaveSystemPrompt}>Save System Prompt</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <div className="v3-scope-tabs">
+                {renderScopes.map((scope) => (
+                  <button
+                    key={scope.key}
+                    type="button"
+                    className={`v3-scope-tab ${scope.key === activeScopeKey ? "is-active" : ""}`}
+                    onClick={() => setActiveScopeKey(scope.key)}
+                  >
+                    {scope.label} · {scope.termCount}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="v3-catalog-body">
+              {!activeScope || !activeScope.groups.length ? (
+                <p className="v3-muted-text">등록된 key word가 없습니다. Admin Console에서 카테고리와 key word를 등록하세요.</p>
+              ) : activeScope.groups.flatMap((group) => group.categories).map((category) => (
+                <div className="v3-catalog-category" key={category.code}>
+                  <div className="v3-catalog-category-head">
+                    <span className="v3-label">{category.nameKo || category.nameEn || category.code}</span>
+                    <span className="v3-catalog-category-meta">{category.selectionMode === "single" ? "Single" : "Multi"}</span>
+                  </div>
+                  <div className="v3-term-chip-row">
+                    {(category.terms || []).map((term) => (
+                      <button
+                        key={term.id}
+                        type="button"
+                        className={`v3-term-chip ${selectedTermIds.includes(term.id) ? "is-selected" : ""}`}
+                        onClick={() => onToggleTerm(term.id)}
+                      >
+                        {term.labelEn || term.labelKo || term.code}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="v3-catalog-category">
+                <div className="v3-catalog-category-head">
+                  <span className="v3-label">SCENE DETAIL · optional</span>
+                </div>
+                <textarea
+                  className="v3-scene-textarea"
+                  placeholder="예: input character turns slightly toward the camera with a calm expression"
+                  value={sceneDescription}
+                  rows={3}
+                  onChange={(event) => onSceneDescriptionChange(event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="v3-catalog-actions">
+              <button className="v3-primary-button v3-flex-button" type="button" disabled={loading || !hasPositiveInput} onClick={onGenerate}>
+                {loading ? "GENERATING..." : "프롬프트 생성 · Qwen"}
+              </button>
+              <button
+                className="v3-secondary-button"
+                type="button"
+                disabled={loading || !selectedTermIds.length}
+                onClick={() => onClearSelection()}
+              >
+                선택 초기화
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </AppShell>
   );
 }
@@ -1715,9 +2041,44 @@ function StudioShell({
         activeImageIndexes={activeImageIndexes}
         onUploadFiles={applySelectedFiles}
         onClearKeyframe={clearKeyframe}
-        // E-02: 2b~2f가 아직 없어 "다음 단계"는 구버전 통합 워크스페이스(create.workspace)로
-        // 이동한다. 같은 StudioShell 상태를 공유하므로 여기서 고른 워크플로/키프레임은
-        // 그대로 이어진다 - 데이터 유실 없음. 2b(세그먼트 설정)가 생기면 그쪽으로 교체.
+        onNext={() => onNavigate("create.prompt")}
+      />
+    ) : route === "create.prompt" ? (
+      <Create2bScreen
+        user={user}
+        health={health}
+        workflowName={selected?.label || selected?.name || selectedWorkflow}
+        segments={segments}
+        selectedSegmentIndex={selectedSegmentIndex}
+        onSelectSegment={setSelectedSegmentIndex}
+        catalog={promptCatalog}
+        loading={promptBuilderLoading}
+        notice={promptBuilderNotice}
+        selectedTermIds={promptSelectedTermIds}
+        activePanel={promptBuilderPanel}
+        systemPrompt={promptSystemPrompt}
+        systemPromptText={promptSystemPromptText}
+        scene={promptScene}
+        generated={promptGenerated}
+        sceneDescription={promptSceneDescription}
+        baseNegativePrompt={selectedSegment?.defaultNegativePrompt || selectedSegment?.negativePrompt || ""}
+        onReloadSystemPrompt={() => void loadPromptSystemPrompt()}
+        onSaveSystemPrompt={() => void savePromptSystemPrompt()}
+        onSystemPromptTextChange={setPromptSystemPromptText}
+        onPanelChange={setPromptBuilderPanel}
+        onToggleTerm={togglePromptTerm}
+        onSceneDescriptionChange={(value) => {
+          setPromptSceneDescription(value);
+          setPromptScene(null);
+          setPromptGenerated(null);
+        }}
+        onClearSelection={clearPromptBuilderSelection}
+        onGenerate={() => void generatePromptDraft()}
+        onApply={applyPromptSceneToSegment}
+        onOpenPromptReuse={() => void openPromptReuse()}
+        // E-02: 2e(세그먼트 설정 · 노드 컨피그)가 아직 없어 "노드 구성값 설정"은
+        // 구버전 통합 워크스페이스로 이동한다. 같은 StudioShell 상태를 공유하므로
+        // 여기서 적용한 프롬프트는 그대로 이어진다 - 데이터 유실 없음.
         onNext={() => onNavigate("create.workspace")}
       />
     ) : (
