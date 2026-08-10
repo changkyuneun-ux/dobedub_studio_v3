@@ -15,6 +15,12 @@ class JsonStudioRepository:
         self.uploads_dir = uploads_dir
         self.outputs_dir = outputs_dir
 
+    # D-03: task history storage is DB-only in production. studio_api_service
+    # no longer routes history reads/writes/deletes through studio_repository()
+    # (it uses history_repository(), which always yields DbStudioRepository),
+    # so these three methods are unreachable from the live app. Kept only for
+    # the JSON adapter's own tests and for scripts/migrate_json_to_db.py-style
+    # one-off legacy-data recovery.
     def load_history(self) -> list[dict]:
         return json_repository.load_history(self.history_path, self.assets_path)
 

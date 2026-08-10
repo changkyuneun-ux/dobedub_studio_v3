@@ -147,6 +147,11 @@ def save_assets(assets_path: Path, assets: dict):
     write_json(assets_path, assets)
 
 
+# D-03: task history storage is DB-only in production. This function is no
+# longer reachable from the live app (studio_api_service always uses
+# history_repository(), which is DB-backed) and is retained only for the
+# legacy-data path exercised by scripts/migrate_json_to_db.py and by tests
+# of the JSON adapter itself. Do not wire new history reads through this.
 def load_history(history_path: Path, assets_path: Path) -> list[dict]:
     if not history_path.exists():
         return []
@@ -154,12 +159,14 @@ def load_history(history_path: Path, assets_path: Path) -> list[dict]:
     return [hydrate_history_item(item, assets, assets_path) for item in read_json(history_path)]
 
 
+# D-03: legacy/migration-tool-only, see load_history() above.
 def raw_history_items(history_path: Path) -> list[dict]:
     if not history_path.exists():
         return []
     return read_json(history_path)
 
 
+# D-03: legacy/migration-tool-only, see load_history() above.
 def append_history(history_path: Path, assets_path: Path, item: dict) -> list[dict]:
     history = load_history(history_path, assets_path)
     history.insert(0, item)
@@ -213,6 +220,7 @@ def delete_asset_file(asset: dict, uploads_dir: Path, outputs_dir: Path) -> dict
     return {"path": str(file_path), "deleted": True, "reason": ""}
 
 
+# D-03: legacy/migration-tool-only, see load_history() above.
 def delete_history_item(history_path: Path, assets_path: Path, uploads_dir: Path, outputs_dir: Path, task_id: str) -> dict:
     history = raw_history_items(history_path)
     target_index = next((index for index, item in enumerate(history) if item.get("taskId") == task_id), None)

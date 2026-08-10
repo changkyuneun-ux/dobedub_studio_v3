@@ -21,9 +21,12 @@ from backend.app.services.json_repository import (
 class DbStudioRepository:
     """RDS/MySQL-backed adapter with the same response shape as JSON storage.
 
-    The app runtime is not wired to this adapter yet. This implementation is
-    exercised by smoke tests first so JSON persistence can remain the default
-    while the DB transition contract settles.
+    Task history (load_history/append_history/delete_history_item) is wired
+    into the live app unconditionally via
+    backend.app.repositories.factory.history_repository() (D-03) - it does
+    not depend on PERSISTENCE_BACKEND. Asset/config/upload methods on this
+    class are only reached when PERSISTENCE_BACKEND=db, via
+    factory.studio_repository().
     """
 
     def __init__(self, session: Session, *, uploads_dir: Path, outputs_dir: Path):

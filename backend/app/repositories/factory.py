@@ -50,3 +50,22 @@ def studio_repository() -> Iterator[StudioRepository]:
     if settings.persistence_backend != "json":
         raise ValueError(f"Unsupported PERSISTENCE_BACKEND: {settings.persistence_backend}")
     yield json_repository()
+
+
+@contextmanager
+def history_repository() -> Iterator[DbStudioRepository]:
+    """Task history storage is DB-only, independent of PERSISTENCE_BACKEND (D-03).
+
+    PERSISTENCE_BACKEND still selects the backend used for assets/configs/
+    uploads via studio_repository(), but history read/append/delete always
+    goes through the DB adapter so a json-mode deployment can never serve or
+    persist task history from/to the legacy JSON files.
+    """
+    from backend.app.db.session import SessionLocal
+
+    session = SessionLocal()
+    paths = data_paths()
+    try:
+        yield DbStudioRepository(session, uploads_dir=paths["uploads"], outputs_dir=paths["outputs"])
+    finally:
+        session.close()

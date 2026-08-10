@@ -6,13 +6,12 @@ from datetime import datetime
 from pathlib import Path
 
 from backend.app.core.config import get_settings
-from backend.app.repositories.factory import data_paths, studio_repository
+from backend.app.repositories.factory import data_paths, history_repository, studio_repository
 from backend.app.services import job_service, output_service, workflow_patch_service
 from backend.app.services.asset_storage import encode_file_base64, safe_filename
 from backend.app.services.runpod_client import connection_status as runpod_connection_status
 from backend.app.services.runpod_client import runpod_request as runpod_client_request
 from backend.app.services.task_tracking_service import (
-    delete_task_record,
     record_job_status,
     restore_job_from_task,
     reusable_task_prompts,
@@ -25,7 +24,6 @@ from backend.app.services.task_tracking_service import (
 
 
 JOBS: dict[str, dict] = {}
-HISTORY_TERMINAL_STATUSES = {"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}
 
 
 def ensure_storage_dirs() -> None:
@@ -35,67 +33,33 @@ def ensure_storage_dirs() -> None:
 
 
 def load_history() -> list[dict]:
-    if get_settings().persistence_backend == "db":
-        return task_history_items()
-    db_items = []
-    try:
-        db_items = task_history_items()
-    except Exception:
-        db_items = []
-    with studio_repository() as repository:
-        legacy_items = repository.load_history()
-    return [
-        item
-        for item in _merge_history_items(db_items, legacy_items)
-        if str(item.get("status") or "").upper() in HISTORY_TERMINAL_STATUSES
-    ]
+    # Task history is DB-only (D-03): always read through task_tracking_service,
+    # independent of PERSISTENCE_BACKEND (which still governs assets/configs/
+    # uploads via studio_repository()).
+    return task_history_items()
 
 
 def paginated_history(page: int = 1, page_size: int = 50) -> dict:
     page = max(1, int(page or 1))
     page_size = max(1, min(200, int(page_size or 50)))
-    if get_settings().persistence_backend == "db":
-        return {
-            "items": task_history_items(page, page_size),
-            "page": page,
-            "pageSize": page_size,
-            "total": task_history_total(),
-        }
-    history = load_history()
-    start = (page - 1) * page_size
     return {
-        "items": history[start:start + page_size],
+        "items": task_history_items(page, page_size),
         "page": page,
         "pageSize": page_size,
-        "total": len(history),
+        "total": task_history_total(),
     }
 
 
 def append_history(item: dict) -> list[dict]:
-    with studio_repository() as repository:
+    # Task history is DB-only (D-03): bypasses PERSISTENCE_BACKEND on purpose.
+    with history_repository() as repository:
         return repository.append_history(item)
 
 
 def delete_history_item(task_id: str) -> dict:
-    if get_settings().persistence_backend == "db":
-        with studio_repository() as repository:
-            return repository.delete_history_item(task_id)
-
-    db_result = None
-    try:
-        db_result = delete_task_record(task_id)
-    except KeyError:
-        db_result = None
-    with studio_repository() as repository:
-        try:
-            result = repository.delete_history_item(task_id)
-        except KeyError:
-            if db_result:
-                return {**db_result, "legacyDeleted": False}
-            raise
-    if db_result:
-        result["dbDeleted"] = True
-    return result
+    # Task history is DB-only (D-03): bypasses PERSISTENCE_BACKEND on purpose.
+    with history_repository() as repository:
+        return repository.delete_history_item(task_id)
 
 
 def load_configs() -> list[dict]:
@@ -328,18 +292,6 @@ def reusable_prompts(
         reuse_eligible=reuse_eligible,
         limit=limit,
     )
-
-
-def _merge_history_items(primary: list[dict], legacy: list[dict]) -> list[dict]:
-    merged = []
-    seen = set()
-    for item in [*primary, *legacy]:
-        key = item.get("taskId") or item.get("id") or f"{item.get('timestamp')}:{item.get('workflowId')}"
-        if key in seen:
-            continue
-        seen.add(key)
-        merged.append(item)
-    return merged
 
 
 def report_markdown(payload: dict) -> str:
