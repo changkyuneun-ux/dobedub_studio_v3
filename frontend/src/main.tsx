@@ -1702,7 +1702,10 @@ function StudioShell({
         canRework={canUse(user, "jobs:run")}
         canDelete={canUse(user, "history:delete")}
         canReview={canUse(user, "prompts:review")}
-        canGiveFeedback={canUse(user, "prompts:build")}
+        // B-03: POST /api/prompts/feedback가 이제 prompts:review를 요구한다(이전
+        // prompts:build 시절엔 ADMIN처럼 review만 있고 build가 없는 역할은 저장
+        // 버튼이 보여도 403이 났다 - B-02 커밋의 주석대로 여기서 맞춰 바꾼다).
+        canGiveFeedback={canUse(user, "prompts:review")}
       />
     ) : null}
     {deleteTarget ? (

@@ -46,6 +46,12 @@ RESOURCE_CATALOG = [
     ("API", "api.metadata_rebuild", "Metadata Rebuild API", "metadata:rebuild", "/api/metadata/rebuild", "POST", 351),
     ("API", "api.prompts", "Prompt Builder API", "prompts:build", "/api/prompts", "POST", 360),
     ("API", "api.prompt_reuse", "Reusable Prompt API", "prompts:reuse", "/api/prompts/reusable", "GET", 361),
+    # B-03: api.prompts(위 360)는 generate/scene 등 여러 POST /api/prompts/* 경로를
+    # 뭉뚱그린 범용 라벨이라 여전히 prompts:build로 정확하다. /feedback만 검수
+    # 권한으로 바뀌었으므로(평가는 검수 행위) api.prompt_reuse와 같은 방식으로
+    # 전용 행을 새로 추가한다 - api.prompts를 prompts:review로 바꾸면 generate/scene에는
+    # 오히려 틀린 정보가 된다.
+    ("API", "api.prompt_feedback", "Prompt Feedback API", "prompts:review", "/api/prompts/feedback", "POST", 362),
     ("API", "api.admin.sandbox_pod", "Sandbox Pod Status API", "sandbox:read", "/api/admin/sandbox-pod", "GET", 370),
     ("API", "api.admin.sandbox_pod_control", "Sandbox Pod Control API", "sandbox:control", "/api/admin/sandbox-pod/start|stop", "POST", 371),
 ]

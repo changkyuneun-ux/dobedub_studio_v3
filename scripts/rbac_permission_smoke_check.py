@@ -54,8 +54,20 @@ def main() -> None:
             "password": "viewer-pass",
         })
         assert viewer_create_response.status_code == 200, viewer_create_response.text
+        # B-03: ADMIN은 prompts:review는 있지만 prompts:build는 없다 - 별도 사용자로
+        # 만들어야 "리뷰 권한만으로 평가를 저장할 수 있는지"를 실제로 검증할 수 있다.
+        reviewer_admin_create_response = client.post("/api/admin/users", headers=admin_headers, json={
+            "id": "reviewer-admin",
+            "name": "Reviewer Admin",
+            "role": "ADMIN",
+            "permissions": [],
+            "isActive": True,
+            "password": "reviewer-admin-pass",
+        })
+        assert reviewer_admin_create_response.status_code == 200, reviewer_admin_create_response.text
         operator_headers = login_headers(client, "operator", "operator-pass")
         viewer_headers = login_headers(client, "viewer", "viewer-pass")
+        reviewer_admin_headers = login_headers(client, "reviewer-admin", "reviewer-admin-pass")
 
         governance_response = client.get("/api/admin/permissions", headers=admin_headers)
         assert governance_response.status_code == 200, governance_response.text
@@ -71,6 +83,14 @@ def main() -> None:
         assert any(role["code"] == "OPERATOR" and "jobs:run" in role["permissionCodes"] for role in governance["roles"])
         assert any(resource["resourceKey"] == "action.history_delete" for resource in governance["resources"])
         assert any(resource["resourceKey"] == "api.admin.roles_write" and resource["requiredPermissionCode"] == "roles:write" for resource in governance["resources"])
+        # B-03: POST /api/prompts/feedback는 이제 prompts:review 전용 카탈로그 행을
+        # 따로 갖는다(generate/scene을 함께 뭉뚱그리던 api.prompts, 여전히 prompts:build,
+        # 와는 구분됨) - 7b 화면이 정확한 값을 보여주는지 확인.
+        assert any(
+            resource["resourceKey"] == "api.prompt_feedback" and resource["requiredPermissionCode"] == "prompts:review"
+            for resource in governance["resources"]
+        )
+        assert any(resource["resourceKey"] == "api.prompts" and resource["requiredPermissionCode"] == "prompts:build" for resource in governance["resources"])
 
         assert client.get("/api/workflows").status_code == 401
         assert client.get(
@@ -94,6 +114,15 @@ def main() -> None:
 
         assert client.get("/api/prompts/catalog", headers=operator_headers).status_code == 200
         assert client.put("/api/prompts/system-prompt", headers=operator_headers, json={"promptText": "blocked"}).status_code == 403
+
+        # B-03: POST /api/prompts/feedback가 prompts:build에서 prompts:review로 바뀐 것을
+        # 실제 401/403 경계로 검증한다. VIEWER(review도 build도 없음)는 여전히 403이어야
+        # 하고, ADMIN(review는 있지만 build는 없음)은 권한 게이트를 통과해야 한다 - 통과
+        # 이후 outputId가 없어 400(ValueError)이 나는 것으로 "403이 아니었다"를 구분한다.
+        assert client.post("/api/prompts/feedback", headers=viewer_headers, json={"outputId": "does-not-exist"}).status_code == 403
+        admin_feedback_response = client.post("/api/prompts/feedback", headers=reviewer_admin_headers, json={"outputId": "does-not-exist"})
+        assert admin_feedback_response.status_code == 400, admin_feedback_response.text
+        assert "Prompt output not found" in admin_feedback_response.text
 
         sandbox_super_create_response = client.post("/api/admin/users", headers=admin_headers, json={
             "id": "sandbox-super",

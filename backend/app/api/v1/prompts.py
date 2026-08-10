@@ -199,7 +199,10 @@ def generate(payload: dict, _: CurrentUser = Depends(require_permission("prompts
 
 
 @router.post("/feedback", status_code=201)
-def feedback(payload: dict, _: CurrentUser = Depends(require_permission("prompts:build")), db: Session = Depends(get_db)):
+# B-03: 평가는 검수 행위다 - 생성 권한(prompts:build)이 아니라 리뷰 권한(prompts:review)을
+# 요구한다. ADMIN 역할은 review는 있지만 build는 없어 이전에는 이 엔드포인트를 호출할 수
+# 없었다(B-02가 새로 연결한 3f의 "프롬프트 생성 품질" 평가 UI가 정작 ADMIN에게는 403이었음).
+def feedback(payload: dict, _: CurrentUser = Depends(require_permission("prompts:review")), db: Session = Depends(get_db)):
     try:
         return save_prompt_feedback(db, payload)
     except ValueError as exc:
