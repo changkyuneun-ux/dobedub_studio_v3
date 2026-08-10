@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"><style>body{margin:0;background:#f0eee9;font-family:"IBM Plex Sans",system-ui,sans-serif}a{color:#0f7a55}a:hover{color:#0b5c40}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px "Roboto Mono",monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 "IBM Plex Sans",sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px "Roboto Mono",monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#0f7a55;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.5)}</style></helmet>
+<div style="padding:26px 44px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:'IBM Plex Sans',sans-serif">
+<div style="font-weight:700;font-size:15px;color:#1a1a1a">DOBEDUB STUDIO 재설계 · 구조 방향안</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;font:600 11px 'Roboto Mono',monospace"><a href="Screen%20Map.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">업무 흐름 지도</a><a href="0%20Structure%20Options.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:#0f7a55;color:#fff">구조 방향안</a><a href="1%20Access.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">1 · 접속 · 안내</a><a href="2%20Create.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">2 · 영상 생성</a><a href="3%20Review.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">3 · 검수 · 자산</a><a href="4%20Admin.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">4 · 관리자</a><a href="5%20API-DB%20Gap.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">API · DB 점검</a></div>
+</div>
+<section class="dv-turn" id="s0">
+<div class="dv-thd"><a class="dv-tid" href="#s0">S0</a><span class="dv-tname">초기 구조 방향안</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.45)">정보구조 3종 비교</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Console — 좌측 글로벌 네비 · 모달 전면 폐지 · 라이트 · 고밀도</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:840px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px">
+<div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div>
+<div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div>
+<div style="font:500 9px 'Roboto Mono',monospace;color:#6b7472;border:1px solid #e2e5e3;border-radius:4px;padding:2px 4px">v3</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600"><div style="width:5px;height:5px;border-radius:50%;background:#12a06a"></div>Workspace</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;color:#3d4644"><span style="display:flex;align-items:center;gap:10px"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>Prompt Library</span><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">142</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;color:#3d4644"><span style="display:flex;align-items:center;gap:10px"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>Task History</span><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">28</span></div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;color:#3d4644"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">OPERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;color:#3d4644"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>System Status</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;color:#3d4644"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>Metadata</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;color:#3d4644"><div style="width:5px;height:5px;border-radius:50%;background:#c9cfcc"></div>Admin Console</div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">ComfyUI</span><span style="display:flex;align-items:center;gap:5px;color:#0f7a55;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#12a06a"></span>Online</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">Qwen LLM</span><span style="display:flex;align-items:center;gap:5px;color:#0f7a55;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#12a06a"></span>Online</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:10px 0 2px;border-top:1px solid #eef0ef;margin-top:4px">
+<div style="width:26px;height:26px;border-radius:50%;background:#e2e5e3;display:grid;place-items:center;font:600 10px 'IBM Plex Sans';color:#3d4644">장</div>
+<div style="line-height:1.25"><div style="font-weight:600;font-size:12px">장균은</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">SUPER_ADMIN</div></div>
+</div>
+</div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">WORKSPACE</div>
+<div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">Wan 1-images · 1 keyframe</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">Load Preset</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">Save Draft</div>
+<div style="padding:7px 16px;border-radius:7px;background:#12a06a;color:#fff;font-weight:600;font-size:12px">Generate</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;flex:1;min-height:0">
+
+<div style="overflow:hidden;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:11px 13px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">WORKFLOW</div><div style="font-weight:600;margin-top:4px">1-images</div></div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:11px 13px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">SEGMENTS</div><div style="font-weight:600;margin-top:4px">1</div></div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:11px 13px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">KEYFRAMES</div><div style="font-weight:600;margin-top:4px">1 / 1</div></div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:11px 13px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">EST. TIME</div><div style="font-weight:600;margin-top:4px">~ 4 min</div></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden;display:flex;flex-direction:column">
+<div style="display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid #e2e5e3;background:#fbfcfb">
+<div style="padding:6px 12px;border-radius:6px;background:#eef1ef;font-weight:600;font-size:12px">Segment 01</div>
+<div style="padding:6px 12px;border-radius:6px;font-weight:500;font-size:12px;color:#6b7472">Segment 02</div>
+<div style="padding:6px 12px;border-radius:6px;font-weight:500;font-size:12px;color:#98a09d">+ Add</div>
+</div>
+<div style="padding:16px 18px;display:flex;flex-direction:column;gap:15px;overflow:hidden">
+
+<div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px">
+<div style="border:1px dashed #c9cfcc;border-radius:9px;height:150px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;text-align:center">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">keyframe 01</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">1024 × 1024</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px;min-width:0">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:12.5px">Positive Prompt</div>
+<div style="display:flex;gap:6px"><div style="padding:4px 9px;border:1px solid #e2e5e3;border-radius:6px;font-size:11px;font-weight:600;color:#3d4644">Reuse</div><div style="padding:4px 9px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font-size:11px;font-weight:600">Builder</div></div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:10px 11px;line-height:1.55;color:#3d4644;height:98px;overflow:hidden">cinematic close-up, soft rim light, subject turns slightly toward camera, shallow depth of field, 35mm film grain, calm expression</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px">
+<div style="padding:3px 8px;border-radius:20px;background:#e9f5ef;color:#0f7a55;font:500 10.5px 'Roboto Mono',monospace">cinematic</div>
+<div style="padding:3px 8px;border-radius:20px;background:#e9f5ef;color:#0f7a55;font:500 10.5px 'Roboto Mono',monospace">rim-light</div>
+<div style="padding:3px 8px;border-radius:20px;background:#e9f5ef;color:#0f7a55;font:500 10.5px 'Roboto Mono',monospace">35mm</div>
+<div style="padding:3px 8px;border-radius:20px;background:#f2f4f3;color:#6b7472;font:500 10.5px 'Roboto Mono',monospace">+3 fixed</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font-weight:600;font-size:12.5px">Negative Prompt <span style="font-weight:400;color:#98a09d">· 8 fixed terms locked</span></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:10px 11px;line-height:1.55;color:#6b7472;background:#fbfcfb">photorealistic, realistic skin texture, 3D render, style shift, face/hand/foot distortion, background movement</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:12.5px">Wan Node Config</div><div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">Reset to defaults</div></div>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px">
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">FPS</div><div style="font-weight:600;margin-top:3px">16</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">FRAMES</div><div style="font-weight:600;margin-top:3px">81</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">STEPS</div><div style="font-weight:600;margin-top:3px">4</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">CFG</div><div style="font-weight:600;margin-top:3px">1.0</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">MOTION</div><div style="font-weight:600;margin-top:3px">5</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">SEED</div><div style="font-weight:600;margin-top:3px;font-size:11px">자동</div></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:12.5px">출력 설정</div><div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">워크플로 기본값</div></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">FORMAT</div><div style="font-weight:600;margin-top:3px;font-size:12px">mp4</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">CODEC</div><div style="font-weight:600;margin-top:3px;font-size:12px">h264</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">BIT DEPTH</div><div style="font-weight:600;margin-top:3px;font-size:12px">8-bit</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:8px;padding:8px 10px"><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">DURATION</div><div style="font-weight:600;margin-top:3px;font-size:12px">5.06 s</div></div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:700;font-size:14px">Run</div><div style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 7px;border-radius:5px">IN_PROGRESS</div></div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:14px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-weight:600;font-size:12.5px">작업 진행 · 세그먼트 1</div><div style="font:500 11px 'Roboto Mono',monospace;color:#6b7472">02:14</div></div>
+<div style="height:6px;border-radius:4px;background:#eef1ef;margin-top:9px;overflow:hidden"><div style="width:45%;height:100%;background:#12a06a"></div></div>
+<div style="display:flex;justify-content:space-between;margin-top:7px;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d"><span>progress 45</span><span>/status 폴링</span></div>
+</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;overflow:hidden;display:flex;flex-direction:column">
+<div style="padding:9px 12px;border-bottom:1px solid #eef0ef;background:#fbfcfb;font:500 10px 'Roboto Mono',monospace;color:#6b7472;letter-spacing:.06em">STATUS LOG</div>
+<div style="padding:11px 12px;font:400 10.5px/1.75 'Roboto Mono',monospace;color:#3d4644;overflow:hidden">
+<div><span style="color:#98a09d">10:41:02</span> job submitted · runpodJobId 7f2c…a91</div>
+<div><span style="color:#98a09d">10:41:05</span> state IN_QUEUE · progress 12</div>
+<div><span style="color:#98a09d">10:41:19</span> state IN_PROGRESS · progress 45</div>
+<div><span style="color:#98a09d">10:42:03</span> polling /status · elapsed 01:01</div>
+<div><span style="color:#98a09d">10:43:16</span> polling /status · elapsed 02:14</div>
+<div><span style="color:#98a09d">10:43:41</span> state IN_PROGRESS</div>
+<div><span style="color:#98a09d">10:44:02</span> polling /status · elapsed 03:00</div>
+<div><span style="color:#98a09d">10:44:28</span> polling /status · elapsed 03:26</div>
+<div><span style="color:#98a09d">10:44:55</span> state IN_PROGRESS</div>
+<div style="color:#0f7a55">▍</div>
+</div>
+</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:12.5px">Output</div>
+<div style="border-radius:8px;height:96px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">generated video</div>
+<div style="display:flex;gap:6px"><div style="flex:1;text-align:center;padding:7px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">Download</div><div style="flex:1;text-align:center;padding:7px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">Re-run</div></div>
+</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:11.5px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">GENERATION INFO</div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Seed</span><span style="font:500 11px 'Roboto Mono',monospace">753639532255811</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Model</span><span style="font:500 11px 'Roboto Mono',monospace">wan2.1_i2v_480p</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Frames</span><span style="font:500 11px 'Roboto Mono',monospace">81 · 16fps</span></div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Flow — 단계형 wizard · 상시 Run 레일 · 다크 · 여유 밀도</div>
+<div class="dv-card" style="width:1360px;border-color:rgba(0,0,0,.2)">
+<div style="height:840px;background:#0e1211;color:#eef1f0;font-size:13px;display:flex;flex-direction:column">
+
+<header style="display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid #232b29">
+<div style="display:flex;align-items:center;gap:11px"><div style="width:20px;height:20px;border-radius:6px;background:#00a2ad"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB STUDIO</div></div>
+<div style="display:flex;align-items:center;gap:22px;font-size:12px;color:#8c9895">
+<span>Library</span><span>History</span><span>Assets</span><span>Admin</span>
+<span style="display:flex;align-items:center;gap:6px;color:#eef1f0"><span style="width:6px;height:6px;border-radius:50%;background:#00d2a0"></span>All systems online</span>
+<span style="color:#eef1f0;font-weight:600">장균은</span>
+</div>
+</header>
+
+<div style="padding:26px 26px 0">
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+<div style="display:flex;flex-direction:column;gap:8px"><div style="height:3px;border-radius:2px;background:#00a2ad"></div><div style="font:500 10px 'Roboto Mono',monospace;color:#00a2ad">01 · DONE</div><div style="font-weight:600;font-size:12.5px">Workflow</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="height:3px;border-radius:2px;background:#00a2ad"></div><div style="font:500 10px 'Roboto Mono',monospace;color:#00a2ad">02 · DONE</div><div style="font-weight:600;font-size:12.5px">Keyframes</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="height:3px;border-radius:2px;background:#eef1f0"></div><div style="font:500 10px 'Roboto Mono',monospace;color:#eef1f0">03 · NOW</div><div style="font-weight:600;font-size:12.5px">Prompt</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="height:3px;border-radius:2px;background:#232b29"></div><div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">04</div><div style="font-weight:600;font-size:12.5px;color:#8c9895">Parameters</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="height:3px;border-radius:2px;background:#232b29"></div><div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">05</div><div style="font-weight:600;font-size:12.5px;color:#8c9895">Review &amp; Run</div></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:26px;padding:30px 26px;flex:1;min-height:0">
+
+<div style="display:flex;flex-direction:column;gap:22px;min-width:0;overflow:hidden">
+<div>
+<div style="font-weight:700;font-size:26px;letter-spacing:-.02em">프롬프트를 구성합니다</div>
+<div style="color:#8c9895;margin-top:7px;font-size:13.5px;max-width:620px;line-height:1.6">키워드를 고르면 Scene JSON이 자동으로 조립됩니다. 직접 문장을 쓰고 싶으면 오른쪽 위에서 Freeform으로 전환하세요.</div>
+</div>
+
+<div style="display:flex;gap:8px;align-items:center">
+<div style="padding:7px 14px;border-radius:20px;background:#00a2ad;color:#04211f;font-weight:600;font-size:12px">Keyword Builder</div>
+<div style="padding:7px 14px;border-radius:20px;border:1px solid #2a3230;color:#8c9895;font-size:12px">Freeform</div>
+<div style="padding:7px 14px;border-radius:20px;border:1px solid #2a3230;color:#8c9895;font-size:12px">Reuse past prompt</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;min-height:0">
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:11px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">CAMERA</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<div style="padding:5px 11px;border-radius:7px;background:#00a2ad;color:#04211f;font-size:11.5px;font-weight:600">close-up</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">wide shot</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">dolly in</div>
+<div style="padding:5px 11px;border-radius:7px;background:#00a2ad;color:#04211f;font-size:11.5px;font-weight:600">35mm</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">handheld</div>
+</div>
+</div>
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:11px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">LIGHTING</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<div style="padding:5px 11px;border-radius:7px;background:#00a2ad;color:#04211f;font-size:11.5px;font-weight:600">soft rim light</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">golden hour</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">neon</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">overcast</div>
+</div>
+</div>
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:11px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">MOTION</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">slow turn</div>
+<div style="padding:5px 11px;border-radius:7px;background:#00a2ad;color:#04211f;font-size:11.5px;font-weight:600">subtle breathing</div>
+<div style="padding:5px 11px;border-radius:7px;border:1px solid #2a3230;color:#b6c0be;font-size:11.5px">hair drift</div>
+</div>
+</div>
+</div>
+
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:13px">조립된 프롬프트</div><div style="font:500 10px 'Roboto Mono',monospace;color:#00a2ad">scene-json-v1 · valid</div></div>
+<div style="font:400 12.5px/1.75 'Roboto Mono',monospace;color:#b6c0be">close-up, soft rim light, 35mm, subtle breathing, calm expression, shallow depth of field</div>
+<div style="height:1px;background:#232b29"></div>
+<div style="font:400 12px/1.7 'Roboto Mono',monospace;color:#6f7a78">— photorealistic, realistic skin texture, 3D render, style shift, face/hand/foot distortion <span style="color:#5e6a68">(8 fixed)</span></div>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:auto">
+<div style="padding:11px 20px;border:1px solid #2a3230;border-radius:9px;font-weight:600;font-size:12.5px;color:#b6c0be">Back</div>
+<div style="padding:11px 26px;border-radius:9px;background:#00a2ad;color:#04211f;font-weight:700;font-size:12.5px">Continue to Parameters</div>
+</div>
+</div>
+
+<aside style="display:flex;flex-direction:column;gap:14px;min-height:0">
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:16px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">SETUP SO FAR</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:12px;font-size:12px">
+<div style="display:flex;justify-content:space-between"><span style="color:#8c9895">Workflow</span><span style="font-weight:600">Wan 1-images</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8c9895">Segments</span><span style="font-weight:600">1</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8c9895">Keyframe</span><span style="font-weight:600">1024 × 1024</span></div>
+</div>
+<div style="border-radius:9px;height:110px;margin-top:12px;background:repeating-linear-gradient(135deg,#1b2120 0 7px,#171d1c 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#5e6a68">keyframe 01</div>
+</div>
+
+<div style="background:#151a19;border:1px solid #232b29;border-radius:12px;padding:16px;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">ACTIVE RUNS</div><div style="font:500 10px 'Roboto Mono',monospace;color:#00d2a0">2</div></div>
+<div style="border:1px solid #2a3230;border-radius:10px;padding:12px">
+<div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:600">#1042 · 3-images</span><span style="font:500 11px 'Roboto Mono',monospace;color:#8c9895">04:51</span></div>
+<div style="height:5px;border-radius:3px;background:#232b29;margin-top:9px;overflow:hidden"><div style="width:78%;height:100%;background:#00a2ad"></div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;margin-top:7px">segment 2 / 3 · sampling</div>
+</div>
+<div style="border:1px solid #2a3230;border-radius:10px;padding:12px">
+<div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:600">#1041 · 1-images</span><span style="font:500 11px 'Roboto Mono',monospace;color:#8c9895">00:12</span></div>
+<div style="height:5px;border-radius:3px;background:#232b29;margin-top:9px;overflow:hidden"><div style="width:9%;height:100%;background:#00a2ad"></div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;margin-top:7px">worker cold start</div>
+</div>
+<div style="margin-top:auto;font:400 11.5px/1.6 'Roboto Mono',monospace;color:#5e6a68">
+<div>10:43:16 sampling 34/55</div>
+<div>10:42:03 sampling 12/55</div>
+<div>10:41:19 worker ready</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Timeline — 세그먼트 트랙 캔버스 · 하단 로그 도크 · 다크 · 최고밀도</div>
+<div class="dv-card" style="width:1360px;border-color:rgba(0,0,0,.2)">
+<div style="height:840px;background:#0b0e0e;color:#eef1f0;font-size:13px;display:grid;grid-template-columns:56px minmax(0,1fr);">
+
+<div style="border-right:1px solid #1c2322;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:14px;background:#0e1211">
+<div style="width:22px;height:22px;border-radius:6px;background:#00a2ad"></div>
+<div style="width:34px;height:34px;border-radius:9px;background:#18211f;display:grid;place-items:center;font:600 10px 'Roboto Mono',monospace;color:#00a2ad">WS</div>
+<div style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font:600 10px 'Roboto Mono',monospace;color:#5e6a68">LIB</div>
+<div style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font:600 10px 'Roboto Mono',monospace;color:#5e6a68">HIS</div>
+<div style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font:600 10px 'Roboto Mono',monospace;color:#5e6a68">SYS</div>
+<div style="margin-top:auto;width:28px;height:28px;border-radius:50%;background:#232b29;display:grid;place-items:center;font:600 10px 'IBM Plex Sans';color:#b6c0be">장</div>
+</div>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid #1c2322">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="font-weight:700;font-size:13.5px">Untitled Run · 3-images</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;border:1px solid #232b29;border-radius:5px;padding:3px 6px">3 segments · 3 keyframes</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#00d2a0">● comfyui</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#00d2a0">● qwen</div>
+<div style="padding:6px 13px;border:1px solid #2a3230;border-radius:7px;font-weight:600;font-size:11.5px;color:#b6c0be">Validate</div>
+<div style="padding:6px 15px;border-radius:7px;background:#00a2ad;color:#04211f;font-weight:700;font-size:11.5px">Run all</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 330px;flex:1;min-height:0">
+
+<div style="display:flex;flex-direction:column;min-width:0;border-right:1px solid #1c2322">
+<div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px;background:radial-gradient(circle at 20% 0%,#111817 0%,#0b0e0e 60%)">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">SEGMENT TRACK</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">0s ————— 5s ————— 10s ————— 15s</div>
+</div>
+<div style="display:flex;gap:10px;align-items:stretch">
+
+<div style="flex:1;border:1px solid #00a2ad;border-radius:11px;background:#111817;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #1c2322;background:#131b1a"><span style="font-weight:600;font-size:12px">SEG 01</span><span style="font:500 10px 'Roboto Mono',monospace;color:#00d2a0">done</span></div>
+<div style="height:88px;background:repeating-linear-gradient(135deg,#18211f 0 7px,#141c1b 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#5e6a68">keyframe 01</div>
+<div style="padding:10px 11px;font:400 11px/1.6 'Roboto Mono',monospace;color:#8c9895;height:74px;overflow:hidden">close-up, soft rim light, 35mm, subtle breathing</div>
+<div style="display:flex;gap:6px;padding:0 11px 11px;font:500 9.5px 'Roboto Mono',monospace;color:#5e6a68"><span>16fps</span><span>81f</span><span>cfg 1.0</span></div>
+</div>
+
+<div style="flex:1;border:1px solid #2a3230;border-radius:11px;background:#111817;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #1c2322;background:#131b1a"><span style="font-weight:600;font-size:12px">SEG 02</span><span style="font:500 10px 'Roboto Mono',monospace;color:#00a2ad">running 62%</span></div>
+<div style="height:88px;background:repeating-linear-gradient(135deg,#18211f 0 7px,#141c1b 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#5e6a68">keyframe 02</div>
+<div style="padding:10px 11px;font:400 11px/1.6 'Roboto Mono',monospace;color:#8c9895;height:74px;overflow:hidden">medium shot, subject steps forward, dust motes in light</div>
+<div style="display:flex;gap:6px;padding:0 11px 11px;font:500 9.5px 'Roboto Mono',monospace;color:#5e6a68"><span>16fps</span><span>81f</span><span>cfg 1.0</span></div>
+</div>
+
+<div style="flex:1;border:1px solid #2a3230;border-radius:11px;background:#111817;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #1c2322;background:#131b1a"><span style="font-weight:600;font-size:12px">SEG 03</span><span style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">queued</span></div>
+<div style="height:88px;background:repeating-linear-gradient(135deg,#18211f 0 7px,#141c1b 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#5e6a68">keyframe 03</div>
+<div style="padding:10px 11px;font:400 11px/1.6 'Roboto Mono',monospace;color:#5e6a68;height:74px;overflow:hidden">프롬프트 미작성 — Builder에서 이어서 작성</div>
+<div style="display:flex;gap:6px;padding:0 11px 11px;font:500 9.5px 'Roboto Mono',monospace;color:#5e6a68"><span>inherit</span></div>
+</div>
+
+<div style="width:52px;border:1px dashed #2a3230;border-radius:11px;display:grid;place-items:center;color:#5e6a68;font-size:18px">+</div>
+</div>
+
+<div style="margin-top:18px;border:1px solid #1c2322;border-radius:11px;background:#0e1211;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-bottom:1px solid #1c2322"><div style="font-weight:600;font-size:12.5px">SEG 02 · Inspector</div><div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">segment 선택 시 여기서 편집</div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding:14px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">POSITIVE</div>
+<div style="border:1px solid #232b29;border-radius:8px;padding:9px 10px;font:400 11.5px/1.65 'Roboto Mono',monospace;color:#b6c0be;height:64px;overflow:hidden">medium shot, subject steps forward, dust motes in light, warm key</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><div style="padding:3px 8px;border-radius:6px;background:#14312f;color:#00d2a0;font:500 10px 'Roboto Mono',monospace">medium-shot</div><div style="padding:3px 8px;border-radius:6px;background:#14312f;color:#00d2a0;font:500 10px 'Roboto Mono',monospace">warm-key</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">PARAMETERS</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px">
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">FPS</div><div style="font-weight:600;font-size:12px;margin-top:2px">16</div></div>
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">FRAMES</div><div style="font-weight:600;font-size:12px;margin-top:2px">81</div></div>
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">STEPS</div><div style="font-weight:600;font-size:12px;margin-top:2px">4</div></div>
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">CFG</div><div style="font-weight:600;font-size:12px;margin-top:2px">1.0</div></div>
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">MOTION</div><div style="font-weight:600;font-size:12px;margin-top:2px">5</div></div>
+<div style="border:1px solid #232b29;border-radius:7px;padding:7px 9px"><div style="font:500 9px 'Roboto Mono',monospace;color:#5e6a68">SEED</div><div style="font-weight:600;font-size:11px;margin-top:2px">7536…</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="border-top:1px solid #1c2322;background:#0e1211;height:150px;display:flex;flex-direction:column">
+<div style="display:flex;gap:16px;padding:9px 18px;border-bottom:1px solid #1c2322;font:500 10px 'Roboto Mono',monospace;letter-spacing:.06em">
+<span style="color:#eef1f0">RUNPOD LOG</span><span style="color:#5e6a68">VALIDATION</span><span style="color:#5e6a68">PAYLOAD</span><span style="margin-left:auto;color:#5e6a68">auto-scroll</span>
+</div>
+<div style="padding:10px 18px;font:400 11px/1.75 'Roboto Mono',monospace;color:#8c9895;overflow:hidden">
+<div><span style="color:#5e6a68">10:41:19</span> <span style="color:#00d2a0">ready</span> worker gpu:A100 · queue 0</div>
+<div><span style="color:#5e6a68">10:41:24</span> load wan2.1_i2v_480p · lora light_v2 (0.65)</div>
+<div><span style="color:#5e6a68">10:42:03</span> seg01 complete · 4.9s / 81 frames</div>
+<div><span style="color:#5e6a68">10:43:16</span> seg02 sampling 34/55</div>
+<div><span style="color:#00a2ad">▍</span></div>
+</div>
+</div>
+</div>
+
+<aside style="display:flex;flex-direction:column;min-height:0;background:#0e1211">
+<div style="padding:13px 16px;border-bottom:1px solid #1c2322;display:flex;align-items:center;justify-content:space-between"><div style="font-weight:700;font-size:13px">Preview</div><div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68">seg 01 / final</div></div>
+<div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="border-radius:10px;height:170px;background:repeating-linear-gradient(135deg,#18211f 0 7px,#141c1b 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#5e6a68">seg 01 output · 5s</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;height:44px;border-radius:7px;background:repeating-linear-gradient(135deg,#18211f 0 6px,#141c1b 6px 12px);border:1px solid #00a2ad"></div>
+<div style="flex:1;height:44px;border-radius:7px;background:repeating-linear-gradient(135deg,#18211f 0 6px,#141c1b 6px 12px)"></div>
+<div style="flex:1;height:44px;border-radius:7px;border:1px dashed #2a3230"></div>
+</div>
+<div style="border:1px solid #1c2322;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">GENERATION INFO</div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">Seed</span><span style="font:500 11px 'Roboto Mono',monospace">753639532255811</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">Model</span><span style="font:500 11px 'Roboto Mono',monospace">wan2.1_i2v_480p</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">Elapsed</span><span style="font:500 11px 'Roboto Mono',monospace">02:14</span></div>
+</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #2a3230;border-radius:8px;font-weight:600;font-size:11.5px;color:#b6c0be">Download</div>
+<div style="flex:1;text-align:center;padding:9px;border-radius:8px;background:#18211f;color:#00a2ad;font-weight:600;font-size:11.5px">Duplicate run</div>
+</div>
+<div style="border:1px solid #1c2322;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">SEGMENT CONFIG</div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">fps / frames</span><span style="font:500 11px 'Roboto Mono',monospace">16 / 81</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">steps / cfg</span><span style="font:500 11px 'Roboto Mono',monospace">4 / 1.0</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">motion shift</span><span style="font:500 11px 'Roboto Mono',monospace">5</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#8c9895">output</span><span style="font:500 11px 'Roboto Mono',monospace">mp4 · h264</span></div>
+</div>
+<div style="border:1px solid #1c2322;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#5e6a68;letter-spacing:.07em">PROMPT · SEG 01</div>
+<div style="font:400 11px/1.7 'Roboto Mono',monospace;color:#8c9895">close-up, soft rim light, 35mm, subtle breathing</div>
+<div style="font:400 10.5px/1.6 'Roboto Mono',monospace;color:#5e6a68">— photorealistic, 3D render, style shift (8 fixed)</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"><style>body{margin:0;background:#f0eee9;font-family:"IBM Plex Sans",system-ui,sans-serif}a{color:#0f7a55}a:hover{color:#0b5c40}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px "Roboto Mono",monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 "IBM Plex Sans",sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px "Roboto Mono",monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#0f7a55;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.5)}</style></helmet>
+<div style="padding:26px 44px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:'IBM Plex Sans',sans-serif">
+<div style="font-weight:700;font-size:15px;color:#1a1a1a">DOBEDUB STUDIO 재설계 · 업무 흐름 지도</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;font:600 11px 'Roboto Mono',monospace"><a href="Screen%20Map.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:#0f7a55;color:#fff">업무 흐름 지도</a><a href="0%20Structure%20Options.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">구조 방향안</a><a href="1%20Access.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">1 · 접속 · 안내</a><a href="2%20Create.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">2 · 영상 생성</a><a href="3%20Review.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">3 · 검수 · 자산</a><a href="4%20Admin.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">4 · 관리자</a><a href="5%20API-DB%20Gap.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">API · DB 점검</a></div>
+</div>
+
+<div style="padding:34px 44px 56px;font-family:'IBM Plex Sans',sans-serif;color:#16191a;display:flex;flex-direction:column;gap:26px;max-width:1500px">
+<div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em">SCREEN MAP</div>
+<div style="font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:6px">사용자 업무 흐름 기준 화면 순서</div>
+<div style="font-size:13px;line-height:1.7;color:#6b7472;margin-top:8px;max-width:760px">진입 → 생성 준비 → 세그먼트 설정 → 실행 → 결과 확인 → 이력·자산 관리 → 운영·관리 순서입니다. 카드를 누르면 해당 화면으로 이동합니다.</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">1</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">진입</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">로그인 · 오리엔테이션</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="1%20Access.dc.html#6a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">6a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">로그인</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">사내 계정 접속 · 접속 전 시스템 상태 확인</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">전체 사용자</div>
+</a><a href="1%20Access.dc.html#6b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">6b</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">User Manual</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">세그먼트 규칙과 실행 모델 안내 · 상시 접근</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">manual:read</div>
+</a><a href="4%20Admin.dc.html#6c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">6c</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Check Status</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">엔드포인트 3종 상태 조회 · RunPod 연결 테스트</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">system:read</div>
+</a><a href="1%20Access.dc.html#7g" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">7g</span><span style="font-weight:600;font-size:12.5px;color:#16191a">차단 · 만료 · 오류</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">403 권한 없음 · 401 세션 만료 · 공통 API 오류</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">전체 사용자</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">2</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">생성 준비</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">STEP 1 이미지 로드</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="2%20Create.dc.html#2a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">이미지 로드</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">워크플로 선택 → 키프레임 업로드 · 세그먼트 수 자동 결정(n−1)</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">workflows:read</div>
+</a><a href="3%20Review.dc.html#4c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">4c</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Prompt Library</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">재사용 등록된 프롬프트 검색 · Workspace로 적용</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompts:reuse</div>
+</a><a href="3%20Review.dc.html#5a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">5a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Assets</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">과거 키프레임·결과물에서 자산 가져오기</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">history:read</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">3</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">세그먼트 설정</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">STEP 2 · 세그먼트마다 반복</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="2%20Create.dc.html#2b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2b</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">프롬프트 설정</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">Keyword Builder · 직접 입력 · 규칙 위반 · 필수 누락 경고</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompts:build</div>
+</a><a href="2%20Create.dc.html#2e" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2e</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">노드 컨피그 & seed</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">세그먼트별 파라미터 · seed 자동/직접 입력</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">jobs:run</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">4</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">실행</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">STEP 3 · 단일 작업 제출</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="2%20Create.dc.html#2f" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2f</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">실행 전 전체 구성 확인</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">세그먼트 표 · 제출 검증 · payload 확인 후 Run</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">jobs:run</div>
+</a><a href="2%20Create.dc.html#2c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2c</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">생성 진행</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">상태 인포그래픽 · 로그 · 취소 요청(Cancelling)</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">jobs:run</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">5</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">결과 확인</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">STEP 4</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="2%20Create.dc.html#2d" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">2d</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">실행 직후 결과</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">Final 병합본 + 구간 검수본 · 다운로드</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">jobs:run</div>
+</a><a href="3%20Review.dc.html#3f" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3f</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Run 상세 · 완료</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">결과물 + 평가 & 재사용 등록 + 재실행</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompts:review</div>
+</a><a href="3%20Review.dc.html#3c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3c</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Run 상세 · 실패</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">오류 원인 · ERROR TRACE · 전체 재실행</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">history:read</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">6</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">이력 · 자산</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">되돌아보기와 재작업</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="3%20Review.dc.html#3a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Task History</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">목록 + 미리보기 · 페이지 20건 · 작업별 삭제</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">history:read</div>
+</a><a href="3%20Review.dc.html#5a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">5a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Assets</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">키프레임 · 구간 영상 · Final 라이브러리</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">history:read</div>
+</a><a href="1%20Access.dc.html#6e" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">6e</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">알림 센터</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">완료 · 실패 · 공지 · 알림 설정</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">전체 사용자</div>
+</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="width:26px;height:26px;border-radius:50%;background:#12a06a;color:#fff;display:grid;place-items:center;font:600 11px 'Roboto Mono',monospace;flex:none">7</div>
+<div style="font-weight:700;font-size:15px;letter-spacing:-.01em">운영 · 관리</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">Admin 전용</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding-left:36px"><a href="4%20Admin.dc.html#3b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3b</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">역할 & 권한</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">권한 매트릭스 · 변경 일괄 저장</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">roles:read</div>
+</a><a href="4%20Admin.dc.html#3e" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3e</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">사용자 관리</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">역할 배정 · 접근 이력</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">users:read</div>
+</a><a href="4%20Admin.dc.html#3d" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">3d</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">프롬프트 카탈로그</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">용어 관리 · 사용량과 평가 기반 정리</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompt-catalog:write</div>
+</a><a href="4%20Admin.dc.html#4b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">4b</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Negative 고정 용어</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">전 워크플로 공통 · 즉시 적용</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompt-catalog:write</div>
+</a><a href="4%20Admin.dc.html#4a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">4a</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">워크플로 정의</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">조회 · Activate/Deactivate · 백업 이력</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">workflows:write</div>
+</a><a href="4%20Admin.dc.html#5b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">5b</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">엔드포인트 · Sandbox Pod</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">Pod 시작/중지 · 워크플로 시험 실행용</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">sandbox:control</div>
+</a><a href="3%20Review.dc.html#5c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">5c</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">컬렉션 상세</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">목록 보기 · 영상 단위 태그 · PRIVATE / SHARED</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#3f6f9e">제안 · 백엔드 추가 필요</div>
+</a><a href="4%20Admin.dc.html#4d" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">4d</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">워크플로 신규 등록</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">단일 저장 폼 · 자동 백업 · 활성화는 별도</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">workflows:write</div>
+</a><a href="4%20Admin.dc.html#4e" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">4e</span><span style="font-weight:600;font-size:12.5px;color:#16191a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">카테고리 계층 관리</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">그룹 → 카테고리 → 용어 · 노출 순서</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompt-catalog:write</div>
+</a><a href="4%20Admin.dc.html#7b" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">7b</span><span style="font-weight:600;font-size:12.5px;color:#16191a">기능 리소스 매핑</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">화면·API ↔ 필요 권한 코드 대조표 · 조회 전용</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">roles:read</div>
+</a><a href="4%20Admin.dc.html#7c" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">7c</span><span style="font-weight:600;font-size:12.5px;color:#16191a">사용자 상세</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">추가 권한 부여 · 비밀번호 초기화 · 비활성화</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">users:write</div>
+</a><a href="4%20Admin.dc.html#7a" style="text-decoration:none;background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px"><span style="font:600 10px 'Roboto Mono',monospace;background:#1a1a1a;color:#fff;padding:3px 7px;border-radius:5px">7a</span><span style="font-weight:600;font-size:12.5px;color:#16191a">시스템 프롬프트</span></div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">프롬프트 생성 LLM 지시문 편집 · 테스트 변환</div>
+<div style="margin-top:auto;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">prompt-catalog:write</div>
+</a></div>
+</div>
+
+<div style="border-top:1px solid rgba(0,0,0,.08);padding-top:18px;display:flex;gap:26px;flex-wrap:wrap;font-size:11.5px;color:#6b7472">
+<div><b style="color:#16191a">코드에 없는 기능</b> · 감사 로그(변경·접근 이력 저장 자체가 없음) · 첫 사용자 온보딩 · 세션 만료 예고 배너 — 설계에서는 자리만 표시</div>
+<div><b style="color:#16191a">역할 코드</b> · VIEWER / OPERATOR / ADMIN / SUPER_ADMIN</div>
+<div><a href="0%20Structure%20Options.dc.html#1a" style="color:#0f7a55;font-weight:600">초기 구조 방향안 3종 보기</a></div>
+</div>
+</div>
+
+</x-dc>
+</body>
+</html>

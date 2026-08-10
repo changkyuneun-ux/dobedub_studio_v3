@@ -34,19 +34,10 @@ import {
   WorkflowSchema
 } from "./api/client";
 import { routeFromLocation, routePath, StudioRoute } from "./router";
+// E-01: User/AuthSession types and permission helpers moved to ./auth so
+// components/AppShell.tsx can use them without importing this entry file.
+import { User, AuthSession, canUse, canUseAny } from "./auth";
 import "./styles.css";
-
-type User = {
-  id: string;
-  name: string;
-  email?: string | null;
-  role?: string;
-  permissions?: string[];
-  rolePermissionCodes?: string[];
-  extraPermissionCodes?: string[];
-  effectivePermissionCodes?: string[];
-  isActive?: boolean;
-};
 
 type SegmentState = {
   index: number;
@@ -79,40 +70,6 @@ const RESTORE_LOGIN_SESSION_ON_REFRESH = false;
 const SESSION_USER_STORAGE_KEY = "dobedub.react.user.db-auth.v1";
 const LEGACY_SESSION_USER_STORAGE_KEYS = ["dobedub.react.user", "dobedub.react.user.auth"];
 const DEV_USER: User = { id: "dobedub", name: "장균은", role: "SUPER_ADMIN", permissions: ["admin:*"], isActive: true };
-type AuthSession = {
-  user: User;
-  accessToken: string;
-  tokenType?: string;
-  expiresAt?: string;
-};
-
-function userPermissionCodes(user: User | null): string[] {
-  if (!user) {
-    return [];
-  }
-  return Array.from(new Set([
-    ...(user.effectivePermissionCodes || []),
-    ...(user.permissions || []),
-    ...(user.rolePermissionCodes || []),
-    ...(user.extraPermissionCodes || [])
-  ].map((item) => String(item || "").trim()).filter(Boolean)));
-}
-
-function canUse(user: User | null, permission: string): boolean {
-  const permissions = userPermissionCodes(user);
-  if (permissions.includes("admin:*")) {
-    return true;
-  }
-  if (permissions.includes(permission)) {
-    return true;
-  }
-  const domain = permission.split(":", 1)[0];
-  return permissions.includes(`${domain}:*`);
-}
-
-function canUseAny(user: User | null, permissions: string[]): boolean {
-  return permissions.some((permission) => canUse(user, permission));
-}
 
 const ADMIN_USER_PERMISSIONS = ["users:read"];
 const ADMIN_PERMISSION_PERMISSIONS = ["roles:read"];
@@ -150,6 +107,39 @@ function canUseAdminCatalog(user: User | null) {
 function canUseAdminSandboxPod(user: User | null) {
   return canUseAny(user, ADMIN_SANDBOX_POD_PERMISSIONS);
 }
+
+// 권한 가드 버그 수정: 이전에는 route === "history"/"status"/"metadata"/"manual" 값만
+// 보고 모달을 열어, 사이드바에 메뉴가 숨겨져 있어도 주소창에 직접 경로를 입력하면
+// 권한 없이 데이터를 조회할 수 있었다. admin만 canUseAdminConsole 체크가 있었지만
+// 그마저도 조용히 studio로 되돌릴 뿐 사용자에게 이유를 보여주지 않았다.
+// design_handoff_dobedub_v3/README.md: "권한이 없는 메뉴는 사이드바에서 숨깁니다.
+// 직접 URL 진입만 7g의 403 화면에 도달합니다." — 정식 7g 화면은 아직 없으므로(E-05/C-09
+// 대상) 여기서는 임시로 AccessDeniedModal을 띄운다. 화면이 만들어지면 그쪽으로 교체.
+const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
+  history: "history:read",
+  status: "system:read",
+  metadata: "metadata:read",
+  manual: "manual:read"
+};
+
+function routeAccessGranted(user: User | null, route: StudioRoute): boolean {
+  if (route === "admin") {
+    return canUseAdminConsole(user);
+  }
+  const requiredPermission = ROUTE_REQUIRED_PERMISSION[route];
+  if (!requiredPermission) {
+    return true;
+  }
+  return canUse(user, requiredPermission);
+}
+
+const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
+  history: "Task History",
+  status: "Check Status",
+  metadata: "Metadata View",
+  manual: "User Manual",
+  admin: "Admin"
+};
 
 const PROMPT_SCOPE_ORDER = ["positive", "negative"];
 const FIXED_PROMPT_ROOT_CODES = new Set(["POSITIVE_ROOT", "NEGATIVE_ROOT"]);
@@ -474,6 +464,7 @@ function StudioShell({
   const [metadataLoading, setMetadataLoading] = useState(false);
   const [metadataNotice, setMetadataNotice] = useState("");
   const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [accessDeniedRoute, setAccessDeniedRoute] = useState<StudioRoute | null>(null);
   const [promptBuilderOpen, setPromptBuilderOpen] = useState(false);
   const [promptCatalogAdminOpen, setPromptCatalogAdminOpen] = useState(false);
   const [promptCatalog, setPromptCatalog] = useState<PromptCatalogResponse | null>(null);
@@ -1084,14 +1075,15 @@ function StudioShell({
   }, [selectedWorkflow]);
 
   useEffect(() => {
-    setHistoryModalOpen(route === "history");
-    setStatusModalOpen(route === "status");
-    setManualModalOpen(route === "manual");
-    setMetadataModalOpen(route === "metadata");
-    setAdminModalOpen(route === "admin" && canUseAdminConsole(user));
+    const granted = routeAccessGranted(user, route);
+    setHistoryModalOpen(route === "history" && granted);
+    setStatusModalOpen(route === "status" && granted);
+    setManualModalOpen(route === "manual" && granted);
+    setMetadataModalOpen(route === "metadata" && granted);
+    setAdminModalOpen(route === "admin" && granted);
+    setAccessDeniedRoute(!granted && route !== "studio" && route !== "login" ? route : null);
 
-    if (route === "admin" && !canUseAdminConsole(user)) {
-      onNavigate("studio");
+    if (!granted) {
       return;
     }
 
@@ -1781,6 +1773,12 @@ function StudioShell({
         onSaveTerm={(payload, termId) => void savePromptTerm(payload, termId)}
         onDeactivateTerm={(termId) => void deactivatePromptTerm(termId)}
         onWorkflowChanged={(workflowId) => void loadWorkflows(workflowId)}
+      />
+    ) : null}
+    {accessDeniedRoute ? (
+      <AccessDeniedModal
+        routeLabel={ROUTE_LABEL[accessDeniedRoute] || accessDeniedRoute}
+        onClose={() => onNavigate("studio")}
       />
     ) : null}
     {promptBuilderOpen ? (
@@ -4598,6 +4596,33 @@ function ConfirmDeleteModal({
         <div className="confirm-actions">
           <button className="secondary-button" type="button" onClick={onCancel}>취소</button>
           <button className="danger-button" type="button" onClick={onConfirm}>삭제</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// 임시 403 화면. design_handoff_dobedub_v3의 정식 화면 `7g`(차단·만료·오류)가
+// E-05에서 구현되면 이 컴포넌트는 제거하고 그쪽으로 대체한다. 그 전까지 최소한
+// "권한이 없다"는 사실을 사용자에게 알리기 위한 자리다 - 이전에는 이 상황에서
+// 아무 안내 없이 빈 화면(history/status/metadata/manual)이거나 조용한 리다이렉트
+// (admin)만 있었다.
+function AccessDeniedModal({
+  routeLabel,
+  onClose
+}: {
+  routeLabel: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="accessDeniedTitle">
+      <section className="confirm-modal">
+        <div className="modal-header">
+          <h2 id="accessDeniedTitle">권한이 없습니다</h2>
+        </div>
+        <p>"{routeLabel}" 화면을 사용할 권한이 없습니다. 필요한 경우 관리자에게 권한을 요청하십시오.</p>
+        <div className="confirm-actions">
+          <button className="secondary-button" type="button" onClick={onClose}>확인</button>
         </div>
       </section>
     </div>

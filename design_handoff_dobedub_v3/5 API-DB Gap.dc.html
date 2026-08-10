@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>
+body{margin:0;background:#f2f3f2;font-family:'IBM Plex Sans',sans-serif;color:#16191a}
+a{color:#0f7a55;text-decoration:none}a:hover{text-decoration:underline}
+</style></helmet>
+
+<div style="padding:26px 44px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<div style="font-weight:700;font-size:15px;color:#1a1a1a">DOBEDUB STUDIO 재설계 · API · DB 점검</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;font:600 11px 'Roboto Mono',monospace">
+<a href="Screen%20Map.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">업무 흐름 지도</a>
+<a href="0%20Structure%20Options.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">구조 방향안</a>
+<a href="1%20Access.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">1 · 접속 · 안내</a>
+<a href="2%20Create.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">2 · 영상 생성</a>
+<a href="3%20Review.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">3 · 검수 · 자산</a>
+<a href="4%20Admin.dc.html" style="padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.07);color:#1a1a1a">4 · 관리자</a>
+<a href="5%20API-DB%20Gap.dc.html" style="padding:5px 10px;border-radius:6px;background:#0f7a55;color:#fff">API · DB 점검</a>
+</div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:30px 44px 80px;display:flex;flex-direction:column;gap:34px">
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em">SCOPE · backend/app · frontend/src · 코드 2026-08-09 기준 · 결정 반영 2026-08-10</div>
+<div style="font-weight:700;font-size:27px;letter-spacing:-.02em;line-height:1.3;text-wrap:pretty">재설계 화면이 요구하는 API와 DB를 현재 코드와 대조한 결과</div>
+<div style="font-size:14px;line-height:1.75;color:#3d4644;max-width:760px;text-wrap:pretty">화면 26개 중 20개는 기존 엔드포인트와 테이블로 그대로 구현할 수 있습니다. 나머지는 신규 개발 6건과 기존 코드 수정 8건으로 나뉘며, 방향 결정이 필요했던 4건은 확정되었습니다. 아래는 화면 단위가 아니라 <b>무엇을 만들어야 하는가</b> 기준으로 정리한 것입니다.</div>
+<div style="display:flex;gap:9px;flex-wrap:wrap;padding-top:4px">
+<div style="border:1px solid #cfe3d9;background:#e9f5ef;border-radius:9px;padding:10px 14px"><div style="font:600 20px 'Roboto Mono',monospace;color:#0f7a55">20</div><div style="font-size:11.5px;color:#3d4644">그대로 구현 가능</div></div>
+<div style="border:1px solid #f0d7b0;background:#fdf3e7;border-radius:9px;padding:10px 14px"><div style="font:600 20px 'Roboto Mono',monospace;color:#8a5a00">8</div><div style="font-size:11.5px;color:#3d4644">기존 코드 수정</div></div>
+<div style="border:1px solid #f0c9c9;background:#fdeceb;border-radius:9px;padding:10px 14px"><div style="font:600 20px 'Roboto Mono',monospace;color:#c0392b">6</div><div style="font-size:11.5px;color:#3d4644">신규 개발</div></div>
+<div style="border:1px solid #16191a;background:#16191a;border-radius:9px;padding:10px 14px"><div style="font:600 20px 'Roboto Mono',monospace;color:#fff">4</div><div style="font-size:11.5px;color:rgba(255,255,255,.75)">결정 완료</div></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:baseline;gap:10px;border-top:1px solid rgba(0,0,0,.1);padding-top:18px">
+<span style="font:600 10px 'Roboto Mono',monospace;background:#c0392b;color:#fff;padding:3px 7px;border-radius:5px">A</span>
+<span style="font-weight:700;font-size:17px;letter-spacing:-.01em">신규 개발 · API와 테이블이 모두 없음</span>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:11px 18px;background:#fbfcfb;border-bottom:1px solid #eef0ef;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em"><div>화면</div><div>필요한 것</div><div>제안</div></div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef">
+<div><div style="font-weight:600;font-size:12.5px">자산 목록</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="3%20Review.dc.html#5a">5a</a> · <a href="3%20Review.dc.html#5c">5c</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><b>자산을 목록으로 조회하는 API가 없습니다.</b> <span style="font:500 11.5px 'Roboto Mono',monospace">assets.py</span>에는 업로드(POST /uploads)와 단건 다운로드(GET /files/{id})만 있고, 자산은 작업을 거쳐야만 도달할 수 있습니다. 테이블 <span style="font:500 11.5px 'Roboto Mono',monospace">assets</span>는 이미 타입·크기·메타데이터를 갖고 있습니다.</div>
+<div style="font:500 11px/1.8 'Roboto Mono',monospace;color:#3d4644">GET /api/assets<br><span style="color:#98a09d">?type=&amp;workflowId=&amp;from=&amp;to=<br>&amp;page=&amp;pageSize=</span><br><span style="color:#0f7a55">권한 history:read</span><br><span style="color:#98a09d">테이블 신설 불필요</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef">
+<div><div style="font-weight:600;font-size:12.5px">컬렉션</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="3%20Review.dc.html#5c">5c</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">자산을 묶어 관리하는 개념이 코드에 없습니다. 검색으로 <span style="font:500 11.5px 'Roboto Mono',monospace">collection</span> 매치가 0건입니다.</div>
+<div style="font:500 11px/1.8 'Roboto Mono',monospace;color:#3d4644">테이블 collections<br>테이블 collection_items<br>GET/POST /api/collections<br><span style="color:#98a09d">마이그레이션 1건</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef">
+<div><div style="font-weight:600;font-size:12.5px">작업 알림</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="1%20Access.dc.html#6e">6e</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">알림을 저장하거나 읽음 처리하는 구조가 없습니다. 작업 상태는 <span style="font:500 11.5px 'Roboto Mono',monospace">GET /api/jobs/{id}</span> 폴링으로만 알 수 있습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">1안 · 폴링 결과를 클라이언트에서 토스트로 — 개발 없음, 화면 이탈 시 소실<br>2안 · notifications 테이블 + 읽음 상태</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef">
+<div><div style="font-weight:600;font-size:12.5px">감사 로그</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="4%20Admin.dc.html#3b">3b</a> · <a href="4%20Admin.dc.html#7c">7c</a> · <a href="4%20Admin.dc.html#5b">5b</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">권한 변경, 카탈로그 수정, Pod 제어 모두 기록이 남지 않습니다. 각 테이블의 <span style="font:500 11.5px 'Roboto Mono',monospace">updated_at</span>만 있어 마지막 시각은 알 수 있으나 누가·무엇을는 알 수 없습니다. 화면에는 미구현으로 표시해 두었습니다.</div>
+<div style="font:500 11px/1.8 'Roboto Mono',monospace;color:#3d4644">테이블 audit_logs<br><span style="color:#98a09d">actor_id · action · target_type<br>target_id · before/after · created_at</span><br>GET /api/admin/audit-logs</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef">
+<div><div style="font-weight:600;font-size:12.5px">접근 이력</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="4%20Admin.dc.html#7c">7c</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><span style="font:500 11.5px 'Roboto Mono',monospace">users.last_login_at</span> 한 칸만 있어 최근 1회만 남습니다. 로그인 시각·IP 이력은 저장되지 않습니다.</div>
+<div style="font:500 11px/1.8 'Roboto Mono',monospace;color:#3d4644">audit_logs로 흡수 권장<br><span style="color:#98a09d">별도 테이블 불필요</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(140px,0.75fr) minmax(0,1.9fr) minmax(210px,1.1fr);gap:16px;padding:14px 18px">
+<div><div style="font-weight:600;font-size:12.5px">세션 연장</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere"><a href="1%20Access.dc.html#7g">7g</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">토큰 갱신 엔드포인트가 없어 만료되면 재로그인만 가능합니다. 만료 예고 배너는 토큰의 <span style="font:500 11.5px 'Roboto Mono',monospace">expiresAt</span>으로 클라이언트에서 계산할 수 있으므로 배너까지는 개발 없이 됩니다.</div>
+<div style="font:500 11px/1.8 'Roboto Mono',monospace;color:#3d4644">POST /api/auth/refresh<br><span style="color:#98a09d">배너만 필요하면 생략 가능</span></div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:baseline;gap:10px;border-top:1px solid rgba(0,0,0,.1);padding-top:18px">
+<span style="font:600 10px 'Roboto Mono',monospace;background:#d08300;color:#fff;padding:3px 7px;border-radius:5px">B</span>
+<span style="font-weight:700;font-size:17px;letter-spacing:-.01em">기존 코드 수정 · 설계와 어긋나는 지점</span>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:11px 18px;background:#fbfcfb;border-bottom:1px solid #eef0ef;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em"><div>대상</div><div>현재 코드</div><div>수정</div></div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">이력 페이지 크기</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">history.py · <a href="3%20Review.dc.html#3a">3a</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">백엔드 기본 <span style="font:500 11.5px 'Roboto Mono',monospace">pageSize=50</span>, 프론트는 10을 보냅니다. 설계는 20입니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">백엔드 기본값 20으로 통일하고 프론트는 사용자가 고른 값만 전송 <span style="color:#98a09d">· DB 경로에만 구현(D-03 선행)</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">프롬프트 평가 이중 저장</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">task_prompts · prompt_feedback</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">평가를 담는 곳이 둘입니다. <span style="font:500 11.5px 'Roboto Mono',monospace">task_prompts.quality_rating</span>(PATCH /jobs/…/quality)과 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_feedback.rating</span>(POST /prompts/feedback)이 각각 존재하고, 두 번째는 편집한 프롬프트 원문까지 받습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">영상 결과 평가는 task_prompts, 프롬프트 생성 품질은 prompt_feedback으로 역할 고정. 두 값이 섞이지 않도록 화면도 <a href="3%20Review.dc.html#3f">3f</a> 한 곳으로</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">피드백 저장 권한</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">prompts.py:feedback</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">POST /api/prompts/feedback이 <span style="font:500 11.5px 'Roboto Mono',monospace">prompts:build</span>를 요구합니다. 평가는 검수 행위인데 생성 권한으로 열려 있습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644"><span style="font:500 11.5px 'Roboto Mono',monospace">prompts:review</span>로 변경</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">실행 모드</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">workflow_tasks.execution_mode</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">기본값이 <span style="font:500 11.5px 'Roboto Mono',monospace">"dry-run"</span>입니다. 설계에는 dry-run과 실제 실행을 구분하는 자리가 없어, 사용자가 무엇을 실행하는지 화면에서 알 수 없습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644"><a href="2%20Create.dc.html#2f">2f</a> 실행 전 확인에 모드 배지 추가, 또는 기본값을 실제 실행으로 변경</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">이력 삭제 방식</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">json_repository.delete_history_item</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">삭제는 하드 삭제이고, <span style="font:500 11.5px 'Roboto Mono',monospace">workflow_tasks</span>에 삭제 표시 컬럼이 없습니다. 화면의 "되돌릴 수 없습니다"와는 일치하지만 삭제 사실 자체도 남지 않습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">deleted_at 컬럼 추가로 soft delete. 감사 로그와 함께 처리 <span style="color:#98a09d">· DB 경로에만 구현(D-03 선행)</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">카탈로그 이중 구조</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">prompt_categories ↔ prompt_subcategories</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">계층이 두 벌입니다. 구형 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_categories</span>(group_code 문자열)와 신형 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_scopes → prompt_category_groups → prompt_subcategories</span>가 <span style="font:500 11.5px 'Roboto Mono',monospace">legacy_category_id</span>로 연결된 상태이고, 용어는 여전히 구형 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_terms.category_id</span>에 붙습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644"><b>신형 계층으로 일원화</b> — 이관 마이그레이션 → 읽기 전환 → 쓰기 전환 → 정리 4단계 · 아래 D 절 참조</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">SYSTEM 그룹</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">prompt_scopes · <a href="4%20Admin.dc.html#4e">4e</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">DB의 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐입니다. 시스템 지시문은 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_system_prompts</span>라는 별도 테이블입니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">설계의 3그룹은 화면 묶음일 뿐 DB 그룹이 아님 — 그대로 두되 문서에 명시</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(170px,0.85fr) minmax(0,1.9fr) minmax(190px,1fr);gap:16px;padding:13px 18px;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">시스템 지시문 버전</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">prompt_system_prompts · <a href="4%20Admin.dc.html#7a">7a</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644">code 단위로 1건만 저장되고 이전 버전이 남지 않습니다. 되돌리기가 불가능해 화면에서도 비활성 처리했습니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">version 컬럼 + 이력 행 유지로 바꾸면 되돌리기가 성립</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:baseline;gap:10px;border-top:1px solid rgba(0,0,0,.1);padding-top:18px">
+<span style="font:600 10px 'Roboto Mono',monospace;background:#12a06a;color:#fff;padding:3px 7px;border-radius:5px">C</span>
+<span style="font-weight:700;font-size:17px;letter-spacing:-.01em">그대로 구현 가능 · 화면이 요구하는 것이 이미 다 있음</span>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px">
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">프롬프트 생성과 경고 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="2%20Create.dc.html#2b">2b</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">2b에 넣은 규칙 위반·필수 누락 경고는 이미 서버가 만들어 보냅니다. <span style="font:500 11px 'Roboto Mono',monospace">generate_prompt</span>가 용어 검증·관계 적용·<span style="font:500 11px 'Roboto Mono',monospace">prompt_rules</span> 평가·Scene 검증을 거쳐 code·message·severity 형태로 <span style="font:500 11px 'Roboto Mono',monospace">warnings</span>를 반환하고 <span style="font:500 11px 'Roboto Mono',monospace">warnings_json</span>에 저장합니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">POST /api/prompts/generate · prompt_rules</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">실행과 취소 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="2%20Create.dc.html#2c">2c</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">제출·상태 조회·취소가 모두 있습니다. 취소는 요청 전달이며 상태는 폴링으로 확인합니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">POST /api/jobs · GET /jobs/{id} · POST /jobs/{id}/cancel</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">이력과 검수 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="3%20Review.dc.html#3a">3a</a> · <a href="3%20Review.dc.html#3f">3f</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">페이지네이션·삭제·세그먼트별 프롬프트 조회·평가·검수 상태가 갖춰져 있습니다. <span style="font:500 11px 'Roboto Mono',monospace">review_status</span>와 <span style="font:500 11px 'Roboto Mono',monospace">review_flags_json</span>도 이미 컬럼입니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">GET /api/history · PATCH /jobs/…/review</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">프롬프트 재사용 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="3%20Review.dc.html#4c">4c</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">키워드·워크플로·최소 평점·검수 완료·재사용 가능 여부로 거르는 조회가 그대로 있습니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">GET /api/prompts/reusable</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">권한 거버넌스 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="4%20Admin.dc.html#3b">3b</a> · <a href="4%20Admin.dc.html#7b">7b</a> · <a href="4%20Admin.dc.html#7c">7c</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">역할·권한·리소스 매핑을 한 번에 내려주는 조회와 역할별 권한 저장이 있습니다. 개별 추가 권한은 <span style="font:500 11px 'Roboto Mono',monospace">user_permissions</span>에 ALLOW 형태로, 화면·API 매핑은 <span style="font:500 11px 'Roboto Mono',monospace">ui_permission_resources</span>에 들어 있습니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">GET /api/admin/permissions · PUT /admin/roles/{code}/permissions</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="font-weight:600;font-size:13px">워크플로 · 상태 · Pod <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-left:4px"><a href="4%20Admin.dc.html#4d">4d</a> · <a href="4%20Admin.dc.html#6c">6c</a> · <a href="4%20Admin.dc.html#5b">5b</a></span></div>
+<div style="font-size:12px;line-height:1.75;color:#3d4644">워크플로 등록·활성화, 세그먼트 기본값, 메타데이터 재생성, 시스템 상태, Sandbox Pod 조회·시작·정지가 모두 있습니다.</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">/admin/workflows · /metadata · /system/status · /admin/sandbox-pod</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:baseline;gap:10px;border-top:1px solid rgba(0,0,0,.1);padding-top:18px">
+<span style="font:600 10px 'Roboto Mono',monospace;background:#16191a;color:#fff;padding:3px 7px;border-radius:5px">D</span>
+<span style="font-weight:700;font-size:17px;letter-spacing:-.01em">결정 완료 · 저장소 재점검 2026-08-10 (commit a27ced5)</span>
+</div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:minmax(160px,0.8fr) minmax(0,1.9fr) minmax(200px,1fr);gap:16px;padding:11px 18px;background:#fbfcfb;border-bottom:1px solid #eef0ef;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em"><div>항목</div><div>결정</div><div>후속 작업</div></div>
+
+<div style="display:grid;grid-template-columns:minmax(160px,0.8fr) minmax(0,1.9fr) minmax(200px,1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">카탈로그 계층</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">B-06 · <a href="4%20Admin.dc.html#4e">4e</a> <a href="4%20Admin.dc.html#3d">3d</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><b>신형으로 일원화합니다.</b> <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_scopes → prompt_category_groups → prompt_subcategories → prompt_subcategory_keywords</span>만 사용하고, 구형 <span style="font:500 11.5px 'Roboto Mono',monospace">prompt_categories</span>·<span style="font:500 11.5px 'Roboto Mono',monospace">prompt_terms</span>는 이관 후 제거합니다. 용어가 아직 구형에 붙어 있는 것이 유일한 걸림돌입니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">4단계 · 이관 마이그레이션 → 읽기 전환 → 쓰기 전환 → 정리. 미대응 용어는 <span style="font:500 11px 'Roboto Mono',monospace">기타</span> 서브카테고리로 수용해 유실 방지</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(160px,0.8fr) minmax(0,1.9fr) minmax(200px,1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">이력 저장소</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">D-03 · <a href="3%20Review.dc.html#3a">3a</a></div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><b>DB 방식으로 통일합니다.</b> 이력 조회·삭제·상세가 모두 <span style="font:500 11.5px 'Roboto Mono',monospace">db_adapter</span>를 타고, <span style="font:500 11.5px 'Roboto Mono',monospace">json_repository</span>의 이력 함수는 제거하거나 이관 도구 전용으로 남깁니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">페이지네이션(B-01)과 soft delete(B-05)의 <b>선행 조건</b>. JSON에만 있는 과거 이력은 일회성 이관</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(160px,0.8fr) minmax(0,1.9fr) minmax(200px,1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #eef0ef;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">리포트 · 구성 프리셋</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">D-01</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><b>화면은 만들지 않고 API와 테이블은 유지합니다.</b> <span style="font:500 11.5px 'Roboto Mono',monospace">/api/reports</span>·<span style="font:500 11.5px 'Roboto Mono',monospace">/api/configs</span>와 <span style="font:500 11.5px 'Roboto Mono',monospace">reports</span>·<span style="font:500 11.5px 'Roboto Mono',monospace">config_snapshots</span>를 삭제하지 마십시오.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">프론트 호출 코드만 제거 · 라우터에 미연결 주석 · <a href="4%20Admin.dc.html#7b">7b</a> 매핑에는 API 행만</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(160px,0.8fr) minmax(0,1.9fr) minmax(200px,1fr);gap:16px;padding:14px 18px;align-items:start">
+<div><div style="font-weight:600;font-size:12.5px">카탈로그 조회 중복</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px;overflow-wrap:anywhere">D-02</div></div>
+<div style="font-size:12.5px;line-height:1.75;color:#3d4644"><b>재점검 결과 조치 불필요.</b> <span style="font:500 11.5px 'Roboto Mono',monospace">GET /api/admin/prompt-catalog</span>는 저장소에 존재하지 않습니다(2026-08-10 확인). 카탈로그 조회는 <span style="font:500 11.5px 'Roboto Mono',monospace">GET /api/prompts/catalog</span> 하나뿐이며 <span style="font:500 11.5px 'Roboto Mono',monospace">require_any_permission</span>으로 생성·관리자 권한 모두 통과합니다.</div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">프론트에 <span style="font:500 11px 'Roboto Mono',monospace">admin/prompt-catalog</span> 문자열이 남아 있는지만 확인</div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+</body>
+</html>

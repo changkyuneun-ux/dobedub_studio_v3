@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"><style>body{margin:0;background:#f0eee9;font-family:"IBM Plex Sans",system-ui,sans-serif}a{color:#0f7a55}a:hover{color:#0b5c40}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px "Roboto Mono",monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 "IBM Plex Sans",sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px "Roboto Mono",monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#0f7a55;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 "IBM Plex Sans",sans-serif;color:rgba(0,0,0,.5)}</style></helmet>
+<div style="padding:26px 44px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:'IBM Plex Sans',sans-serif">
+<div style="font-weight:700;font-size:15px;color:#1a1a1a">DOBEDUB STUDIO 재설계 · 3 · 검수 · 자산</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;font:600 11px 'Roboto Mono',monospace"><a href="Screen%20Map.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">업무 흐름 지도</a><a href="0%20Structure%20Options.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">구조 방향안</a><a href="1%20Access.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">1 · 접속 · 안내</a><a href="2%20Create.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">2 · 영상 생성</a><a href="3%20Review.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:#0f7a55;color:#fff">3 · 검수 · 자산</a><a href="4%20Admin.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">4 · 관리자</a><a href="5%20API-DB%20Gap.dc.html" style="padding:5px 10px;border-radius:6px;text-decoration:none;background:rgba(0,0,0,.07);color:#1a1a1a">API · DB 점검</a></div>
+</div>
+<section class="dv-turn" id="s1">
+<div class="dv-thd"><a class="dv-tid" href="#s1">S1</a><span class="dv-tname">작업 이력</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.45)">목록 · 페이지 · 삭제</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Task History · 목록 + 미리보기 · 페이지네이션 · 작업별 삭제(history:delete)</div>
+<div style="display:flex;gap:14px;align-items:flex-start">
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">필터</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">128</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">완료<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">109</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">실패<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">14</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">진행 중<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">5</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">내 작업만<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">41</span></div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;font-size:11.5px;color:#6b7472;line-height:1.65">보관 기한 90일 · 한 페이지 20건<br><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">이후 Assets만 유지</span></div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">TASK HISTORY</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">작업 이력</div></div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-size:12px;color:#98a09d;min-width:180px">run id · 프롬프트 검색</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">최근 7일</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">CSV 내보내기</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 420px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0;overflow:hidden">
+<div style="display:flex;gap:6px">
+<div style="padding:5px 11px;border-radius:20px;background:#16191a;color:#fff;font-weight:600;font-size:11.5px">전체</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">3-images</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">6-images</div>
+<div style="margin-left:auto;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d;align-self:center">128건 · 최신순</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:10px 15px;border-bottom:1px solid #eef0ef;background:#fbfcfb;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">
+<div>RUN</div><div>WORKFLOW · 프롬프트</div><div>세그먼트</div><div>소요</div><div>상태</div><div style="text-align:right">삭제</div>
+</div>
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;background:#e9f5ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#0f7a55">#1043</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">3-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">cinematic close-up, soft rim light, 35mm film grain…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">2 / 2</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">08:42</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#fff;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#c0392b">삭제</div>
+</div>
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1042</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">6-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">wide establishing shot, golden hour, slow dolly in…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">5 / 5</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">21:07</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1041</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">3-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">medium shot, subject steps forward, dust motes…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#c0392b">1 / 2</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">04:12</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#c0392b;background:#fdeceb;padding:3px 8px;border-radius:5px">실패</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1040</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">1-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">portrait, neon backlight, subtle breathing…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">1 / 1</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">03:58</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1039</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">6-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">handheld follow, overcast, hair drift, muted palette…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">5 / 5</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">19:44</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1037</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">1-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">portrait study, soft window light, minimal motion…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">1 / 1</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">04:02</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1036</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">3-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">street walk, late afternoon, camera trails subject…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">2 / 2</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">08:51</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1035</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">6-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">studio turntable, product rotation, clean backdrop…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">3 / 5</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">12:19</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#c0392b;background:#fdeceb;padding:3px 8px;border-radius:5px">실패</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;border-bottom:1px solid #eef0ef;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1034</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">3-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">close-up hands, tactile detail, shallow focus…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">2 / 2</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">09:14</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+<div style="display:grid;grid-template-columns:78px minmax(0,1fr) 96px 92px 84px 56px;gap:12px;padding:13px 15px;align-items:center">
+<div style="font:600 11px 'Roboto Mono',monospace;color:#3d4644">#1038</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:12.5px">3-images</div><div style="font-size:11px;color:#6b7472;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">low angle, warm key, camera pushes past foreground…</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">2 / 2</div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#3d4644">09:03</div>
+<div><span style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 8px;border-radius:5px">완료</span></div>
+<div style="text-align:right;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">삭제</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;margin-top:auto;border-top:1px solid #eef0ef;background:#fbfcfb">
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">1–20 / 128</div>
+<div style="display:flex;align-items:center;gap:6px">
+<div style="padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#c9cfcc;background:#fff">이전</div>
+<div style="padding:5px 10px;border-radius:6px;background:#16191a;color:#fff;font:500 10.5px 'Roboto Mono',monospace">1</div>
+<div style="padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#3d4644;background:#fff">2</div>
+<div style="padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#3d4644;background:#fff">3</div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">…</div>
+<div style="padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#3d4644;background:#fff">7</div>
+<div style="padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#3d4644;background:#fff">다음</div>
+<div style="margin-left:6px;padding:5px 10px;border:1px solid #e2e5e3;border-radius:6px;font:500 10.5px 'Roboto Mono',monospace;color:#3d4644;background:#fff">20건 / 페이지</div>
+</div>
+</div>
+</div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:700;font-size:14px">RUN #1043</div><div style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 7px;border-radius:5px">완료 · 08:42</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">미리보기 · 자세한 내용은 상세에서</div>
+
+<div style="border-radius:9px;height:168px;background:repeating-linear-gradient(135deg,#fbfcfb 0 8px,#f2f4f3 8px 16px);display:grid;place-items:center;font:500 10.5px 'Roboto Mono',monospace;color:#6b7472">Final 병합본 · 10.1s</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:8px;font-size:11.5px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">워크플로</span><span style="font-weight:600">3-images · 2 seg</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">실행자 · 시각</span><span style="font:500 11px 'Roboto Mono',monospace">장균은 08-09 10:41</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">소요</span><span style="font:500 11px 'Roboto Mono',monospace">08:42</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">결과물</span><span style="font-weight:600">Final 1 · 검수본 2</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">평가</span><span style="font-weight:600;color:#0f7a55">4 · 재사용 등록됨</span></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">구간 검수본</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;border-radius:8px;height:52px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">구간1</div>
+<div style="flex:1;border-radius:8px;height:52px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">구간2</div>
+</div>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:12px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:13px">Run 상세 열기</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">Final 다운로드</div>
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">Workspace 열기</div>
+</div>
+<div style="font:500 10px/1.6 'Roboto Mono',monospace;color:#98a09d">프롬프트 · 구성값 · 평가 · 로그는 상세 화면에서 확인합니다</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+
+<div class="dv-card" style="width:452px;background:#f6f7f6;padding:24px;box-sizing:border-box;color:#16191a;font-size:13px">
+<div style="background:#fff;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.12);padding:22px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#c0392b;letter-spacing:.06em">HISTORY:DELETE</div>
+<div style="font-weight:700;font-size:17px;letter-spacing:-.015em">작업 내역 삭제</div>
+</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:7px;font-size:11.5px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">작업</span><span style="font:500 11px 'Roboto Mono',monospace">#1043 · 3-images</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">실행</span><span style="font:500 11px 'Roboto Mono',monospace">08-09 10:12 · 김서연</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">결과물</span><span style="font-weight:600">Final 1 · 구간 2</span></div>
+</div>
+<div style="font-size:12.5px;line-height:1.7;color:#3d4644">이력에서 제거되면 이 작업의 프롬프트 평가와 재사용 등록도 함께 사라집니다. 결과물 파일은 Assets에 남습니다.</div>
+<div style="display:flex;align-items:center;gap:8px;padding:11px 12px;background:#fdeceb;border-radius:9px"><span style="width:6px;height:6px;border-radius:50%;background:#c0392b;flex:none"></span><span style="font-size:11.5px;line-height:1.6;color:#3d4644">되돌릴 수 없습니다</span></div>
+<div style="display:flex;gap:8px">
+<div style="flex:1;text-align:center;padding:11px;border:1px solid #e2e5e3;border-radius:9px;font-weight:600;font-size:12.5px;color:#3d4644">취소</div>
+<div style="flex:1;text-align:center;padding:11px;border-radius:9px;background:#c0392b;color:#fff;font-weight:700;font-size:12.5px">삭제</div>
+</div>
+<div style="font:500 10px/1.6 'Roboto Mono',monospace;color:#98a09d">진행 중인 작업은 삭제할 수 없습니다 · 권한이 없으면 버튼이 보이지 않습니다</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section class="dv-turn" id="s2">
+<div class="dv-thd"><a class="dv-tid" href="#s2">S2</a><span class="dv-tname">Run 상세</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.45)">완료 평가 · 실패 원인</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3f">
+<div class="dv-olabel"><a class="dv-oid" href="#3f">3f</a>Run 상세 · 완료 상태 변형 · 결과물 &amp; 평가</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">필터</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">128</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">완료<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">109</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">실패<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">14</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">진행 중<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">5</span></div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">완료 목록에서 이동</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#e9f5ef;font-size:12px;font-weight:600;color:#0f7a55">#1043<span style="font:500 9.5px 'Roboto Mono',monospace">현재</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">#1042<span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">08-09</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">#1040<span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">08-08</span></div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;font-size:11.5px;color:#6b7472;line-height:1.65">평가·재실행은 이 화면에서<br><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">실행 직후 화면(2d)과 구분</span></div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div style="display:flex;align-items:center;gap:14px">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em"><span style="color:#0f7a55">← Task History</span> · RUN #1043 · 3-images · 08-09 10:41</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">Run 상세</div></div>
+<div style="display:flex;align-items:center;gap:8px;padding:5px 11px;background:#e9f5ef;border-radius:20px"><span style="width:7px;height:7px;border-radius:50%;background:#12a06a"></span><span style="font:600 11px 'Roboto Mono',monospace;color:#0f7a55">COMPLETED · 08:42</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">Payload 보기</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">Assets에 저장</div>
+<div style="padding:7px 16px;border-radius:7px;background:#12a06a;color:#fff;font-weight:600;font-size:12px">Final 다운로드</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column;gap:13px;min-height:0;min-width:0;overflow:hidden">
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden;flex:1;min-height:0;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid #eef0ef">
+<div style="display:flex;align-items:center;gap:9px"><div style="font-weight:700;font-size:13.5px">Final 병합본</div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 7px;border-radius:5px">최종 출력 (3장)</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">1024×1024 · 16fps · 10.1s · 24.7MB</div>
+</div>
+<div style="flex:1;min-height:0;background:repeating-linear-gradient(135deg,#fbfcfb 0 8px,#f2f4f3 8px 16px);display:grid;place-items:center;font:500 11px 'Roboto Mono',monospace;color:#6b7472">final merged video</div>
+<div style="padding:11px 15px;border-top:1px solid #eef0ef;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:11px">
+<div style="width:26px;height:26px;border-radius:50%;background:#16191a;color:#fff;display:grid;place-items:center;font-size:10px">▶</div>
+<div style="flex:1;display:flex;gap:2px;height:6px"><div style="flex:1;border-radius:3px 0 0 3px;background:#12a06a"></div><div style="flex:1;border-radius:0 3px 3px 0;background:#a7dcc5"></div></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#6b7472">00:00 / 00:10.1</div>
+</div>
+<div style="display:flex;gap:2px;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><div style="flex:1">구간1 · 0.0–5.0s</div><div style="flex:1">구간2 · 5.0–10.1s</div></div>
+</div>
+</div>
+
+<div style="background:#fbfcfb;border:1px dashed #d5dad8;border-radius:11px;padding:13px 15px">
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+<div style="font-weight:600;font-size:12.5px;color:#6b7472">구간 검수본</div>
+<span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;background:#eef1ef;padding:3px 7px;border-radius:5px">품질 확인용</span>
+<div style="margin-left:auto;font:500 10px 'Roboto Mono',monospace;color:#98a09d">SaveVideo · 구간1 · 구간2</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:10px;display:flex;gap:10px;align-items:center">
+<div style="width:72px;height:48px;flex:none;border-radius:7px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px)"></div>
+<div style="min-width:0"><div style="font-size:11.5px;font-weight:600;color:#3d4644">구간1 · KF 01 → 02</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">81f · 4.9s · seed 7536…</div></div>
+<div style="margin-left:auto;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55;white-space:nowrap">재생</div>
+</div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:9px;padding:10px;display:flex;gap:10px;align-items:center">
+<div style="width:72px;height:48px;flex:none;border-radius:7px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px)"></div>
+<div style="min-width:0"><div style="font-size:11.5px;font-weight:600;color:#3d4644">구간2 · KF 02 → 03</div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">81f · 5.1s · seed 4412…</div></div>
+<div style="margin-left:auto;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55;white-space:nowrap">재생</div>
+</div>
+</div>
+</div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="font-weight:700;font-size:14px">Run 정보</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:8px;font-size:11.5px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Segments</span><span style="font-weight:600">2 · 단일 작업</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Model</span><span style="font:500 11px 'Roboto Mono',monospace">wan2.1_i2v_480p</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Seeds</span><span style="font:500 11px 'Roboto Mono',monospace">7536… / 4412…</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">실행자</span><span style="font-weight:600">장균은</span></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;overflow:hidden">
+<div style="padding:9px 12px;border-bottom:1px solid #eef0ef;background:#fbfcfb;display:flex;justify-content:space-between"><span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472;letter-spacing:.06em">프롬프트 · SEG 01</span><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">Qwen v2</span></div>
+<div style="padding:10px 12px;font:400 11px/1.7 'Roboto Mono',monospace;color:#3d4644">cinematic close-up, soft rim light, 35mm film grain, calm expression</div>
+</div>
+
+<div style="border:1.5px solid #12a06a;border-radius:10px;padding:12px;background:#f4fbf8;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;letter-spacing:.06em">평가 &amp; 재사용 등록 · SEG 01</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#6b9c8b">prompts:review</div></div>
+<div style="display:flex;gap:5px">
+<span style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:#fff;border:1px solid #cfe3d9;font:500 11px 'Roboto Mono',monospace;color:#6b7472">1</span>
+<span style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:#fff;border:1px solid #cfe3d9;font:500 11px 'Roboto Mono',monospace;color:#6b7472">2</span>
+<span style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:#fff;border:1px solid #cfe3d9;font:500 11px 'Roboto Mono',monospace;color:#6b7472">3</span>
+<span style="flex:1.8;text-align:center;padding:5px 0;border-radius:6px;background:#12a06a;color:#fff;font:600 11px 'Roboto Mono',monospace">4 재사용 적합</span>
+<span style="flex:1;text-align:center;padding:5px 0;border-radius:6px;background:#fff;border:1px solid #cfe3d9;font:500 11px 'Roboto Mono',monospace;color:#6b7472">5</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px">
+<span style="padding:3px 8px;border-radius:6px;background:#12a06a;color:#fff;font:500 10px 'Roboto Mono',monospace">모션 자연스러움</span>
+<span style="padding:3px 8px;border-radius:6px;background:#fff;border:1px solid #cfe3d9;color:#6b7472;font:500 10px 'Roboto Mono',monospace">구도 유지</span>
+<span style="padding:3px 8px;border-radius:6px;background:#12a06a;color:#fff;font:500 10px 'Roboto Mono',monospace">스타일 일관성</span>
+<span style="padding:3px 8px;border-radius:6px;background:#fff;border:1px solid #cfe3d9;color:#6b7472;font:500 10px 'Roboto Mono',monospace">왜곡 없음</span>
+</div>
+<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff;border-radius:8px"><span style="width:15px;height:15px;border-radius:4px;background:#12a06a;color:#fff;font:600 9px 'Roboto Mono',monospace;display:grid;place-items:center">✓</span><span style="font-size:11.5px;font-weight:600;color:#0f7a55">재사용 가능 — Prompt Library에 등록</span></div>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:11px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:12.5px">평가 저장 · 재사용 등록</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">이 설정으로 새 Run</div>
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">Workspace 열기</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3c">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Run 상세 · 실패 상태 변형 · 오류 원인 &amp; 전체 재실행</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">필터</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">128</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">완료<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">109</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">실패<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">14</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">진행 중<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">5</span></div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">실패 목록에서 이동</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#fdeceb;font-size:12px;font-weight:600;color:#c0392b">#1041<span style="font:500 9.5px 'Roboto Mono',monospace">현재</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">#1035<span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">08-08</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">#1029<span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">08-07</span></div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;font-size:11.5px;color:#6b7472;line-height:1.65">실패 시 결과물은 저장되지<br>않습니다 <span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">설정만 보존</span></div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div style="display:flex;align-items:center;gap:14px">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em"><span style="color:#0f7a55">← Task History</span> · RUN #1041 · 3-images · 08-09 10:12</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">Run 상세</div></div>
+<div style="display:flex;align-items:center;gap:8px;padding:5px 11px;background:#fdeceb;border-radius:20px"><span style="width:7px;height:7px;border-radius:50%;background:#c0392b"></span><span style="font:600 11px 'Roboto Mono',monospace;color:#c0392b">FAILED · 04:12 · 오류 지점 segment 2</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">전체 로그 다운로드</div>
+<div style="padding:7px 16px;border-radius:7px;background:#12a06a;color:#fff;font-weight:600;font-size:12px">전체 재실행</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column;gap:13px;min-height:0;min-width:0;overflow:hidden">
+
+<div style="background:#fff;border:1px solid #f0c9c9;border-left:3px solid #c0392b;border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:9px"><span style="font:600 10px 'Roboto Mono',monospace;color:#c0392b;background:#fdeceb;padding:3px 7px;border-radius:5px">CUDA_OOM</span><span style="font-weight:700;font-size:14px">GPU 메모리 부족으로 샘플링이 중단됐습니다</span></div>
+<div style="font-size:12px;line-height:1.7;color:#3d4644">오류 payload의 node #37 · segment index 2 기준으로 SEG 02(frames 121 · 1024)에서 OOM이 발생했습니다. 작업이 COMPLETED에 도달하지 못해 결과물은 저장되지 않았습니다.</div>
+<div style="display:flex;gap:7px;flex-wrap:wrap">
+<div style="padding:7px 12px;border-radius:7px;background:#16191a;color:#fff;font-weight:600;font-size:11.5px">SEG 02 frames 81로 낮추고 재실행</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">80GB GPU로 재시도</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">파라미터 직접 수정</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:12px;display:flex;gap:11px">
+<div style="width:86px;height:64px;flex:none;border-radius:8px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">SEG 01</div>
+<div style="min-width:0;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;gap:7px"><span style="font-weight:600;font-size:12.5px">SEG 01</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#6b7472;background:#f2f4f3;padding:2px 6px;border-radius:5px">결과 없음</span></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">81f · 설정만 보존됨</div>
+<div style="margin-top:auto;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">SEG 01 설정 보기</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid #f0c9c9;border-radius:11px;padding:12px;display:flex;gap:11px">
+<div style="width:86px;height:64px;flex:none;border-radius:8px;background:#fdeceb;display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#c0392b">실패</div>
+<div style="min-width:0;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;gap:7px"><span style="font-weight:600;font-size:12.5px">SEG 02</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#c0392b;background:#fdeceb;padding:2px 6px;border-radius:5px">오류 발생 지점</span></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">121f · node #37 · 재시도 1회</div>
+<div style="margin-top:auto;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">SEG 02 세팅 수정</div>
+</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;gap:14px;padding:10px 15px;border-bottom:1px solid #eef0ef;font:500 10px 'Roboto Mono',monospace;letter-spacing:.06em">
+<span style="color:#c0392b">ERROR TRACE</span><span style="color:#98a09d">RUNPOD LOG</span><span style="color:#98a09d">PAYLOAD</span><span style="margin-left:auto;color:#98a09d">10:12:04 – 10:16:16</span>
+</div>
+<div style="padding:11px 15px;font:400 11px/1.85 'Roboto Mono',monospace;color:#3d4644;overflow:hidden">
+<div><span style="color:#98a09d">10:12:04</span> job submitted · runpodJobId 3a91…c47</div>
+<div><span style="color:#98a09d">10:12:11</span> state <span style="color:#0f7a55">IN_QUEUE</span> · progress 12</div>
+<div><span style="color:#98a09d">10:13:47</span> state <span style="color:#0f7a55">IN_PROGRESS</span> · progress 45</div>
+<div><span style="color:#98a09d">10:16:09</span> state <span style="color:#c0392b">FAILED</span> · /status 응답</div>
+<div style="padding-left:14px;color:#6b7472">error: RuntimeError: CUDA out of memory</div>
+<div style="padding-left:14px;color:#6b7472">tried to allocate 3.94 GiB · 39.4 GiB total capacity</div>
+<div style="padding-left:14px;color:#6b7472">node #37 WanVideo · num_frames 121 · segment index 2</div>
+<div><span style="color:#98a09d">10:16:16</span> outputs 미저장 · COMPLETED 아님</div>
+<div><span style="color:#98a09d">10:16:25</span> payload snapshot saved · segments 2 · configs retained</div>
+<div><span style="color:#98a09d">10:16:27</span> notification sent · 장균은</div>
+<div style="margin-top:8px;padding-top:8px;border-top:1px solid #eef0ef;color:#98a09d">세그먼트 귀속은 오류 payload의 node · segment index로 판별합니다 · 진행률은 작업 단위만 제공</div>
+</div>
+</div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="font-weight:700;font-size:14px">SEG 02 구성값</div>
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:8px;font-size:11.5px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Frames</span><span style="font:500 11px 'Roboto Mono',monospace;color:#c0392b">121 <span style="color:#98a09d">(SEG 01: 81)</span></span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Resolution</span><span style="font:500 11px 'Roboto Mono',monospace">1024 × 1024</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Steps / CFG</span><span style="font:500 11px 'Roboto Mono',monospace">4 / 1.0</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">Seed</span><span style="font:500 11px 'Roboto Mono',monospace">4412…097</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">GPU</span><span style="font:500 11px 'Roboto Mono',monospace">A100 40GB</span></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;overflow:hidden">
+<div style="padding:9px 12px;border-bottom:1px solid #eef0ef;background:#fbfcfb;font:500 10px 'Roboto Mono',monospace;color:#6b7472;letter-spacing:.06em">적용된 프롬프트 · SEG 02</div>
+<div style="padding:10px 12px;font:400 11px/1.7 'Roboto Mono',monospace;color:#3d4644">medium shot, subject steps forward, dust motes in light, warm key</div>
+<div style="padding:0 12px 10px;font:500 10px 'Roboto Mono',monospace;color:#98a09d">직접 입력 · 프롬프트는 그대로 재사용됩니다</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">재실행</div>
+<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1.5px solid #12a06a;border-radius:8px;background:#f4fbf8"><span style="width:14px;height:14px;border-radius:50%;background:#12a06a;color:#fff;font:600 8.5px 'Roboto Mono',monospace;display:grid;place-items:center">✓</span><span style="font-size:11.5px;font-weight:600;color:#0f7a55">전체 세그먼트 재실행 — 약 9분</span></div>
+<div style="font:500 10px/1.6 'Roboto Mono',monospace;color:#98a09d">작업은 세그먼트 전체를 한 번에 제출합니다. 부분 재실행은 지원하지 않습니다.</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:7px;background:#fbfcfb">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">평가 &amp; 재사용 등록</div>
+<div style="font-size:11.5px;line-height:1.6;color:#6b7472">완료된 Run에서만 가능합니다. 이 작업은 결과물이 없어 평가 대상이 아닙니다.</div>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:11px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:12.5px">SEG 02 frames 81로 낮춰 전체 재실행</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">Workspace에서 열기</div>
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">관리자에게 보고</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section class="dv-turn" id="s3">
+<div class="dv-thd"><a class="dv-tid" href="#s3">S3</a><span class="dv-tname">프롬프트 재사용</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.45)">재사용 등록된 프롬프트 활용</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="4c">
+<div class="dv-olabel"><a class="dv-oid" href="#4c">4c</a>Prompt Library · Task History 평가에서 재사용 등록된 프롬프트만</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">필터</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">재사용 가능 전체<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">64</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">평가 4 이상<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">41</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">평가 5<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">12</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">내가 등록<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">18</span></div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">워크플로</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">1-images<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">14</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">3-images<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">31</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">6-images<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">19</span></div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;font-size:11.5px;color:#6b7472;line-height:1.65">직접 저장은 불가합니다<br><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">Task History 평가에서만 등록</span></div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">PROMPT LIBRARY · reuse eligible = true</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">재사용 가능 프롬프트 64</div></div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-size:12px;color:#98a09d;min-width:230px">프롬프트 · 코멘트 · 재사용 사유 · task 검색</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">평가순</div>
+</div>
+</header>
+
+<div style="padding:12px 22px;background:#fff;border-bottom:1px solid #e2e5e3;display:flex;align-items:center;gap:12px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em;white-space:nowrap">등록 경로</div>
+<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;font:500 10.5px 'Roboto Mono',monospace">
+<span style="padding:4px 10px;border-radius:6px;border:1px solid #e2e5e3;color:#6b7472">Task History 결과</span>
+<span style="color:#c9cfcc">→</span>
+<span style="padding:4px 10px;border-radius:6px;border:1px solid #e2e5e3;color:#6b7472">품질 등급 + 재사용 사유</span>
+<span style="color:#c9cfcc">→</span>
+<span style="padding:4px 10px;border-radius:6px;background:#e9f5ef;color:#0f7a55">재사용 가능 체크</span>
+<span style="color:#c9cfcc">→</span>
+<span style="padding:4px 10px;border-radius:6px;border:1px solid #12a06a;color:#0f7a55">Library 노출</span>
+<span style="color:#c9cfcc">→</span>
+<span style="padding:4px 10px;border-radius:6px;border:1px solid #e2e5e3;color:#6b7472">Builder의 Prompt Reuse</span>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:16px 22px;display:flex;flex-direction:column;gap:11px;min-height:0;min-width:0;overflow:hidden">
+<div style="display:flex;gap:6px;align-items:center">
+<div style="padding:5px 11px;border-radius:20px;background:#16191a;color:#fff;font-weight:600;font-size:11.5px">전체</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">Qwen 생성</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">직접 입력</div>
+<div style="margin-left:auto;font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">minRating 4 · reuseEligible true</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-content:start;flex:1;min-height:0;overflow:hidden">
+
+<div style="background:#fff;border:1.5px solid #12a06a;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">클로즈업 · 부드러운 림라이트</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.6</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">cinematic close-up, soft rim light, 35mm film grain, calm expression…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">Qwen 생성</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">모션 자연스러움</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">스타일 일관성</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #1043 · SEG 01</span><span>재사용 37</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">골든아워 와이드 · 제품</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.4</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">wide establishing shot, golden hour, slow dolly in, product hero…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">직접 입력</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">구도 유지</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #1031 · SEG 02</span><span>재사용 24</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">핸드헬드 팔로우 · 흐린 날</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.2</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">handheld follow, overcast, hair drift, muted palette…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">Qwen 생성</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">배경 안정</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #1022 · SEG 03</span><span>재사용 19</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">로우앵글 · 따뜻한 키라이트</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.1</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">low angle, warm key, camera pushes past foreground…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">직접 입력</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">왜곡 없음</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #1018 · SEG 01</span><span>재사용 16</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">네온 백라이트 포트레이트</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.0</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">portrait, neon backlight, subtle breathing, shallow depth…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">Qwen 생성</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">모션 자연스러움</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #1009 · SEG 01</span><span>재사용 12</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">도시 야경 · 슬로우 팬</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.0</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">city night, slow pan, wet asphalt reflections, cool palette…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">직접 입력</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">스타일 일관성</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #0997 · SEG 04</span><span>재사용 9</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">실내 인터뷰 · 자연광</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.3</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">seated interview, window light, minimal head movement…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">Qwen 생성</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">구도 유지</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #0989 · SEG 01</span><span>재사용 8</span></div>
+</div>
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">제품 클로즈업 · 회전</div><div style="flex:none;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.2</div></div>
+<div style="font:400 11px/1.65 'Roboto Mono',monospace;color:#6b7472">macro product turn, seamless backdrop, soft top light…</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#f2f4f3;color:#6b7472;font:500 10px 'Roboto Mono',monospace">직접 입력</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">왜곡 없음</span></div>
+<div style="display:flex;justify-content:space-between;font:500 10px 'Roboto Mono',monospace;color:#98a09d"><span>RUN #0981 · SEG 02</span><span>재사용 7</span></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;padding:10px 14px;background:#fff;border:1px solid #e2e5e3;border-radius:10px"><div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">64건 중 8건 표시</div><div style="margin-left:auto;font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">더 보기</div></div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:11px;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:700;font-size:14px">클로즈업 · 부드러운 림라이트</div><div style="font:500 10.5px 'Roboto Mono',monospace;color:#0f7a55">★ 4.6</div></div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;overflow:hidden">
+<div style="padding:9px 12px;border-bottom:1px solid #eef0ef;background:#fbfcfb;display:flex;justify-content:space-between"><span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472;letter-spacing:.06em">POSITIVE</span><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">Qwen 생성 v2</span></div>
+<div style="padding:11px 12px;font:400 11.5px/1.75 'Roboto Mono',monospace;color:#3d4644">cinematic close-up, soft rim light, 35mm film grain, subject breathing subtly, calm expression, shallow depth of field</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">등록 정보</div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">출처</span><span style="font-weight:600;color:#0f7a55">RUN #1043 · SEG 01</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">품질 등급</span><span style="font-weight:600">4 · 재사용 적합</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">등록자 · 일시</span><span style="font:500 11px 'Roboto Mono',monospace">김서연 08-08</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">재사용 횟수</span><span style="font-weight:600">37</span></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">재사용 사유</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">모션 자연스러움</span><span style="padding:3px 8px;border-radius:6px;background:#e9f5ef;color:#0f7a55;font:500 10px 'Roboto Mono',monospace">스타일 일관성</span></div>
+<div style="font-size:11.5px;line-height:1.65;color:#3d4644">인물 클로즈업에서 표정 유지가 안정적. 배경이 단순한 소스에 특히 잘 맞음.</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">적용 대상</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1.5px solid #12a06a;border-radius:8px;background:#f4fbf8"><span style="width:14px;height:14px;border-radius:50%;background:#12a06a;color:#fff;font:600 8.5px 'Roboto Mono',monospace;display:grid;place-items:center">✓</span><span style="font-size:11.5px;font-weight:600;color:#0f7a55">현재 세그먼트 (SEG 01)</span></div>
+<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #e2e5e3;border-radius:8px"><span style="display:block;box-sizing:border-box;flex:none;width:14px;height:14px;border-radius:50%;border:1px solid #d5dad8"></span><span style="font-size:11.5px;color:#3d4644">비어있는 세그먼트 전체</span></div>
+</div>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:11px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:12.5px">Workspace에 적용</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">원본 Run 보기</div>
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">복제해서 편집</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section class="dv-turn" id="s4">
+<div class="dv-thd"><a class="dv-tid" href="#s4">S4</a><span class="dv-tname">자산</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.45)">키프레임 · 구간 영상 · 컬렉션</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="5a">
+<div class="dv-olabel"><a class="dv-oid" href="#5a">5a</a>Assets · 종류별 그리드 · 컬렉션은 Final 하위</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">종류</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">486</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">키프레임<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">312</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">세그먼트 영상<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">128</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">Final 영상<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">46</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">전체</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;flex:none">46</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">미분류</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;flex:none">29</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">가을 캠페인</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;flex:none">12</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">제품 히어로컷</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;flex:none">5</span></div>
+<div style="padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#98a09d">＋ 컬렉션 만들기</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:18px 16px 8px">공개 범위</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">486</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">내 자산 · PRIVATE<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">401</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">공유됨 · SHARED<span style="font:500 10px 'Roboto Mono',monospace;color:#3f6f9e">85</span></div>
+</div>
+<div style="padding:14px 16px 0"><div style="font-size:11px;line-height:1.6;color:#6b7472">컬렉션에는 <span style="font-weight:600;color:#3d4644">Final 영상만</span> 담기며,<br>공개 범위는 <span style="font-weight:600;color:#3d4644">영상마다</span> 따로 정합니다</div></div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;font-size:11.5px"><span style="color:#6b7472">저장 용량</span><span style="font-weight:600">184 / 500 GB</span></div>
+<div style="height:5px;border-radius:3px;background:#eef1ef;overflow:hidden"><div style="width:37%;height:100%;background:#12a06a"></div></div>
+</div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">ASSETS</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">전체 486개</div></div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-size:12px;color:#98a09d;min-width:170px">파일명 · Run id 검색</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">최근 업로드순</div>
+<div style="padding:7px 16px;border-radius:7px;background:#12a06a;color:#fff;font-weight:600;font-size:12px">업로드</div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">1개 선택됨</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#3d4644;font-weight:600;font-size:11.5px">Workspace로 보내기</div>
+<div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;border:1px solid #cfe0f0;background:#f2f7fc;color:#3f6f9e;font-weight:600;font-size:11.5px">컬렉션에 추가<span style="font:500 9px 'Roboto Mono',monospace;color:#6b8faf">FINAL만</span></div>
+<div style="margin-left:auto;display:flex;gap:5px"><div style="padding:5px 11px;border-radius:20px;background:#16191a;color:#fff;font-weight:600;font-size:11.5px">그리드</div><div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">목록</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-content:start;flex:1;min-height:0;overflow:hidden">
+
+<div style="background:#fff;border:1.5px solid #12a06a;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">final · 10.1s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1043_final.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>FINAL</span><span>24.7MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">seg 01 · 5.0s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1043_seg01.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>SEGMENT</span><span>11.9MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_autumn_01.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>2.1MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_autumn_02.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>2.0MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_autumn_03.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>2.2MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">final · 21.0s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1042_final.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>FINAL</span><span>51.3MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_product_hero.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>1.8MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">seg 02 · 5.1s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1043_seg02.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>SEGMENT</span><span>12.4MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_product_02.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>1.9MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">seg 01 · 5.0s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1042_seg01.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>SEGMENT</span><span>10.8MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">1024 × 1024</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">kf_city_night_01.png</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>KEYFRAME</span><span>2.4MB</span></div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;overflow:hidden">
+<div style="height:118px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 10px 'Roboto Mono',monospace;color:#98a09d">final · 9.0s</div>
+<div style="padding:10px 11px;display:flex;flex-direction:column;gap:5px">
+<div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1038_final.mp4</div>
+<div style="display:flex;justify-content:space-between;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d"><span>FINAL</span><span>22.1MB</span></div>
+</div>
+</div>
+
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:#fff;border:1px solid #e2e5e3;border-radius:10px">
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">486개 중 12개 표시</div>
+<div style="margin-left:auto;display:flex;gap:7px"><div style="padding:6px 13px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">더 보기</div><div style="padding:6px 13px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">전체 선택</div></div>
+</div>
+</div>
+
+<aside style="border-left:1px solid #e2e5e3;background:#fff;padding:18px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:700;font-size:14px">run1043_final.mp4</div><div style="font:500 10px 'Roboto Mono',monospace;color:#0f7a55;background:#e9f5ef;padding:3px 7px;border-radius:5px">FINAL</div></div>
+<div style="border-radius:9px;height:140px;background:repeating-linear-gradient(135deg,#fbfcfb 0 8px,#f2f4f3 8px 16px);display:grid;place-items:center;font:500 10.5px 'Roboto Mono',monospace;color:#6b7472">final merged · 10.1s</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:8px;font-size:11.5px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">출처 Run</span><span style="font-weight:600;color:#0f7a55">#1043</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">워크플로</span><span style="font-weight:600">3-images · 2 seg</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">해상도 / FPS</span><span style="font:500 11px 'Roboto Mono',monospace">1024² / 16</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">생성일</span><span style="font:500 11px 'Roboto Mono',monospace">08-09 10:50</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6b7472">생성자</span><span style="font-weight:600">장균은</span></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">구성 자산</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;border-radius:8px;height:52px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">KF 01</div>
+<div style="flex:1;border-radius:8px;height:52px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">KF 02</div>
+<div style="flex:1;border-radius:8px;height:52px;background:repeating-linear-gradient(135deg,#fbfcfb 0 7px,#f2f4f3 7px 14px);display:grid;place-items:center;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">KF 03</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">세그먼트 영상 2개 · 키프레임 3개</div>
+</div>
+
+<div style="border:1px solid #cfe0f0;background:#f2f7fc;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font:500 10px 'Roboto Mono',monospace;color:#3f6f9e;letter-spacing:.06em">컬렉션 · 백엔드 추가 필요</div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#3f6f9e">제안</span></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><span style="padding:4px 10px;border-radius:20px;background:#fff;border:1px solid #cfe0f0;font-size:11px;color:#3f6f9e">가을 캠페인</span><span style="padding:4px 10px;border-radius:20px;border:1px dashed #b9cfe4;font-size:11px;color:#6b8faf">＋ 담기</span></div>
+<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font:500 9.5px 'Roboto Mono',monospace;color:#6b8faf;letter-spacing:.06em">TAG</span><span style="padding:3px 9px;border-radius:5px;background:#fff;border:1px solid #cfe0f0;font-size:10.5px;color:#3d4644">가을</span><span style="padding:3px 9px;border-radius:5px;background:#fff;border:1px solid #cfe0f0;font-size:10.5px;color:#3d4644">야외</span><span style="padding:3px 9px;border-radius:5px;border:1px dashed #b9cfe4;font-size:10.5px;color:#6b8faf">＋</span></div>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font:500 9.5px 'Roboto Mono',monospace;color:#6b8faf;letter-spacing:.06em">공개</span><span style="padding:3px 9px;border-radius:5px;background:#fff;border:1px solid #cfe0f0;font-size:10.5px;color:#6b7472">PRIVATE</span><span style="padding:3px 9px;border-radius:5px;background:#3f6f9e;color:#fff;font-size:10.5px;font-weight:600">SHARED</span></div>
+<div style="font-size:11px;line-height:1.6;color:#3d4644">태그와 공개 범위는 모두 영상 단위입니다. 컬렉션 담기와는 무관합니다.</div>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:11px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:12.5px">이 자산으로 새 Run 시작</div>
+<div style="display:flex;gap:7px">
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">다운로드</div>
+<div style="flex:1;text-align:center;padding:9px;border:1px solid #e2e5e3;border-radius:8px;font-weight:600;font-size:11.5px;color:#3d4644">Run 상세 보기</div>
+</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="5c">
+<div class="dv-olabel"><a class="dv-oid" href="#5c">5c</a>컬렉션 상세 · 목록 보기 · 영상 단위 태그 &amp; 공개 범위</div>
+<div class="dv-card" style="width:1360px">
+<div style="display:grid;grid-template-columns:212px minmax(0,1fr);height:820px;background:#f6f7f6;color:#16191a;font-size:13px">
+
+<nav style="box-sizing:border-box;background:#fff;border-right:1px solid #e2e5e3;display:flex;flex-direction:column;padding:16px 0;min-height:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:9px;padding:0 16px 18px"><div style="width:22px;height:22px;border-radius:6px;background:#12a06a"></div><div style="font-weight:700;font-size:14px;letter-spacing:-.01em">DOBEDUB</div></div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:0 16px 8px">GENERATE</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Workspace</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Prompt Library</div>
+<div style="padding:8px 10px;border-radius:7px;color:#3d4644">Task History</div>
+<div style="padding:8px 10px;border-radius:7px;background:#e9f5ef;color:#0f7a55;font-weight:600">Assets</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:20px 16px 8px">종류</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">486</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">키프레임<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">312</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">세그먼트 영상<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">128</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;background:#f2f4f3;font-size:12px;font-weight:600">Final 영상<span style="font:500 10px 'Roboto Mono',monospace;color:#6b7472">46</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span>전체</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">46</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span>미분류</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">29</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;background:#e9f5ef;font-size:11.5px;font-weight:600;color:#0f7a55"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">가을 캠페인</span><span style="font:500 9.5px 'Roboto Mono',monospace;flex:none">12</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#6b7472"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">제품 히어로컷</span><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;flex:none">5</span></div>
+<div style="padding:6px 10px 6px 22px;border-radius:7px;font-size:11.5px;color:#98a09d">＋ 컬렉션 만들기</div>
+</div>
+<div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.08em;padding:18px 16px 8px">공개 범위</div>
+<div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">전체<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">486</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">내 자산 · PRIVATE<span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">401</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;border-radius:7px;font-size:12px;color:#3d4644">공유됨 · SHARED<span style="font:500 10px 'Roboto Mono',monospace;color:#3f6f9e">85</span></div>
+</div>
+<div style="margin-top:auto;padding:14px 16px 0;border-top:1px solid #eef0ef;font-size:11.5px;color:#6b7472;line-height:1.65">공개 범위는 컬렉션과<br><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">무관한 영상 속성입니다</span></div>
+</nav>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#fff;border-bottom:1px solid #e2e5e3">
+<div style="display:flex;align-items:center;gap:14px">
+<div><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">ASSETS · FINAL · 컬렉션</div><div style="font-weight:700;font-size:17px;letter-spacing:-.015em;margin-top:2px">가을 캠페인</div></div>
+<div style="display:flex;align-items:center;gap:7px;padding:5px 11px;background:#f2f4f3;border-radius:20px"><span style="font:600 11px 'Roboto Mono',monospace;color:#6b7472">12개 · 소유자 장균은</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-size:12px;color:#98a09d;min-width:150px">파일명 · 태그 검색</div>
+<div style="padding:7px 12px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:12px;color:#3d4644">담은 순</div>
+<div style="display:flex;gap:5px"><div style="padding:6px 12px;border-radius:7px;border:1px solid #e2e5e3;color:#6b7472;font-size:11.5px">그리드</div><div style="padding:6px 12px;border-radius:7px;background:#16191a;color:#fff;font-weight:600;font-size:11.5px">목록</div></div>
+</div>
+</header>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;flex:1;min-height:0">
+
+<div style="box-sizing:border-box;padding:18px 22px;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0;overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">1개 선택됨</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#3d4644;font-weight:600;font-size:11.5px">태그 추가</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#3d4644;font-weight:600;font-size:11.5px">공개 범위 변경</div>
+<div style="padding:5px 11px;border-radius:20px;border:1px solid #e2e5e3;color:#3d4644;font-weight:600;font-size:11.5px">다운로드</div>
+<div style="margin-left:auto;display:flex;gap:6px;align-items:center"><span style="font:500 10px 'Roboto Mono',monospace;color:#98a09d">태그</span><span style="padding:4px 10px;border-radius:20px;background:#16191a;color:#fff;font-size:11px;font-weight:600">전체</span><span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11px">가을</span><span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11px">야외</span><span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;color:#6b7472;font-size:11px">인물</span></div>
+</div>
+
+<div style="background:#fff;border:1px solid #e2e5e3;border-radius:11px;display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0">
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:9px 15px;border-bottom:1px solid #eef0ef;background:#fbfcfb;font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">
+<div></div><div>미리보기</div><div>파일 · Run</div><div>공개</div><div>태그</div><div>담은 날짜</div><div style="text-align:right">동작</div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;background:#f4fbf8">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;background:#12a06a"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">10.1s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1043_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1043 · 3-images</div></div>
+<div><span style="font:600 9.5px 'Roboto Mono',monospace;color:#3f6f9e;background:#f2f7fc;padding:3px 7px;border-radius:5px">SHARED</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">가을</span><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">야외</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-09</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;border:1px solid #d5dad8"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">9.4s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1041_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1041 · 3-images</div></div>
+<div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;border:1px solid #e2e5e3;padding:3px 7px;border-radius:5px">PRIVATE</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">가을</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-08</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;border:1px solid #d5dad8"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">21.0s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1037_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1037 · 6-images</div></div>
+<div><span style="font:600 9.5px 'Roboto Mono',monospace;color:#3f6f9e;background:#f2f7fc;padding:3px 7px;border-radius:5px">SHARED</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">가을</span><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">인물</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-07</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;border:1px solid #d5dad8"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">5.0s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1032_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1032 · 2-images</div></div>
+<div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;border:1px solid #e2e5e3;padding:3px 7px;border-radius:5px">PRIVATE</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">야외</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-05</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;border:1px solid #d5dad8"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">10.2s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1028_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1028 · 3-images</div></div>
+<div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;border:1px solid #e2e5e3;padding:3px 7px;border-radius:5px">PRIVATE</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"><span style="padding:3px 8px;border-radius:5px;border:1px solid #e2e5e3;font-size:10px;color:#6b7472">인물</span></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-04</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="display:grid;grid-template-columns:30px 72px minmax(0,1fr) 84px minmax(0,124px) 76px 68px;gap:10px;padding:10px 15px;border-bottom:1px solid #eef0ef;align-items:center;">
+<div style="display:grid;place-items:center"><span style="display:block;box-sizing:border-box;width:15px;height:15px;border-radius:4px;border:1px solid #d5dad8"></span></div>
+<div style="border-radius:6px;height:38px;background:repeating-linear-gradient(135deg,#fbfcfb 0 6px,#f2f4f3 6px 12px);display:grid;place-items:center;font:500 9px 'Roboto Mono',monospace;color:#98a09d">9.8s</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1019_final.mp4</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-top:3px">RUN #1019 · 3-images</div></div>
+<div><span style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;border:1px solid #e2e5e3;padding:3px 7px;border-radius:5px">PRIVATE</span></div>
+<div style="display:flex;gap:5px;flex-wrap:wrap;min-width:0"></div>
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">08-01</div>
+<div style="text-align:right"><span style="padding:4px 10px;border:1px solid #e2e5e3;border-radius:6px;font-size:10.5px;font-weight:600;color:#3d4644">빼기</span></div>
+</div>
+<div style="margin-top:auto;display:flex;align-items:center;gap:12px;padding:11px 15px;border-top:1px solid #eef0ef">
+<div style="font:500 10.5px 'Roboto Mono',monospace;color:#98a09d">12개 중 6개 표시</div>
+<div style="margin-left:auto;display:flex;gap:7px"><div style="padding:6px 13px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">더 보기</div><div style="padding:6px 13px;border:1px solid #e2e5e3;border-radius:7px;font-weight:600;font-size:11.5px;color:#3d4644">전체 선택</div></div>
+</div>
+</div>
+
+</div>
+
+<aside style="box-sizing:border-box;border-left:1px solid #e2e5e3;background:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;overflow:hidden">
+<div style="font-weight:700;font-size:14px">컬렉션 설정</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-bottom:5px">이름</div><div style="border:1px solid #e2e5e3;border-radius:8px;padding:9px 11px;font-size:11.5px">가을 캠페인</div></div>
+<div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d;margin-bottom:5px">설명 · 선택</div><div style="border:1px solid #e2e5e3;border-radius:8px;padding:9px 11px;font-size:11.5px;color:#98a09d">10월 캠페인 최종본 모음</div></div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">선택 영상 공개 범위</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">영상 단위</div></div>
+<div style="font:500 11px 'Roboto Mono',monospace;color:#6b7472;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">run1043_final.mp4</div>
+<div style="display:flex;gap:6px">
+<div style="flex:1;text-align:center;padding:8px;border:1px solid #e2e5e3;border-radius:8px;font-size:11.5px;color:#6b7472">PRIVATE</div>
+<div style="flex:1;text-align:center;padding:8px;border:1.5px solid #3f6f9e;background:#f2f7fc;border-radius:8px;font-weight:600;font-size:11.5px;color:#3f6f9e">SHARED</div>
+</div>
+<div style="font-size:11px;line-height:1.6;color:#3d4644">SHARED로 두면 컬렉션에 담기지 않아도 전원이 볼 수 있습니다. 컬렉션 담기와는 별개입니다.</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="font:500 10px 'Roboto Mono',monospace;color:#98a09d;letter-spacing:.06em">태그</div><div style="font:500 9.5px 'Roboto Mono',monospace;color:#98a09d">자산 단위</div></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;font-size:11px;color:#3d4644">가을 4</span>
+<span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;font-size:11px;color:#3d4644">야외 3</span>
+<span style="padding:4px 10px;border-radius:20px;border:1px solid #e2e5e3;font-size:11px;color:#3d4644">인물 2</span>
+<span style="padding:4px 10px;border-radius:20px;border:1px dashed #d5dad8;font-size:11px;color:#98a09d">＋ 태그</span>
+</div>
+<div style="font-size:11px;line-height:1.6;color:#6b7472">태그도 영상 단위입니다. 다른 컬렉션에서도 같은 태그로 찾을 수 있습니다.</div>
+</div>
+
+<div style="border:1px solid #e2e5e3;border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:11.5px">
+<span style="color:#6b7472">Final <b style="color:#16191a">12</b></span>
+<span style="color:#6b7472">SHARED <b style="color:#3f6f9e">4</b></span>
+<span style="color:#6b7472">용량 <b style="font:600 11px 'Roboto Mono',monospace;color:#16191a">312 MB</b></span>
+</div>
+
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:7px">
+<div style="text-align:center;padding:11px;border-radius:9px;background:#12a06a;color:#fff;font-weight:700;font-size:12.5px">변경 저장</div>
+<div style="text-align:center;padding:9px;border:1px solid #f0c9c9;border-radius:8px;font-weight:600;font-size:11.5px;color:#c0392b">컬렉션 삭제</div>
+<div style="font:500 10px/1.6 'Roboto Mono',monospace;color:#98a09d">삭제해도 영상 원본은 Assets에 남습니다</div>
+</div>
+</aside>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+</x-dc>
+</body>
+</html>

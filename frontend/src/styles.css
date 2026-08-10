@@ -12,6 +12,74 @@
   --red: #f87171;
 }
 
+/* E-00: DOBEDUB STUDIO v3 재설계 디자인 토큰 (design_handoff_dobedub_v3/README.md
+   "Design Tokens" 표 기준, 값을 1:1로 옮김). 위 --bg/--text 등 구버전 dark 테마
+   토큰과는 별개의 팔레트(라이트 테마)라 값을 공유하거나 대체하지 않고 --v3- 접두사로
+   네임스페이스를 분리했다. 신규 화면(E-02~E-05)은 아래 --v3-* 변수만 사용하고,
+   구버전 화면이 걷힐 때까지(E-06) 위 구버전 토큰과 이 토큰은 서로 참조하지 않는다. */
+:root {
+  /* 배경 */
+  --v3-bg-app: #f6f7f6;
+  --v3-bg-panel: #ffffff;
+  --v3-bg-table: #fbfcfb;
+
+  /* 텍스트 */
+  --v3-text-body: #16191a;
+  --v3-text-secondary: #3d4644;
+  --v3-text-description: #6b7472;
+  --v3-text-label: #98a09d;
+  --v3-text-disabled: #c9cfcc;
+
+  /* 경계선 */
+  --v3-border: #e2e5e3;
+  --v3-border-inner: #eef0ef;
+
+  /* 액센트 (성공 · 활성) */
+  --v3-accent: #12a06a;
+  --v3-accent-bg: #e9f5ef;
+  --v3-accent-text: #0f7a55;
+  --v3-accent-border: #cfe3d9;
+
+  /* 경고 */
+  --v3-warning: #d08300;
+  --v3-warning-bg: #fdf3e7;
+  --v3-warning-text: #8a5a00;
+  --v3-warning-border: #f0d7b0;
+
+  /* 위험 · 실패 */
+  --v3-danger: #c0392b;
+  --v3-danger-bg: #fdeceb;
+  --v3-danger-border: #f0c9c9;
+
+  /* 폰트 패밀리 - index.html에서 IBM Plex Sans / Roboto Mono를 로드한다(E-00) */
+  --v3-font-body: "IBM Plex Sans", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --v3-font-mono: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* 폰트 크기 · 굵기 */
+  --v3-font-size-header: 17px;
+  --v3-font-weight-header: 700;
+  --v3-font-size-card-title: 13px;
+  --v3-font-weight-card-title: 600;
+  --v3-font-size-body: 12.5px;
+  --v3-font-size-secondary: 11.5px;
+  --v3-font-size-label: 10px;
+  --v3-label-letter-spacing: 0.06em;
+
+  /* 라운드 - README는 범위로 제시(7~9px 입력·소형 카드 / 10~11px 패널), 대표값 채택 */
+  --v3-radius-chip: 6px;
+  --v3-radius-input: 8px;
+  --v3-radius-panel: 10px;
+  --v3-radius-modal: 14px;
+
+  /* 그림자 */
+  --v3-modal-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+
+  /* 레이아웃 - 사이드바 폭은 고정, 캔버스 크기는 설계 기준값(참고용, 실제 구현은 반응형) */
+  --v3-sidebar-width: 212px;
+  --v3-canvas-width: 1360px;
+  --v3-canvas-height: 820px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -3425,4 +3493,195 @@ textarea {
   .toolbar {
     display: none;
   }
+}
+
+/* ==========================================================================
+   E-01: 공통 레이아웃(AppShell) — design_handoff_dobedub_v3의 모든 화면이
+   공유하는 골격(사이드바 212px + 헤더 + 본문 그리드 + 우측 패널). 화면마다 새로
+   짜지 않고 components/AppShell.tsx 하나가 이 클래스들을 그린다. --v3-* 토큰만
+   사용(E-00). 구버전 .sidebar/.topbar 등과 이름이 겹치지 않도록 v3- 접두사 사용.
+   ========================================================================== */
+
+.v3-shell {
+  background: var(--v3-bg-app);
+  color: var(--v3-text-body);
+  display: grid;
+  font-family: var(--v3-font-body);
+  font-size: var(--v3-font-size-body);
+  grid-template-columns: var(--v3-sidebar-width) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.v3-shell * {
+  box-sizing: border-box;
+}
+
+.v3-sidebar {
+  background: var(--v3-bg-panel);
+  border-right: 1px solid var(--v3-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px 0;
+}
+
+.v3-sidebar-brand {
+  align-items: center;
+  display: flex;
+  gap: 9px;
+  padding: 0 16px 18px;
+}
+
+.v3-sidebar-brand-mark {
+  background: var(--v3-accent);
+  border-radius: var(--v3-radius-chip);
+  display: block;
+  height: 22px;
+  object-fit: cover;
+  width: 22px;
+}
+
+.v3-sidebar-brand-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.v3-sidebar-group-label {
+  color: var(--v3-text-label);
+  font-family: var(--v3-font-mono);
+  font-size: var(--v3-font-size-label);
+  font-weight: 500;
+  letter-spacing: var(--v3-label-letter-spacing);
+  padding: 0 16px 8px;
+}
+
+.v3-sidebar-group-label.is-secondary {
+  padding-top: 20px;
+}
+
+.v3-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 8px;
+}
+
+.v3-sidebar-nav-item {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: var(--v3-text-secondary);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  justify-content: space-between;
+  padding: 8px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.v3-sidebar-nav-item.is-active {
+  background: var(--v3-accent-bg);
+  color: var(--v3-accent-text);
+  font-weight: 600;
+}
+
+.v3-sidebar-nav-item:disabled {
+  color: var(--v3-text-disabled);
+  cursor: not-allowed;
+}
+
+.v3-sidebar-nav-item-badge {
+  border: 1px dashed #c5cbc8;
+  border-radius: 4px;
+  color: #8a8f8c;
+  flex: none;
+  font-family: var(--v3-font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  margin-left: 8px;
+  padding: 2px 5px;
+}
+
+.v3-sidebar-extra {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+.v3-sidebar-footer {
+  border-top: 1px solid var(--v3-border-inner);
+  margin-top: auto;
+  padding: 14px 16px 0;
+}
+
+.v3-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.v3-header {
+  align-items: center;
+  background: var(--v3-bg-panel);
+  border-bottom: 1px solid var(--v3-border);
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 22px;
+}
+
+.v3-header-eyebrow {
+  color: var(--v3-text-label);
+  font-family: var(--v3-font-mono);
+  font-size: var(--v3-font-size-label);
+  font-weight: 500;
+  letter-spacing: var(--v3-label-letter-spacing);
+}
+
+.v3-header-title {
+  font-size: var(--v3-font-size-header);
+  font-weight: var(--v3-font-weight-header);
+  letter-spacing: -0.015em;
+  margin-top: 2px;
+}
+
+.v3-header-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.v3-body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.v3-body.has-right-panel {
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.v3-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding: 18px 22px;
+}
+
+.v3-right-panel {
+  background: var(--v3-bg-panel);
+  border-left: 1px solid var(--v3-border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  padding: 18px;
 }
