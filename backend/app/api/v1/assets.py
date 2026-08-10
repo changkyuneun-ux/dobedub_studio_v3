@@ -2,13 +2,35 @@ from __future__ import annotations
 
 import mimetypes
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse
 
 from backend.app.core.security import CurrentUser, require_any_permission, require_permission
 from backend.app.services import studio_api_service
 
 router = APIRouter(tags=["assets"])
+
+
+@router.get("/assets")
+def list_assets(
+    type: str = "",
+    workflowId: str = "",
+    from_: str = Query("", alias="from"),
+    to: str = "",
+    page: int = 1,
+    pageSize: int = 20,
+    _: CurrentUser = Depends(require_permission("history:read")),
+):
+    # A-01: 화면 5a/5c(E-03)가 작업을 거치지 않고 직접 목록을 그릴 수 있도록 함.
+    # `from`은 Python 예약어라 쿼리 파라미터 이름은 그대로 두고 함수 인자만 `from_`로 받는다.
+    return studio_api_service.paginated_assets(
+        page,
+        pageSize,
+        asset_type=type,
+        workflow_id=workflowId,
+        date_from=from_,
+        date_to=to,
+    )
 
 
 @router.post("/uploads", status_code=201)

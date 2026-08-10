@@ -433,6 +433,36 @@ export type HistoryResponse = {
   total: number;
 };
 
+// A-01/E-03(5a): `assets` 테이블을 그대로 노출한 목록 응답. `taskId`/`outputRole`은
+// `task_output_assets` 조인 결과라 아직 어느 작업 출력에도 연결되지 않은 자산(예:
+// 업로드만 되고 실행에 쓰이지 않은 입력 이미지)은 빈 문자열로 내려온다 - 화면에서
+// 그 경우를 별도 처리해야 한다. 설계 mock(5a/5c)의 태그·공개범위(PRIVATE/SHARED)·
+// 컬렉션 필드는 백엔드에 대응 컬럼이 전혀 없어(A-02 미착수) 이 타입에 포함하지
+// 않는다 - 화면에서도 그리지 않는다.
+export type AssetItem = {
+  assetId: string;
+  type: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  path?: string;
+  storageBackend?: string;
+  publicUrl?: string | null;
+  createdAt?: string;
+  downloadUrl: string;
+  taskId?: string;
+  outputRole?: string;
+  segmentIndex?: number | null;
+  workflowId?: string;
+};
+
+export type AssetsResponse = {
+  items: AssetItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
 export type JobCreateResponse = {
   taskId: string;
   runpodJobId: string;
@@ -635,6 +665,15 @@ export const apiClient = {
   // 명시 전송하므로 이 기본값은 호출부가 실수로 pageSize를 생략했을 때의
   // 안전망일 뿐이다.
   history: (page = 1, pageSize = 20) => requestJson<HistoryResponse>(`/api/history?page=${page}&pageSize=${pageSize}`),
+  // A-01/E-03(5a): type/workflowId는 선택 필터. 빈 문자열은 쿼리에서 생략한다.
+  assets: (params: { page?: number; pageSize?: number; type?: string; workflowId?: string } = {}) => {
+    const query = new URLSearchParams();
+    query.set("page", String(params.page || 1));
+    query.set("pageSize", String(params.pageSize || 20));
+    if (params.type) query.set("type", params.type);
+    if (params.workflowId) query.set("workflowId", params.workflowId);
+    return requestJson<AssetsResponse>(`/api/assets?${query.toString()}`);
+  },
   promptCatalog: () => requestJson<PromptCatalogResponse>("/api/prompts/catalog"),
   promptSystemPrompt: () => requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt"),
   savePromptSystemPrompt: (payload: Record<string, unknown>) =>

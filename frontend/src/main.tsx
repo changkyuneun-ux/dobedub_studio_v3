@@ -4,6 +4,7 @@ import {
   apiClient,
   AdminUser,
   AdminWorkflow,
+  AssetItem,
   ConfigControl,
   HealthResponse,
   HistoryItem,
@@ -118,6 +119,7 @@ function canUseAdminSandboxPod(user: User | null) {
 // 대상) 여기서는 임시로 AccessDeniedModal을 띄운다. 화면이 만들어지면 그쪽으로 교체.
 const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.history": "history:read",
+  "review.assets": "history:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -136,8 +138,7 @@ function routeAccessGranted(user: User | null, route: StudioRoute): boolean {
 
 // E-02/E-03: AppShell(E-01)의 사이드바 1차 메뉴(workspace/promptLibrary/taskHistory/
 // assets)는 화면마다 반복되는 공통 골격이라 각 Create*Screen이 받는 onGoTo(실제
-// StudioRoute 이동)를 통해 여기서 한 곳에서만 매핑한다. assets는 A-01 미착수라
-// 이동할 곳이 없어 무시한다(README: 미구현 영역을 임의로 채우지 않는다).
+// StudioRoute 이동)를 통해 여기서 한 곳에서만 매핑한다.
 function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
   if (key === "workspace") {
     onGoTo("create.load");
@@ -145,11 +146,14 @@ function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
     onGoTo("review.history");
   } else if (key === "promptLibrary") {
     onGoTo("review.reuse");
+  } else if (key === "assets") {
+    onGoTo("review.assets");
   }
 }
 
 const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.history": "Task History",
+  "review.assets": "Assets",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -350,6 +354,7 @@ function TopBar({
       <nav className="toolbar" aria-label="주요 메뉴">
         <button className={["create.load", "create.prompt", "create.segments", "create.confirm", "create.progress", "create.result", "create.workspace"].includes(route) ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
         {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
+        {canUse(user, "history:read") ? <button className={route === "review.assets" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.assets")}>Assets</button> : null}
         {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
         {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
         {canUse(user, "manual:read") ? <button className={route === "access.manual" ? "is-active" : ""} type="button" onClick={() => onNavigate("access.manual")}>User Manual</button> : null}
@@ -2238,6 +2243,166 @@ function Create4cScreen({
   );
 }
 
+// E-03 · 5a "자산" — design_handoff_dobedub_v3/3 Review.dc.html의 자산 그리드
+// 화면. A-01(`GET /api/assets`)이 이제 실제로 존재해 이 화면을 만들 수 있게 됐다.
+//
+// 설계 원본과 다르게 뺀 것 — 전부 대응 백엔드가 없어서 뺐다(가짜 데이터 금지 원칙):
+// - 컬렉션(5c, "가을 캠페인" 등 사이드바 그룹) — A-02(컬렉션 테이블/API) 자체가
+//   저장소에 전혀 없음. "컬렉션에 추가" 버튼, 컬렉션 사이드바 트리 전부 제외.
+// - 태그(#가을 #야외 등), 공개 범위(PRIVATE/SHARED 토글) — `assets` 테이블에 대응
+//   컬럼이 없음(`asset_type`·`size_bytes`·`metadata_json`·`created_at`뿐).
+// - 저장 용량 진행 바("184/500 GB") — 총 한도 값을 내려주는 API가 없음.
+// - "업로드" 버튼(설계는 이 화면에서 바로 업로드) — 업로드는 `2a` 키프레임
+//   슬롯에서만 발생하는 것이 현재 흐름이라 여기 별도 업로드 진입점을 만들지 않음.
+// - 정렬 드롭다운("최근 업로드순" 외 옵션) — API가 `created_at desc` 고정 정렬만
+//   지원. 옵션이 하나뿐이라 드롭다운 자체를 생략.
+// 대신 있는 것 — 실제 `task_output_assets` 조인 결과인 taskId/outputRole/workflowId는
+// 있으면 보여주고, 없으면(업로드만 되고 어떤 Run 출력에도 안 쓰인 자산) "미연결"로
+// 표기한다.
+function Create5aScreen({
+  user,
+  health,
+  onGoTo,
+  items,
+  page,
+  pageCount,
+  pageSize,
+  total,
+  loading,
+  notice,
+  typeFilter,
+  selectedAssetId,
+  onSelect,
+  onTypeFilterChange,
+  onPageChange,
+  onPageSizeChange,
+  onDownload
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
+  items: AssetItem[];
+  page: number;
+  pageCount: number;
+  pageSize: 20 | 50;
+  total: number;
+  loading: boolean;
+  notice: string;
+  typeFilter: string;
+  selectedAssetId: string;
+  onSelect: (item: AssetItem) => void;
+  onTypeFilterChange: (type: string) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: 20 | 50) => void;
+  onDownload: (item: AssetItem) => void;
+}) {
+  // 서버가 내려준 이번 페이지 항목들의 실제 asset_type만 필터 후보로 쓴다 —
+  // 설계 mock의 "키프레임/세그먼트 영상/Final 영상" 같은 고정 분류가 실제 코드의
+  // asset_type 값과 정확히 일치한다는 보장이 없어, 있는 값만으로 필터를 구성한다.
+  const typesInPage = Array.from(new Set(items.map((item) => item.type).filter(Boolean)));
+  const selectedItem = items.find((item) => item.assetId === selectedAssetId) || items[0] || null;
+  const pageStart = total ? (page - 1) * pageSize + 1 : 0;
+  const pageEnd = Math.min(total, page * pageSize);
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="assets"
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
+      headerEyebrow="ASSETS"
+      headerTitle={`전체 ${total}개`}
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>종류</div>
+          <button
+            type="button"
+            className={`v3-segment-nav-item ${!typeFilter ? "is-active" : ""}`}
+            onClick={() => onTypeFilterChange("")}
+          >
+            <div className="v3-segment-nav-head"><span>전체</span></div>
+          </button>
+          {typesInPage.map((type) => (
+            <button
+              key={type}
+              type="button"
+              className={`v3-segment-nav-item ${typeFilter === type ? "is-active" : ""}`}
+              onClick={() => onTypeFilterChange(type)}
+            >
+              <div className="v3-segment-nav-head"><span>{type}</span></div>
+            </button>
+          ))}
+        </div>
+      }
+      sidebarFooter={<p className="v3-muted-text">한 페이지 {pageSize}건 · 컬렉션·태그·공개범위는 아직 지원하지 않습니다(A-02 미착수)</p>}
+      rightPanel={
+        selectedItem ? (
+          <>
+            <div className="v3-panel-title-row">
+              <div className="v3-panel-title">{selectedItem.fileName}</div>
+              <span className="v3-status-badge is-ready">{selectedItem.type || "-"}</span>
+            </div>
+            <div className="v3-summary-card">
+              <div className="v3-summary-row"><span>크기</span><strong>{(selectedItem.sizeBytes / 1024).toFixed(1)} KB</strong></div>
+              <div className="v3-summary-row"><span>MIME</span><strong>{selectedItem.mimeType || "-"}</strong></div>
+              <div className="v3-summary-row"><span>생성일</span><strong>{selectedItem.createdAt || "-"}</strong></div>
+              <div className="v3-summary-row"><span>연결된 Run</span><strong>{selectedItem.taskId ? `#${selectedItem.taskId.slice(0, 8)} · ${selectedItem.outputRole || "-"}` : "미연결"}</strong></div>
+              {selectedItem.workflowId ? <div className="v3-summary-row"><span>워크플로</span><strong>{selectedItem.workflowId}</strong></div> : null}
+            </div>
+            <div className="v3-inline-actions">
+              <button className="v3-primary-button v3-flex-button" type="button" onClick={() => onDownload(selectedItem)}>다운로드</button>
+              {selectedItem.taskId ? (
+                <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => onGoTo("review.runDetail")}>Run 상세 보기</button>
+              ) : null}
+            </div>
+          </>
+        ) : (
+          <p className="v3-muted-text">왼쪽 목록에서 자산을 선택하세요.</p>
+        )
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      <div className="v3-reuse-grid">
+        {loading ? <p className="v3-muted-text">불러오는 중입니다...</p> : null}
+        {!loading && !items.length ? <p className="v3-muted-text">표시할 자산이 없습니다.</p> : null}
+        {items.map((item) => {
+          const isSelected = item.assetId === selectedAssetId;
+          return (
+            <div
+              key={item.assetId}
+              className={`v3-card v3-reuse-card ${isSelected ? "is-selected" : ""}`}
+              style={{ cursor: "pointer" }}
+              onClick={() => onSelect(item)}
+            >
+              <div className="v3-card-header">
+                <div className="v3-card-header-title">{item.type || "asset"}</div>
+                <span className="v3-status-badge is-ready">{(item.sizeBytes / 1024).toFixed(0)} KB</span>
+              </div>
+              <div className="v3-reuse-body">
+                <div style={{ fontWeight: 600, fontSize: 12.5, wordBreak: "break-all" }}>{item.fileName}</div>
+                <div className="v3-summary-row"><span>연결</span><strong>{item.taskId ? `#${item.taskId.slice(0, 8)} · ${item.outputRole || "-"}` : "미연결"}</strong></div>
+                <div className="v3-summary-row"><span>생성일</span><strong>{item.createdAt || "-"}</strong></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="v3-pagination">
+        <span className="v3-pagination-meta">{pageStart}–{pageEnd} / {total}</span>
+        <div className="v3-pagination-controls">
+          <button className="v3-page-button" type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>이전</button>
+          <span className="v3-page-button is-current">{page}</span>
+          <button className="v3-page-button" type="button" disabled={page >= pageCount} onClick={() => onPageChange(page + 1)}>다음</button>
+          <select className="v3-page-size-select" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value) as 20 | 50)}>
+            <option value={20}>20건 / 페이지</option>
+            <option value={50}>50건 / 페이지</option>
+          </select>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -2262,6 +2427,15 @@ function StudioShell({
   const [selectedHistoryTaskId, setSelectedHistoryTaskId] = useState("");
   const [historyTab, setHistoryTab] = useState<"overview" | "images" | "config" | "video" | "review">("overview");
   const [deleteTarget, setDeleteTarget] = useState<HistoryItem | null>(null);
+  // E-03(5a): 3a와 동일한 20/50 페이지네이션 패턴을 그대로 따른다.
+  const [assets, setAssets] = useState<AssetItem[]>([]);
+  const [assetsPage, setAssetsPage] = useState(1);
+  const [assetsPageSize, setAssetsPageSize] = useState<20 | 50>(20);
+  const [assetsTotal, setAssetsTotal] = useState(0);
+  const [assetsLoading, setAssetsLoading] = useState(false);
+  const [assetsNotice, setAssetsNotice] = useState("");
+  const [assetsTypeFilter, setAssetsTypeFilter] = useState("");
+  const [selectedAssetId, setSelectedAssetId] = useState("");
   const [modalNotice, setModalNotice] = useState("");
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatusResponse | null>(null);
@@ -2357,6 +2531,38 @@ function StudioShell({
     } finally {
       setHistoryLoading(false);
     }
+  }
+
+  async function loadAssetsPage(page = assetsPage, pageSize = assetsPageSize, type = assetsTypeFilter) {
+    setAssetsLoading(true);
+    setAssetsNotice("");
+    try {
+      const response = await apiClient.assets({ page, pageSize, type });
+      const items = response.items || [];
+      setAssets(items);
+      setAssetsPage(response.page || page);
+      setAssetsTotal(response.total || 0);
+      setSelectedAssetId((current) => {
+        if (current && items.some((item) => item.assetId === current)) {
+          return current;
+        }
+        return items[0]?.assetId || "";
+      });
+    } catch (error) {
+      setAssetsNotice(error instanceof Error ? error.message : "자산 목록을 불러오지 못했습니다.");
+    } finally {
+      setAssetsLoading(false);
+    }
+  }
+
+  function changeAssetsTypeFilter(type: string) {
+    setAssetsTypeFilter(type);
+    void loadAssetsPage(1, assetsPageSize, type);
+  }
+
+  function changeAssetsPageSize(pageSize: 20 | 50) {
+    setAssetsPageSize(pageSize);
+    void loadAssetsPage(1, pageSize, assetsTypeFilter);
   }
 
   // B-01: 페이지 크기를 바꾸면 현재 페이지 번호 기준이 달라지므로 1페이지로
@@ -2923,6 +3129,9 @@ function StudioShell({
     if (route === "review.history") {
       void loadHistoryPage(1);
     }
+    if (route === "review.assets") {
+      void loadAssetsPage(1);
+    }
     if (route === "admin.status") {
       void loadSystemStatus();
     }
@@ -3176,6 +3385,7 @@ function StudioShell({
     [history, selectedHistoryTaskId]
   );
   const historyPageCount = Math.max(1, Math.ceil(historyTotal / historyPageSize));
+  const assetsPageCount = Math.max(1, Math.ceil(assetsTotal / assetsPageSize));
 
   async function copyPromptList(prompts: PromptEntry[] | undefined) {
     const text = formatPromptList(prompts);
@@ -3557,6 +3767,34 @@ function StudioShell({
           applyReusablePrompt(prompt);
           onNavigate("create.prompt");
         }}
+      />
+    ) : route === "review.assets" ? (
+      <Create5aScreen
+        user={user}
+        health={health}
+        onGoTo={(nextRoute) => {
+          if (nextRoute === "review.runDetail" && selectedAssetId) {
+            const asset = assets.find((item) => item.assetId === selectedAssetId);
+            if (asset?.taskId) {
+              setSelectedHistoryTaskId(asset.taskId);
+            }
+          }
+          onNavigate(nextRoute);
+        }}
+        items={assets}
+        page={assetsPage}
+        pageCount={assetsPageCount}
+        pageSize={assetsPageSize}
+        total={assetsTotal}
+        loading={assetsLoading}
+        notice={assetsNotice}
+        typeFilter={assetsTypeFilter}
+        selectedAssetId={selectedAssetId}
+        onSelect={(item) => setSelectedAssetId(item.assetId)}
+        onTypeFilterChange={changeAssetsTypeFilter}
+        onPageChange={(page) => void loadAssetsPage(page)}
+        onPageSizeChange={changeAssetsPageSize}
+        onDownload={(item) => downloadProtectedAsset(item.downloadUrl, item.fileName).catch((downloadError) => setAssetsNotice(downloadError instanceof Error ? downloadError.message : "다운로드에 실패했습니다."))}
       />
     ) : (
     <main className="studio-grid">

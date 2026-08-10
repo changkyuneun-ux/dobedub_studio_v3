@@ -5091,6 +5091,13 @@ textarea {
   padding: 14px 16px;
 }
 
+/* E-03 · 5a 자산 그리드에서도 v3-reuse-card를 재사용하며 선택 상태 표시가
+   필요해졌다(4c는 클릭으로 선택하는 카드가 아니라 이 규칙이 없었다). */
+.v3-reuse-card.is-selected {
+  border-color: var(--v3-accent);
+  box-shadow: 0 0 0 1px var(--v3-accent);
+}
+
 .v3-modal-body-text {
   color: var(--v3-text-secondary);
   font-size: 12.5px;

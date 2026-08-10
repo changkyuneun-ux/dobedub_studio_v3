@@ -24,6 +24,10 @@
 //   review.runDetail  — 3f(완료)·3c(실패) Run 상세. 상태로 분기하므로 화면 하나가
 //                       두 id를 함께 담당한다(신규 구현, E-03)
 //   review.reuse      — 4c 프롬프트 재사용 (신규 구현, E-03)
+//   review.assets     — 5a 자산 목록 (신규 구현, E-03). 5c(컬렉션 상세)는 A-02
+//                       (컬렉션 API·테이블)가 전혀 없어 이번 구현 범위에서 뺐다 -
+//                       가짜 데이터로 채우지 않는다는 원칙에 따라 백엔드가 생기기
+//                       전까지 별도 라우트를 만들지 않는다.
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -40,6 +44,7 @@ export type StudioRoute =
   | "review.history"
   | "review.runDetail"
   | "review.reuse"
+  | "review.assets"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -70,6 +75,7 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "review.history": "/studio/review/history",
   "review.runDetail": "/studio/review/run",
   "review.reuse": "/studio/review/reuse",
+  "review.assets": "/studio/review/assets",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"

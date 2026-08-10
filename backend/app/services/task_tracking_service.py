@@ -81,6 +81,114 @@ def task_history_total() -> int:
         session.close()
 
 
+def list_assets(
+    page: int | None = None,
+    page_size: int | None = None,
+    *,
+    asset_type: str = "",
+    workflow_id: str = "",
+    date_from: str = "",
+    date_to: str = "",
+) -> list[dict]:
+    """A-01: `GET /api/assets` 목록. history와 동일하게 DB 전용으로 구현한다(D-03
+    선례 - 운영은 `PERSISTENCE_BACKEND=db`가 필수값이라 repository 추상화를 통하지
+    않아도 실사용 경로와 어긋나지 않음). `taskId`/`outputRole`은 `task_output_assets`
+    조인으로 채운다 - 업로드만 되고 아직 어떤 작업의 출력으로도 연결되지 않은 자산은
+    두 필드가 빈 값으로 남는다(입력 이미지 등)."""
+    session = SessionLocal()
+    try:
+        statement = select(Asset.id).order_by(Asset.created_at.desc(), Asset.id.desc())
+        conditions = _asset_filter_conditions(session, asset_type=asset_type, workflow_id=workflow_id, date_from=date_from, date_to=date_to)
+        if conditions:
+            statement = statement.where(*conditions)
+        if page is not None and page_size is not None:
+            safe_page = max(1, int(page))
+            safe_page_size = max(1, min(200, int(page_size)))
+            statement = statement.offset((safe_page - 1) * safe_page_size).limit(safe_page_size)
+        asset_ids = list(session.scalars(statement))
+        if not asset_ids:
+            return []
+
+        assets_by_id = {
+            asset.id: asset
+            for asset in session.scalars(select(Asset).where(Asset.id.in_(asset_ids))).all()
+        }
+        # A-01 완료 기준: 응답에 연결된 taskId·output_role 포함. 동일 자산이 여러
+        # 작업의 출력으로 연결될 일은 없지만(assets.id는 생성 시점에 1건만 만들어짐),
+        # 만약을 대비해 가장 최근 링크 하나만 취한다.
+        links = session.scalars(
+            select(TaskOutputAsset)
+            .where(TaskOutputAsset.asset_id.in_(asset_ids))
+            .order_by(TaskOutputAsset.created_at.desc(), TaskOutputAsset.id.desc())
+        ).all()
+        link_by_asset: dict[str, TaskOutputAsset] = {}
+        for link in links:
+            link_by_asset.setdefault(link.asset_id, link)
+        task_ids = {link.task_id for link in link_by_asset.values()}
+        tasks_by_id = {
+            task.id: task
+            for task in (session.scalars(select(WorkflowTask).where(WorkflowTask.id.in_(task_ids))).all() if task_ids else [])
+        }
+
+        items = []
+        for asset_id in asset_ids:
+            asset = assets_by_id.get(asset_id)
+            if not asset:
+                continue
+            item = _asset_to_json(asset)
+            link = link_by_asset.get(asset_id)
+            item["taskId"] = link.task_id if link else ""
+            item["outputRole"] = link.output_role if link else ""
+            item["segmentIndex"] = link.segment_index if link else None
+            task = tasks_by_id.get(link.task_id) if link else None
+            if task:
+                item["workflowId"] = task.workflow_id
+            items.append(item)
+        return items
+    finally:
+        session.close()
+
+
+def assets_total(*, asset_type: str = "", workflow_id: str = "", date_from: str = "", date_to: str = "") -> int:
+    session = SessionLocal()
+    try:
+        conditions = _asset_filter_conditions(session, asset_type=asset_type, workflow_id=workflow_id, date_from=date_from, date_to=date_to)
+        statement = select(func.count()).select_from(Asset)
+        if conditions:
+            statement = statement.where(*conditions)
+        return int(session.scalar(statement) or 0)
+    finally:
+        session.close()
+
+
+def _asset_filter_conditions(
+    session: Session,
+    *,
+    asset_type: str,
+    workflow_id: str,
+    date_from: str,
+    date_to: str,
+) -> list:
+    conditions = []
+    if asset_type:
+        conditions.append(Asset.asset_type == asset_type)
+    parsed_from = _parse_datetime(date_from) if date_from else None
+    if parsed_from:
+        conditions.append(Asset.created_at >= parsed_from)
+    parsed_to = _parse_datetime(date_to) if date_to else None
+    if parsed_to:
+        conditions.append(Asset.created_at <= parsed_to)
+    if workflow_id:
+        conditions.append(
+            Asset.id.in_(
+                select(TaskOutputAsset.asset_id)
+                .join(WorkflowTask, TaskOutputAsset.task_id == WorkflowTask.id)
+                .where(WorkflowTask.workflow_id == workflow_id)
+            )
+        )
+    return conditions
+
+
 def delete_task_record(task_id: str) -> dict:
     session = SessionLocal()
     try:

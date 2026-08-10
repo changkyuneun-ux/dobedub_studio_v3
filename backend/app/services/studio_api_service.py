@@ -12,6 +12,8 @@ from backend.app.services.asset_storage import encode_file_base64, safe_filename
 from backend.app.services.runpod_client import connection_status as runpod_connection_status
 from backend.app.services.runpod_client import runpod_request as runpod_client_request
 from backend.app.services.task_tracking_service import (
+    assets_total,
+    list_assets,
     record_job_status,
     restore_job_from_task,
     reusable_task_prompts,
@@ -60,6 +62,29 @@ def delete_history_item(task_id: str) -> dict:
     # Task history is DB-only (D-03): bypasses PERSISTENCE_BACKEND on purpose.
     with history_repository() as repository:
         return repository.delete_history_item(task_id)
+
+
+def paginated_assets(
+    page: int = 1,
+    page_size: int = 20,
+    *,
+    asset_type: str = "",
+    workflow_id: str = "",
+    date_from: str = "",
+    date_to: str = "",
+) -> dict:
+    # A-01: history와 동일하게 DB 전용(D-03 선례). PERSISTENCE_BACKEND=json에서는
+    # task_output_assets 조인 대상이 비어 있을 수 있으나, 운영 환경은 항상
+    # PERSISTENCE_BACKEND=db이므로(docs/aws-ecs-deployment.md) 실사용 경로와는 무관.
+    page = max(1, int(page or 1))
+    page_size = max(1, min(200, int(page_size or 20)))
+    filters = dict(asset_type=asset_type, workflow_id=workflow_id, date_from=date_from, date_to=date_to)
+    return {
+        "items": list_assets(page, page_size, **filters),
+        "page": page,
+        "pageSize": page_size,
+        "total": assets_total(**filters),
+    }
 
 
 def load_configs() -> list[dict]:

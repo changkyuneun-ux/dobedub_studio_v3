@@ -41,14 +41,14 @@
 
 착수 전 상태 그대로. 변경 없음.
 
-### A-01 · 자산 목록 API — P1
+### A-01 · 자산 목록 API — P1 — **완료** (API + 5a 화면. 5c는 A-02 대기로 범위 밖)
 현재 `backend/app/api/v1/assets.py`에는 `POST /uploads`와 `GET /files/{asset_id}`만 있습니다. 화면 `5a` `5c`가 요구하는 목록 조회가 없습니다. `assets` 테이블은 이미 `asset_type` `size_bytes` `metadata_json` `created_at`을 갖고 있어 **마이그레이션 불필요**합니다.
 
-- [ ] `GET /api/assets` 추가 — 쿼리 `type` `workflowId` `from` `to` `page` `pageSize`, 권한 `history:read`
-- [ ] 응답에 연결된 taskId와 output_role(final/segment)을 포함 (`task_output_assets` 조인)
-- [ ] 프론트 자산 화면 구현
+- [x] `GET /api/assets` 추가 — 쿼리 `type` `workflowId` `from` `to` `page` `pageSize`, 권한 `history:read` — *history(D-03)와 동일하게 DB 전용으로 구현(`task_tracking_service.list_assets`/`assets_total`). 운영은 항상 `PERSISTENCE_BACKEND=db`라 repository 추상화를 통하지 않아도 실사용과 어긋나지 않음. `from`은 파이썬 예약어라 쿼리 파라미터명은 `from` 그대로 두고 `Query(alias="from")`로 받음.*
+- [x] 응답에 연결된 taskId와 output_role(final/segment)을 포함 (`task_output_assets` 조인) — *`asset_id`당 최신 `TaskOutputAsset` 링크 1건을 조인. 아직 어떤 작업 출력에도 연결되지 않은 자산(업로드만 된 입력 이미지 등)은 `taskId`/`outputRole`이 빈 값으로 내려감 — `Create5aScreen`이 이 경우 "미연결"로 표기.*
+- [x] 프론트 자산 화면 구현 — *`Create5aScreen`(5a) 구현. 설계의 컬렉션·태그·공개범위(PRIVATE/SHARED)·저장용량 바는 대응 백엔드가 전혀 없어(A-02 미착수, `assets` 테이블에 해당 컬럼 없음) 화면에서 제외 — 코드 주석에 사유 명시.*
 
-완료 기준 — 자산 화면이 작업을 거치지 않고 직접 목록을 그린다.
+완료 기준 — 자산 화면이 작업을 거치지 않고 직접 목록을 그린다. — *백엔드 TestClient로 필터(`type`/`workflowId`)·페이지네이션·조인 결과 확인, 프론트는 `tsc -b`/`vite build` 클린 확인. 실 데이터 화면 스크린샷 검증은 미실시.*
 
 ### A-02 · 컬렉션 — P2
 `collection` 관련 코드가 저장소에 전무합니다.
@@ -246,11 +246,12 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `2c` 진행 — 상태 인포그래픽 + 로그 + 취소 요청(Cancelling) 상태(C-02) — *커밋 `851dac4`.*
 - [x] `2d` 결과 — Final 병합본과 구간 검수본 — *커밋 `851dac4`.*
 
-### E-03 · `3 Review` 흐름 — P1 — **부분 완료** (커밋 `9e6e7f8` 및 금번 세션 미커밋분)
+### E-03 · `3 Review` 흐름 — P1 — **`5c` 제외 완료** (커밋 `9e6e7f8` 및 금번 세션 미커밋분)
 - [x] `3a` 작업 이력 — **B-01 페이지네이션 로직(20/50, 총 건수·범위 표시) 재사용**, 삭제(C-03) 포함 — *커밋 `9e6e7f8`.*
 - [x] `3f`/`3c` Run 상세 — **B-02 평가 로직(task_prompts/prompt_feedback 역할 분리) 재사용**(C-04) — *`Create3RunDetailScreen`으로 완료/실패 화면 통합 구현, 평가 카드는 `V3PromptReviewGroup`으로 분리. 아직 커밋 전(다음 커밋에 포함 예정).*
 - [x] `4c` 프롬프트 재사용 (C-05) — *`Create4cScreen` 구현. 아직 커밋 전(다음 커밋에 포함 예정).*
-- [ ] `5a`/`5c` 자산·컬렉션 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *미착수.*
+- [x] `5a` 자산 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *A-01 API·화면 모두 완료(`Create5aScreen`). 아직 커밋 전.*
+- [ ] `5c` 컬렉션 — *의도적으로 범위 밖. A-02(컬렉션 테이블·API)가 저장소에 전혀 없어(`collections`/`collection_items` 마이그레이션 없음, `GET/POST /api/collections` 없음) 화면을 만들면 전부 가짜 데이터가 됨 — 원칙 위반이라 보류. A-02 착수 후 재개.*
 
 ### E-04 · `4 Admin` 흐름 — P1
 - [ ] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능
@@ -282,7 +283,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 1. ~~**S-01 · D-03 · D-02 · D-01**~~ — **완료.** 코드 정렬과 정리, 다른 작업의 토대.
 2. ~~**B-06**~~ — **완료(1~3단계, 4단계 컬럼 정리까지).** 카탈로그 관련 화면 전부가 여기에 막혀 있었으나 이제 해제됨.
 3. ~~**B-02 · B-03 · B-01 · B-04**~~ — **완료.** 로직은 끝났고 화면은 E 절에서 이관.
-4. ~~**E-00 → E-01 → E-02**~~ — **완료.** E-03은 `5a`/`5c`(A-01 대기) 제외 완료. 다음은 **E-04 → E-05 → E-06**. C-01~C-12는 이 단계에 흡수됨.
+4. ~~**E-00 → E-01 → E-02 → E-03**~~ — **완료 (`5c`만 A-02 대기로 제외).** 다음은 **E-04 → E-05 → E-06**. C-01~C-12는 이 단계에 흡수됨.
 5. **A-01 → A-04 → B-05** — 신규 개발.
 6. **A-02 · A-03 · A-06 · B-08** — 후순위.
 
