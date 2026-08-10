@@ -258,7 +258,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [ ] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능. 기존 `PromptCatalogAdminContent`(main.tsx) 로직 재사용, 화면 2개로 분리 예정.
 - [ ] `4b` Negative 기본값 — *기존 admin UI 자체가 없음(신규 설계 필요). 4e/3d 완료 후 그 용어 선택 컴포넌트를 재사용해 진행 예정.*
 - [x] `7a` 시스템 프롬프트 (C-06) — *`Create7aScreen` 구현. `SystemPromptEditor`/2b의 systemPrompt 패널과 완전히 같은 상태(`promptSystemPrompt`/`promptSystemPromptText`)를 공유 — 어느 화면에서 고쳐도 같은 전역 레코드(`prompt_system_prompts`)에 반영됨(B-08 미착수라 버전 이력은 없음).*
-- [ ] `4d`/`4a` 워크플로 정의 — 기존 `AdminConsoleModal` Workflows 탭 로직(등록/활성화/비활성화) 재사용 예정.
+- [x] `4d`/`4a` 워크플로 정의 — *`Create4aScreen`(목록/상세/활성화)·`Create4dScreen`(등록 폼)으로 분리 구현. 구버전 `AdminConsoleModal` Workflows 탭의 상태(`workflowForm` 등)와 로직(`saveWorkflow`/`loadWorkflowFile`/`setWorkflowActive`)을 이름만 바꿔(`adminWorkflow*`) `StudioShell` 레벨로 옮겼다 — 4a↔4d를 오갈 때 같은 목록을 다시 부르지 않기 위해서다. 4a 사이드바의 "백업 이력"은 A-04 미착수라 제외(등록/수정 단일 시각만 표시).*
 - [x] `6d` 메타데이터 (C-12) — *`Create6dScreen` + `renderMetadataTabV3` 구현. 구버전 `renderMetadataTab`과 데이터 로직은 동일하고 마크업만 v3 카드로 새로 짬. 구버전 `metadataModalOpen` 오픈 로직은 이제 항상 false로 죽은 코드(E-06 정리 대상, `MetadataModal`/`renderMetadataTab`/`ConfigRow` 포함).*
 - [x] `3b` 역할×권한 매트릭스 — *`Create3bScreen` 구현. 구버전 `AdminConsoleModal` Permissions 탭의 역할 목록·권한 토글·저장 로직(`toggleRolePermission`/`saveRolePermissions`)을 화면 자체의 독립 상태로 옮김.*
 - [x] `7b` 기능 리소스 매핑 (C-07) — D-01의 "SCREEN 행 만들지 않음" 반영. — *`Create7bScreen`으로 3b와 분리 구현(설계 문서가 둘을 별도 화면 id로 나눠서). 두 화면은 `GET /api/admin/permissions`를 각자 독립적으로 호출한다(데이터가 작아 상태 공유의 이점이 없음). D-01 결정대로 reports/configs는 표에 없음(애초에 리소스 카탈로그에 없어 별도 조치 불필요).*

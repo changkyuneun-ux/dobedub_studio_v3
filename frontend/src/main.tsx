@@ -124,6 +124,8 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "admin.sandbox": "sandbox:read",
   "admin.roles": "roles:read",
   "admin.resourceMap": "roles:read",
+  "admin.workflows": "workflows:read",
+  "admin.workflowRegister": "workflows:write",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -171,6 +173,8 @@ function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
     onGoTo("admin.sandbox");
   } else if (key === "adminRoles") {
     onGoTo("admin.roles");
+  } else if (key === "adminWorkflows") {
+    onGoTo("admin.workflows");
   } else {
     onGoTo("admin.console");
   }
@@ -183,6 +187,8 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "admin.sandbox": "Sandbox Pod",
   "admin.roles": "역할 & 권한",
   "admin.resourceMap": "기능 리소스 매핑",
+  "admin.workflows": "워크플로 정의",
+  "admin.workflowRegister": "워크플로 등록",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -3105,6 +3111,177 @@ function Create7bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRo
   );
 }
 
+// E-04 · 4a "워크플로 정의" 목록/조회/활성화 — 구버전 AdminConsoleModal Workflows
+// 탭의 목록·상세·활성화 로직을 그대로 옮겼다(등록 폼은 4d로 분리). 상태는
+// StudioShell에 있다(adminWorkflowItems 등) - 4a↔4d를 오갈 때 같은 목록을
+// 다시 불러오지 않고 유지하기 위해서다.
+//
+// 설계 원본과 다르게 뺀 것 — "백업 이력"(4a 사이드바의 워크플로별 변경/백업 기록)은
+// A-04(감사 로그) 미착수라 대응 데이터가 없다. `registeredAt`/`updatedAt` 단일
+// 시각만 있고 이력 목록이 아니므로, 상세 카드에 그 두 필드만 보여주고 "이력" 자체는
+// 그리지 않는다.
+function Create4aScreen({
+  user,
+  onGoTo,
+  items,
+  selectedWorkflowId,
+  loading,
+  notice,
+  onSelect,
+  onNewWorkflow,
+  onActivate,
+  onDeactivate
+}: {
+  user: User;
+  onGoTo: (route: StudioRoute) => void;
+  items: AdminWorkflow[];
+  selectedWorkflowId: string;
+  loading: boolean;
+  notice: string;
+  onSelect: (workflowId: string) => void;
+  onNewWorkflow: () => void;
+  onActivate: (workflowId: string) => void;
+  onDeactivate: (workflowId: string) => void;
+}) {
+  const selected = items.find((item) => item.id === selectedWorkflowId) || null;
+  const canWrite = canUse(user, "workflows:write");
+  const canActivate = canUse(user, "workflows:activate");
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminWorkflows"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 워크플로 정의"
+      headerTitle={`워크플로 ${items.length}개`}
+      headerActions={canWrite ? <button className="v3-primary-button" type="button" onClick={onNewWorkflow}>New Workflow</button> : undefined}
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          {items.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`v3-segment-nav-item ${selectedWorkflowId === item.id ? "is-active" : ""}`}
+              onClick={() => onSelect(item.id)}
+            >
+              <div className="v3-segment-nav-head"><span>{item.label || item.name || item.id}</span><span className={`v3-status-badge ${item.active ? "is-ready" : "is-pending"}`}>{item.active ? "ACTIVE" : "INACTIVE"}</span></div>
+            </button>
+          ))}
+        </div>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {selected ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">워크플로 상세</div>
+            <span className={`v3-status-badge ${selected.active ? "is-ready" : "is-pending"}`}>{selected.active ? "ACTIVE" : "INACTIVE"}</span>
+          </div>
+          <div className="v3-summary-card" style={{ padding: 16 }}>
+            <div className="v3-summary-row"><span>Workflow ID</span><strong>{selected.id}</strong></div>
+            <div className="v3-summary-row"><span>Name</span><strong>{selected.label || selected.name || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Mode</span><strong>{selected.mode || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Input Images</span><strong>{selected.keyframeCount || 0}</strong></div>
+            <div className="v3-summary-row"><span>Subgraphs</span><strong>{selected.segmentCount || 0}</strong></div>
+            <div className="v3-summary-row"><span>Workflow File</span><strong>{selected.fileExists ? "EXISTS" : "MISSING"}</strong></div>
+            <div className="v3-summary-row"><span>Param Config</span><strong>{selected.paramConfigExists ? "EXISTS" : "MISSING"}</strong></div>
+            <div className="v3-summary-row"><span>Param Config Source</span><strong>{selected.paramConfigGenerated ? "AUTO-GENERATED" : selected.paramConfigExists ? "UPLOADED / EXISTING" : "-"}</strong></div>
+            <div className="v3-summary-row"><span>Metadata</span><strong>{selected.metadataExists ? `READY · ${selected.metadataNodeCount ?? "-"} nodes · ${selected.metadataSubgraphCount ?? "-"} subgraphs` : "MISSING"}</strong></div>
+            <div className="v3-summary-row"><span>Description</span><strong>{selected.description || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Registered At</span><strong>{selected.registeredAt || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Updated At</span><strong>{selected.updatedAt || "-"}</strong></div>
+          </div>
+          <div className="v3-inline-actions" style={{ padding: "0 16px 16px" }}>
+            {canActivate ? <button className="v3-primary-button" type="button" disabled={loading || selected.active} onClick={() => onActivate(selected.id)}>Activate</button> : null}
+            {canActivate ? <button className="v3-secondary-button" type="button" disabled={loading || !selected.active} onClick={() => onDeactivate(selected.id)}>Deactivate</button> : null}
+            {canWrite ? <button className="v3-secondary-button" type="button" onClick={onNewWorkflow}>New Workflow</button> : null}
+          </div>
+        </div>
+      ) : (
+        <p className="v3-muted-text">{loading ? "불러오는 중입니다..." : "왼쪽에서 워크플로를 선택하거나 새로 등록하세요."}</p>
+      )}
+    </AppShell>
+  );
+}
+
+// E-04 · 4d "워크플로 등록/갱신" — 구버전 AdminConsoleModal Workflows 탭에서
+// selectedAdminWorkflow가 없을 때(New Workflow) 보여주던 폼과 동일한 로직이다.
+// 저장 성공 시 4a로 돌아간다(onSave가 StudioShell에서 onNavigate("admin.workflows")까지
+// 처리).
+function Create4dScreen({
+  user,
+  onGoTo,
+  form,
+  loading,
+  notice,
+  onFieldChange,
+  onLoadFile,
+  onSave
+}: {
+  user: User;
+  onGoTo: (route: StudioRoute) => void;
+  form: Record<string, string>;
+  loading: boolean;
+  notice: string;
+  onFieldChange: (field: "workflowId" | "description", value: string) => void;
+  onLoadFile: (event: React.ChangeEvent<HTMLInputElement>, target: "workflowJson" | "paramConfigJson") => void;
+  onSave: () => void;
+}) {
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminWorkflows"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 워크플로 정의"
+      headerTitle="워크플로 등록"
+      headerActions={<button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.workflows")}>목록으로</button>}
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">Load &amp; Save</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: 16 }}>
+          <div className="v3-reuse-grid">
+            <label className="v3-checklist-item" style={{ display: "block", cursor: "pointer" }}>
+              <div>Workflow JSON 불러오기</div>
+              <input type="file" accept="application/json,.json" style={{ marginTop: 6 }} onChange={(event) => onLoadFile(event, "workflowJson")} />
+              <div className="v3-muted-text" style={{ marginTop: 6 }}>{form.workflowJson ? form.workflowId || "loaded workflow" : "파일 선택"}</div>
+            </label>
+            <label className="v3-checklist-item" style={{ display: "block", cursor: "pointer" }}>
+              <div>Param Config JSON 불러오기</div>
+              <input type="file" accept="application/json,.json" style={{ marginTop: 6 }} onChange={(event) => onLoadFile(event, "paramConfigJson")} />
+              <div className="v3-muted-text" style={{ marginTop: 6 }}>{form.paramConfigJson ? "loaded/generated param config" : "비우면 자동 생성"}</div>
+            </label>
+          </div>
+          <label className="v3-checklist-item" style={{ display: "block" }}>
+            Workflow ID
+            <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={form.workflowId} placeholder="new-workflow.json" onChange={(event) => onFieldChange("workflowId", event.target.value)} />
+          </label>
+          <label className="v3-checklist-item" style={{ display: "block" }}>
+            Description
+            <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={form.description} onChange={(event) => onFieldChange("description", event.target.value)} />
+          </label>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>Workflow JSON</span><strong>{form.workflowJson ? "LOADED" : "NOT LOADED"}</strong></div>
+            <div className="v3-summary-row"><span>Param Config JSON</span><strong>{form.paramConfigJson ? "LOADED" : "AUTO-GENERATE ON SAVE"}</strong></div>
+            <div className="v3-summary-row"><span>Segment Defaults</span><strong>저장 시 자동 생성/갱신</strong></div>
+            <div className="v3-summary-row"><span>Metadata</span><strong>저장 시 자동 갱신</strong></div>
+          </div>
+          <details className="v3-checklist-item">
+            <summary style={{ cursor: "pointer" }}>Loaded JSON Preview</summary>
+            <pre className="v3-payload-json">{form.workflowJson || "Workflow JSON 파일을 불러오세요."}</pre>
+          </details>
+          <div className="v3-inline-actions">
+            <button className="v3-primary-button" type="button" disabled={loading || !canUse(user, "workflows:write") || !form.workflowId || !form.workflowJson} onClick={onSave}>Save Workflow</button>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -3138,6 +3315,20 @@ function StudioShell({
   const [assetsNotice, setAssetsNotice] = useState("");
   const [assetsTypeFilter, setAssetsTypeFilter] = useState("");
   const [selectedAssetId, setSelectedAssetId] = useState("");
+  // E-04(4a/4d): 구버전 AdminConsoleModal Workflows 탭의 상태를 그대로 옮겨왔다.
+  // Create flow가 쓰는 `workflows`(WorkflowItem[], apiClient.workflows())와는 다른
+  // 관리자 전용 목록(AdminWorkflow[], apiClient.adminWorkflows() - active/
+  // fileExists/paramConfigExists 등 관리 필드 포함)이라 이름을 분리했다.
+  const [adminWorkflowItems, setAdminWorkflowItems] = useState<AdminWorkflow[]>([]);
+  const [selectedAdminWorkflowId, setSelectedAdminWorkflowId] = useState("");
+  const [adminWorkflowForm, setAdminWorkflowForm] = useState<Record<string, string>>({
+    workflowId: "",
+    description: "",
+    workflowJson: "",
+    paramConfigJson: ""
+  });
+  const [adminWorkflowsLoading, setAdminWorkflowsLoading] = useState(false);
+  const [adminWorkflowsNotice, setAdminWorkflowsNotice] = useState("");
   const [modalNotice, setModalNotice] = useState("");
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatusResponse | null>(null);
@@ -3757,6 +3948,102 @@ function StudioShell({
     setSelectedWorkflow(defaultWorkflow?.id || "");
   }
 
+  async function loadAdminWorkflows() {
+    setAdminWorkflowsLoading(true);
+    setAdminWorkflowsNotice("");
+    try {
+      const response = await apiClient.adminWorkflows();
+      const items = response.items || [];
+      setAdminWorkflowItems(items);
+      setSelectedAdminWorkflowId((current) => (current && items.some((item) => item.id === current)) ? current : items[0]?.id || "");
+    } catch (error) {
+      setAdminWorkflowsNotice(error instanceof Error ? error.message : "워크플로 목록을 불러오지 못했습니다.");
+    } finally {
+      setAdminWorkflowsLoading(false);
+    }
+  }
+
+  async function saveAdminWorkflow() {
+    setAdminWorkflowsLoading(true);
+    setAdminWorkflowsNotice("");
+    try {
+      const workflowJson = JSON.parse(adminWorkflowForm.workflowJson || "{}");
+      const paramConfigJson = adminWorkflowForm.paramConfigJson.trim() ? JSON.parse(adminWorkflowForm.paramConfigJson) : undefined;
+      const response = await apiClient.registerAdminWorkflow({
+        workflowId: adminWorkflowForm.workflowId,
+        description: adminWorkflowForm.description,
+        workflowJson,
+        paramConfigJson,
+        active: false
+      });
+      setAdminWorkflowItems(response.items || []);
+      const savedWorkflowId = response.registeredWorkflowId || (adminWorkflowForm.workflowId.endsWith(".json") ? adminWorkflowForm.workflowId : `${adminWorkflowForm.workflowId}.json`);
+      setSelectedAdminWorkflowId(savedWorkflowId);
+      if (response.paramConfigJson) {
+        setAdminWorkflowForm((current) => ({
+          ...current,
+          workflowId: savedWorkflowId,
+          paramConfigJson: JSON.stringify(response.paramConfigJson, null, 2)
+        }));
+      }
+      setAdminWorkflowsNotice(response.paramConfigGenerated
+        ? "워크플로우를 등록하고 Param Config, 세그먼트 기본값, Metadata를 자동 갱신했습니다."
+        : "워크플로우를 등록하고 세그먼트 기본값과 Metadata를 갱신했습니다. 검토 후 활성화하세요.");
+      void loadWorkflows();
+      onNavigate("admin.workflows");
+    } catch (error) {
+      setAdminWorkflowsNotice(error instanceof Error ? error.message : "Workflow register failed");
+    } finally {
+      setAdminWorkflowsLoading(false);
+    }
+  }
+
+  async function loadAdminWorkflowFile(event: React.ChangeEvent<HTMLInputElement>, target: "workflowJson" | "paramConfigJson") {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+    setAdminWorkflowsNotice("");
+    try {
+      const text = await file.text();
+      JSON.parse(text);
+      setAdminWorkflowForm((current) => ({
+        ...current,
+        workflowId: target === "workflowJson" && !current.workflowId ? file.name : current.workflowId,
+        [target]: text
+      }));
+      setSelectedAdminWorkflowId("");
+      setAdminWorkflowsNotice(target === "workflowJson" ? "워크플로우 JSON을 불러왔습니다. 내용을 확인 후 저장하세요." : "Param Config JSON을 불러왔습니다.");
+    } catch (error) {
+      setAdminWorkflowsNotice(error instanceof Error ? error.message : "JSON file load failed");
+    }
+  }
+
+  function startNewAdminWorkflowRegistration() {
+    setSelectedAdminWorkflowId("");
+    setAdminWorkflowForm({ workflowId: "", description: "", workflowJson: "", paramConfigJson: "" });
+    setAdminWorkflowsNotice("워크플로우 JSON 파일을 불러온 뒤 저장하세요.");
+    onNavigate("admin.workflowRegister");
+  }
+
+  async function setAdminWorkflowActive(workflowId: string, active: boolean) {
+    setAdminWorkflowsLoading(true);
+    setAdminWorkflowsNotice("");
+    try {
+      const response = active
+        ? await apiClient.activateAdminWorkflow(workflowId)
+        : await apiClient.deactivateAdminWorkflow(workflowId);
+      setAdminWorkflowItems(response.items || []);
+      setAdminWorkflowsNotice(active ? "워크플로우를 활성화했습니다." : "워크플로우를 비활성화했습니다.");
+      void loadWorkflows(active ? workflowId : undefined);
+    } catch (error) {
+      setAdminWorkflowsNotice(error instanceof Error ? error.message : "Workflow status update failed");
+    } finally {
+      setAdminWorkflowsLoading(false);
+    }
+  }
+
   useEffect(() => {
     let active = true;
     Promise.all([apiClient.workflows(), apiClient.history(1, historyPageSize)])
@@ -3838,6 +4125,9 @@ function StudioShell({
     if (route === "admin.systemPrompt" && !promptSystemPrompt) {
       void loadPromptSystemPrompt();
     }
+    if (route === "admin.workflows" && !adminWorkflowItems.length) {
+      void loadAdminWorkflows();
+    }
     if (route === "admin.status") {
       void loadSystemStatus();
     }
@@ -3852,7 +4142,7 @@ function StudioShell({
       setMetadataWorkflowId(workflowId);
       void loadMetadata(workflowId);
     }
-  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt]);
+  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt, adminWorkflowItems.length]);
 
   // E-02 · 2c → 2d: generateVideo()는 create.confirm(2f)의 onRun에서 호출되고
   // 완료(성공/실패/취소)까지 내부적으로 기다린다(pollJob). running이 false로
@@ -4546,6 +4836,30 @@ function StudioShell({
       <Create3bScreen user={user} onGoTo={onNavigate} />
     ) : route === "admin.resourceMap" ? (
       <Create7bScreen user={user} onGoTo={onNavigate} />
+    ) : route === "admin.workflows" ? (
+      <Create4aScreen
+        user={user}
+        onGoTo={onNavigate}
+        items={adminWorkflowItems}
+        selectedWorkflowId={selectedAdminWorkflowId}
+        loading={adminWorkflowsLoading}
+        notice={adminWorkflowsNotice}
+        onSelect={setSelectedAdminWorkflowId}
+        onNewWorkflow={startNewAdminWorkflowRegistration}
+        onActivate={(workflowId) => void setAdminWorkflowActive(workflowId, true)}
+        onDeactivate={(workflowId) => void setAdminWorkflowActive(workflowId, false)}
+      />
+    ) : route === "admin.workflowRegister" ? (
+      <Create4dScreen
+        user={user}
+        onGoTo={onNavigate}
+        form={adminWorkflowForm}
+        loading={adminWorkflowsLoading}
+        notice={adminWorkflowsNotice}
+        onFieldChange={(field, value) => setAdminWorkflowForm((current) => ({ ...current, [field]: value }))}
+        onLoadFile={(event, target) => void loadAdminWorkflowFile(event, target)}
+        onSave={() => void saveAdminWorkflow()}
+      />
     ) : (
     <main className="studio-grid">
       <aside className="sidebar">

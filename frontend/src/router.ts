@@ -39,6 +39,9 @@
 //   admin.resourceMap  — 7b 기능 리소스 매핑 (신규 구현, E-04). 3b와 같은
 //                       PermissionGovernance 데이터를 공유하지만, 원본 구버전
 //                       탭 안에 같이 있던 것을 설계 문서 화면 구분대로 분리했다.
+//   admin.workflows      — 4a 워크플로 정의 목록/조회/활성화 (신규 구현, E-04).
+//   admin.workflowRegister — 4d 워크플로 등록/갱신 단일 저장 폼 (신규 구현, E-04).
+//                       "워크플로 정의" Admin 사이드바 그룹 소속.
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -60,6 +63,8 @@ export type StudioRoute =
   | "admin.sandbox"
   | "admin.roles"
   | "admin.resourceMap"
+  | "admin.workflows"
+  | "admin.workflowRegister"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -95,6 +100,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.sandbox": "/studio/admin/sandbox",
   "admin.roles": "/studio/admin/roles",
   "admin.resourceMap": "/studio/admin/resource-map",
+  "admin.workflows": "/studio/admin/workflows",
+  "admin.workflowRegister": "/studio/admin/workflows/register",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"
