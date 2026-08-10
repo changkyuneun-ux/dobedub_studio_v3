@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
-from backend.app.db.models import Asset, TaskInputAsset, TaskOutputAsset, TaskPrompt, User, WorkflowTask
+from backend.app.db.models import Asset, PromptFeedback, TaskInputAsset, TaskOutputAsset, TaskPrompt, User, WorkflowTask
 from backend.app.db.session import SessionLocal
 from backend.app.services.json_repository import hydrate_input_images, hydrate_output_asset
 
@@ -161,7 +161,8 @@ def task_prompts(task_id: str) -> list[dict]:
             .order_by(TaskPrompt.segment_index, TaskPrompt.id)
         ).all()
         assets_by_id = _assets_by_id(session)
-        return [_task_prompt_to_json(row, assets_by_id) for row in rows]
+        feedback_by_output_id = _prompt_feedback_by_output_id(session, [row.prompt_generation_output_id for row in rows])
+        return [_task_prompt_to_json(row, assets_by_id, feedback_by_output_id) for row in rows]
     finally:
         session.close()
 
@@ -182,7 +183,8 @@ def update_task_prompt_quality(task_id: str, segment_index: int, payload: dict) 
         row.quality_comment = str(payload.get("qualityComment") or payload.get("comment") or "").strip() or None
         row.updated_at = datetime.utcnow()
         session.commit()
-        return _task_prompt_to_json(row)
+        feedback_by_output_id = _prompt_feedback_by_output_id(session, [row.prompt_generation_output_id])
+        return _task_prompt_to_json(row, feedback_by_output_id=feedback_by_output_id)
     except Exception:
         session.rollback()
         raise
@@ -203,7 +205,8 @@ def update_task_prompt_review(task_id: str, segment_index: int, payload: dict) -
             raise KeyError(f"{task_id}:{segment_index}")
         _apply_prompt_review(row, payload)
         session.commit()
-        return _task_prompt_to_json(row, _assets_by_id(session))
+        feedback_by_output_id = _prompt_feedback_by_output_id(session, [row.prompt_generation_output_id])
+        return _task_prompt_to_json(row, _assets_by_id(session), feedback_by_output_id)
     except Exception:
         session.rollback()
         raise
@@ -249,7 +252,8 @@ def reusable_task_prompts(
         fetch_limit = 200 if cleaned_keyword else max(1, min(200, int(limit or 50)))
         rows = session.scalars(query.limit(fetch_limit)).all()
         assets_by_id = _assets_by_id(session)
-        items = [_task_prompt_to_json(row, assets_by_id) for row in rows]
+        feedback_by_output_id = _prompt_feedback_by_output_id(session, [row.prompt_generation_output_id for row in rows])
+        items = [_task_prompt_to_json(row, assets_by_id, feedback_by_output_id) for row in rows]
         if cleaned_keyword:
             items = [item for item in items if _reusable_prompt_matches_keyword(item, cleaned_keyword)]
         return items[:max(1, min(200, int(limit or 50)))]
@@ -633,6 +637,36 @@ def _assets_by_id(session: Session) -> dict[str, dict]:
     return {_asset.id: _asset_to_json(_asset) for _asset in session.scalars(select(Asset)).all()}
 
 
+def _prompt_feedback_by_output_id(session: Session, output_ids: list[str | None]) -> dict[str, PromptFeedback]:
+    """B-02: `prompt_feedback`("프롬프트 생성 품질" 평가, `task_prompts.quality_rating`
+    ("영상 결과 평가")과는 역할이 분리된 별도 저장소)에서 이 배치의 `prompt_generation_output_id`들에
+    연결된 기존 평가를 한 번에 읽어온다 - `_assets_by_id`와 동일하게 N+1 쿼리를 피하기 위한
+    배치 조회. 같은 output에 대해 평가가 여러 번 저장될 수 있어(재평가), created_at 오름차순으로
+    가져와 나중 값으로 덮어써 가장 최신 평가만 남긴다."""
+    cleaned_ids = sorted({output_id for output_id in output_ids if output_id})
+    if not cleaned_ids:
+        return {}
+    rows = session.scalars(
+        select(PromptFeedback)
+        .where(PromptFeedback.output_id.in_(cleaned_ids))
+        .order_by(PromptFeedback.created_at.asc(), PromptFeedback.id.asc())
+    ).all()
+    return {row.output_id: row for row in rows}
+
+
+def _prompt_feedback_to_json(feedback: PromptFeedback | None) -> dict | None:
+    if not feedback:
+        return None
+    return {
+        "id": feedback.id,
+        "rating": feedback.rating,
+        "notes": feedback.notes,
+        "editedPositivePrompt": feedback.edited_positive_prompt,
+        "editedNegativePrompt": feedback.edited_negative_prompt,
+        "createdAt": feedback.created_at.isoformat() if feedback.created_at else None,
+    }
+
+
 def _asset_to_json(asset: Asset) -> dict:
     item = dict(asset.metadata_json or {})
     item.update({
@@ -670,7 +704,11 @@ def _format_datetime(value: datetime | None) -> str:
     return (value or datetime.utcnow()).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def _task_prompt_to_json(row: TaskPrompt, assets_by_id: dict[str, dict] | None = None) -> dict:
+def _task_prompt_to_json(
+    row: TaskPrompt,
+    assets_by_id: dict[str, dict] | None = None,
+    feedback_by_output_id: dict[str, PromptFeedback] | None = None,
+) -> dict:
     input_ids = row.input_asset_ids or []
     output_ids = row.output_asset_ids or []
     return {
@@ -681,6 +719,11 @@ def _task_prompt_to_json(row: TaskPrompt, assets_by_id: dict[str, dict] | None =
         "modelProfileId": row.model_profile_id,
         "modelName": row.model_name,
         "promptGenerationOutputId": row.prompt_generation_output_id,
+        # B-02: task_prompts의 quality_rating/reviewFlags 등은 "영상 결과 평가"
+        # 전용이다. "프롬프트 생성 품질" 평가는 prompt_feedback에 별도로 저장되며,
+        # 여기서는 그 최신 값을 읽기 전용으로 함께 내려 화면(3f)이 "이미 평가함"
+        # 상태를 표시할 수 있게 한다 - 저장은 반드시 POST /api/prompts/feedback로만.
+        "promptFeedback": _prompt_feedback_to_json((feedback_by_output_id or {}).get(row.prompt_generation_output_id)),
         "positivePrompt": row.positive_prompt,
         "negativePrompt": row.negative_prompt,
         "inputAssetIds": input_ids,

@@ -464,6 +464,18 @@ export type TaskPromptReviewFlags = {
   backgroundStable?: boolean;
 };
 
+// B-02: task_prompts(quality_rating 등)는 "영상 결과 평가" 전용이고, 이 필드는
+// "프롬프트 생성 품질" 평가(prompt_feedback, 역할이 분리된 별도 저장소)의 최신 값을
+// 읽기 전용으로 담는다. 저장은 항상 apiClient.savePromptFeedback(POST /prompts/feedback)로만.
+export type TaskPromptFeedback = {
+  id: string;
+  rating?: number | null;
+  notes?: string | null;
+  editedPositivePrompt?: string | null;
+  editedNegativePrompt?: string | null;
+  createdAt?: string | null;
+};
+
 export type TaskPromptItem = {
   id: number;
   taskId: string;
@@ -472,6 +484,7 @@ export type TaskPromptItem = {
   modelProfileId?: string | null;
   modelName?: string | null;
   promptGenerationOutputId?: string | null;
+  promptFeedback?: TaskPromptFeedback | null;
   positivePrompt: string;
   negativePrompt: string;
   inputAssetIds?: string[];
@@ -681,13 +694,13 @@ export const apiClient = {
     }),
   savePromptFeedback: (payload: {
     outputId: string;
-    taskId?: string;
+    taskId: string;
     rating?: number;
     editedPositivePrompt?: string;
     editedNegativePrompt?: string;
     notes?: string;
   }) =>
-    requestJson<{ id: string; outputId: string; rating?: number }>("/api/prompts/feedback", {
+    requestJson<{ id: string; outputId: string; taskId: string; rating?: number }>("/api/prompts/feedback", {
       method: "POST",
       body: JSON.stringify(payload)
     }),

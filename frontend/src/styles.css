@@ -3013,6 +3013,13 @@ textarea {
   overflow: auto;
 }
 
+/* B-02: 세그먼트 하나가 두 카드(영상 결과 평가 · 프롬프트 생성 품질 평가)를 갖는다.
+   .detail-card의 10px gap 토큰을 그대로 재사용해 카드 사이 간격을 맞춘다. */
+.prompt-review-group {
+  display: grid;
+  gap: 10px;
+}
+
 .prompt-review-card {
   background: #0d131a;
   border: 1px solid #303741;

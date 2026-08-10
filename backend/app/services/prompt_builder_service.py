@@ -28,6 +28,7 @@ from backend.app.db.models import (
     PromptTerm,
     PromptTermRelation,
     PromptTermRendering,
+    WorkflowTask,
 )
 from backend.app.services.prompt_llm_client import generate_with_prompt_llm
 from backend.app.services.prompt_system_prompt_service import active_prompt_system_prompt_text
@@ -1493,17 +1494,35 @@ def generate_prompt(session: Session, payload: dict) -> dict:
 
 
 def save_prompt_feedback(session: Session, payload: dict) -> dict:
+    """B-02: 프롬프트 평가 이중 저장 정리. `task_prompts.quality_rating`(영상 결과 평가,
+    `/api/jobs/{id}/prompts/{n}/review`가 담당)과 이 함수가 쓰는 `prompt_feedback.rating`
+    (프롬프트 생성 품질 평가)은 역할이 고정되어 있다 - 이 함수는 후자만 담당하며 전자의
+    컬럼은 절대 건드리지 않는다. 화면도 `3f` Run 상세 한 곳에서만 이 API를 호출하도록
+    구현되어 있다(세그먼트 편집 화면인 PromptBuilderModal에는 평가 UI가 없다).
+
+    `taskId`를 필수로 받는 이유: prompt_feedback.task_id가 채워져 있어야 두 저장소의
+    기록이 연결된다(TASKS.md B-02 완료 기준). output_id만으로는 어떤 task_prompts 행과
+    짝인지 결정할 수 없다 - PromptGenerationOutput/Request는 workflow_task 생성 이전에도
+    만들어질 수 있고 workflow_id+segment_index만으로는 재실행 시 여러 workflow_tasks 행과
+    겹칠 수 있어 신뢰할 수 있는 join 키가 아니다. 그래서 taskId는 프론트(3f 화면에서 이미
+    알고 있는 selectedHistoryTaskId)가 명시적으로 보내야 한다.
+    """
     output_id = str(payload.get("outputId") or "").strip()
     if not output_id:
         raise ValueError("outputId is required")
     output = session.get(PromptGenerationOutput, output_id)
     if not output:
         raise ValueError(f"Prompt output not found: {output_id}")
+    task_id = str(payload.get("taskId") or "").strip()
+    if not task_id:
+        raise ValueError("taskId is required")
+    if not session.get(WorkflowTask, task_id):
+        raise ValueError(f"Task not found: {task_id}")
     rating = payload.get("rating")
     feedback = PromptFeedback(
         id=f"prompt_fb_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}",
         output_id=output_id,
-        task_id=payload.get("taskId"),
+        task_id=task_id,
         rating=int(rating) if rating not in {None, ""} else None,
         edited_positive_prompt=payload.get("editedPositivePrompt"),
         edited_negative_prompt=payload.get("editedNegativePrompt"),
@@ -1512,7 +1531,7 @@ def save_prompt_feedback(session: Session, payload: dict) -> dict:
     )
     session.add(feedback)
     session.commit()
-    return {"id": feedback.id, "outputId": feedback.output_id, "rating": feedback.rating}
+    return {"id": feedback.id, "outputId": feedback.output_id, "taskId": feedback.task_id, "rating": feedback.rating}
 
 
 def _rule_applies(condition: dict, constraints: dict) -> bool:

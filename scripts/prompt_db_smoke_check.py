@@ -617,8 +617,33 @@ def main() -> None:
         assert invalid_generate_response.status_code == 400
         assert "Scene JSON v1 validation failed" in invalid_generate_response.text
 
+        # B-02: prompt_feedback.taskId는 이제 필수다(2b/3f 두 기록을 연결하는
+        # 완료 기준) - 이 테스트는 job/run 흐름을 거치지 않으므로 최소한의
+        # WorkflowTask 행을 직접 만들어 그 id를 taskId로 사용한다.
+        from backend.app.db.models import WorkflowTask
+
+        with SessionLocal() as db:
+            db.add(WorkflowTask(id="smoke_test_task_1", workflow_id="1-images.json", status="COMPLETED"))
+            db.commit()
+
+        missing_task_response = client.post("/api/prompts/feedback", json={
+            "outputId": generated["outputId"],
+            "rating": 5,
+        })
+        assert missing_task_response.status_code == 400, missing_task_response.text
+        assert "taskId is required" in missing_task_response.text
+
+        unknown_task_response = client.post("/api/prompts/feedback", json={
+            "outputId": generated["outputId"],
+            "taskId": "does-not-exist",
+            "rating": 5,
+        })
+        assert unknown_task_response.status_code == 400, unknown_task_response.text
+        assert "Task not found" in unknown_task_response.text
+
         feedback_response = client.post("/api/prompts/feedback", json={
             "outputId": generated["outputId"],
+            "taskId": "smoke_test_task_1",
             "rating": 5,
             "editedPositivePrompt": generated["positivePrompt"],
             "editedNegativePrompt": generated["negativePrompt"],
@@ -626,6 +651,31 @@ def main() -> None:
         })
         assert feedback_response.status_code == 201, feedback_response.text
         assert feedback_response.json()["rating"] == 5
+        assert feedback_response.json()["taskId"] == "smoke_test_task_1"
+
+        # 완료 기준: task_prompts에 붙은 세그먼트를 GET /jobs/{taskId}/prompts로
+        # 조회하면 방금 저장한 prompt_feedback(프롬프트 생성 품질)이 함께 내려와야
+        # 한다 - "영상 결과 평가"(qualityRating)와 값이 섞이지 않는지도 같이 확인.
+        from backend.app.db.models import TaskPrompt
+
+        with SessionLocal() as db:
+            db.add(TaskPrompt(
+                task_id="smoke_test_task_1",
+                workflow_id="1-images.json",
+                segment_index=1,
+                prompt_generation_output_id=generated["outputId"],
+                positive_prompt=generated["positivePrompt"],
+                negative_prompt=generated["negativePrompt"],
+            ))
+            db.commit()
+
+        job_prompts_response = client.get("/api/jobs/smoke_test_task_1/prompts")
+        assert job_prompts_response.status_code == 200, job_prompts_response.text
+        job_prompt_items = job_prompts_response.json()["items"]
+        assert len(job_prompt_items) == 1
+        assert job_prompt_items[0]["promptFeedback"]["rating"] == 5
+        assert job_prompt_items[0]["promptFeedback"]["notes"] == "smoke test"
+        assert job_prompt_items[0]["qualityRating"] is None
 
     print("OK prompt db smoke check passed")
 

@@ -583,6 +583,33 @@ function StudioShell({
     }
   }
 
+  // B-02: task_prompts 기반 "영상 결과 평가"(savePromptReview, 위)와 역할이 분리된
+  // "프롬프트 생성 품질" 평가 저장 경로. 3f Run 상세 화면에서만 호출되며,
+  // prompt_feedback.taskId를 항상 채워 두 기록을 연결한다(완료 기준).
+  // 응답이 outputId 하나 기준의 부분 정보만 담고 있어(id/outputId/taskId/rating),
+  // 전체 목록 상태를 신뢰성 있게 갱신하려고 프롬프트 리뷰 전체를 재조회한다.
+  async function savePromptFeedback(outputId: string, payload: { rating?: number; notes?: string }) {
+    if (!selectedHistoryTaskId || !outputId) {
+      return;
+    }
+    setPromptReviewLoading(true);
+    setPromptReviewNotice("");
+    try {
+      await apiClient.savePromptFeedback({
+        outputId,
+        taskId: selectedHistoryTaskId,
+        rating: payload.rating,
+        notes: payload.notes
+      });
+      await loadPromptReview(selectedHistoryTaskId);
+      setPromptReviewNotice("프롬프트 생성 품질 평가를 저장했습니다.");
+    } catch (error) {
+      setPromptReviewNotice(error instanceof Error ? error.message : "프롬프트 생성 품질 평가 저장에 실패했습니다.");
+    } finally {
+      setPromptReviewLoading(false);
+    }
+  }
+
   async function openPromptReuse() {
     setPromptReuseOpen(true);
     setPromptReuseNotice("");
@@ -1671,9 +1698,11 @@ function StudioShell({
         onRework={(item) => void applyHistoryRework(item)}
         onDelete={setDeleteTarget}
         onSavePromptReview={(segmentIndex, payload) => void savePromptReview(segmentIndex, payload)}
+        onSavePromptFeedback={(outputId, payload) => void savePromptFeedback(outputId, payload)}
         canRework={canUse(user, "jobs:run")}
         canDelete={canUse(user, "history:delete")}
         canReview={canUse(user, "prompts:review")}
+        canGiveFeedback={canUse(user, "prompts:build")}
       />
     ) : null}
     {deleteTarget ? (
@@ -3850,9 +3879,11 @@ function HistoryModal({
   onRework,
   onDelete,
   onSavePromptReview,
+  onSavePromptFeedback,
   canRework,
   canDelete,
-  canReview
+  canReview,
+  canGiveFeedback
 }: {
   history: HistoryItem[];
   page: number;
@@ -3875,9 +3906,11 @@ function HistoryModal({
   onRework: (item: HistoryItem) => void;
   onDelete: (item: HistoryItem) => void;
   onSavePromptReview: (segmentIndex: number, payload: Record<string, unknown>) => void;
+  onSavePromptFeedback: (outputId: string, payload: { rating?: number; notes?: string }) => void;
   canRework: boolean;
   canDelete: boolean;
   canReview: boolean;
+  canGiveFeedback: boolean;
 }) {
   const pageStart = total ? (page - 1) * 10 + 1 : 0;
   const pageEnd = Math.min(total, page * 10);
@@ -3966,8 +3999,10 @@ function HistoryModal({
             onDownload={onDownload}
             onRework={onRework}
             onSavePromptReview={onSavePromptReview}
+            onSavePromptFeedback={onSavePromptFeedback}
             canRework={canRework}
             canReview={canReview}
+            canGiveFeedback={canGiveFeedback}
           />
         </div>
       </section>
@@ -4001,8 +4036,10 @@ function HistoryDetail({
   onDownload,
   onRework,
   onSavePromptReview,
+  onSavePromptFeedback,
   canRework,
-  canReview
+  canReview,
+  canGiveFeedback
 }: {
   item: HistoryItem | null;
   activeTab: "overview" | "images" | "config" | "video" | "review";
@@ -4013,8 +4050,10 @@ function HistoryDetail({
   onDownload: (item: HistoryItem) => void;
   onRework: (item: HistoryItem) => void;
   onSavePromptReview: (segmentIndex: number, payload: Record<string, unknown>) => void;
+  onSavePromptFeedback: (outputId: string, payload: { rating?: number; notes?: string }) => void;
   canRework: boolean;
   canReview: boolean;
+  canGiveFeedback: boolean;
 }) {
   const output = item ? historyOutputAsset(item) : null;
   const inputImages = item ? historyInputImages(item) : [];
@@ -4047,7 +4086,9 @@ function HistoryDetail({
           loading={promptReviewLoading}
           notice={promptReviewNotice}
           onSave={onSavePromptReview}
+          onSaveFeedback={onSavePromptFeedback}
           canReview={canReview}
+          canGiveFeedback={canGiveFeedback}
         />
       ) : activeTab === "images" ? (
         <div className="detail-card">
@@ -4115,13 +4156,17 @@ function PromptReviewPanel({
   loading,
   notice,
   onSave,
-  canReview
+  onSaveFeedback,
+  canReview,
+  canGiveFeedback
 }: {
   prompts: TaskPromptItem[];
   loading: boolean;
   notice: string;
   onSave: (segmentIndex: number, payload: Record<string, unknown>) => void;
+  onSaveFeedback: (outputId: string, payload: { rating?: number; notes?: string }) => void;
   canReview: boolean;
+  canGiveFeedback: boolean;
 }) {
   return (
     <div className="detail-card prompt-review-panel">
@@ -4133,7 +4178,10 @@ function PromptReviewPanel({
       {loading ? <p className="muted-text">작업 프롬프트 정보를 불러오는 중입니다.</p> : null}
       {!loading && !prompts.length ? <p className="muted-text">저장된 작업 프롬프트가 없습니다.</p> : null}
       {prompts.map((prompt) => (
-        <PromptReviewCard key={`${prompt.taskId}-${prompt.segmentIndex}`} prompt={prompt} loading={loading} onSave={onSave} canReview={canReview} />
+        <div className="prompt-review-group" key={`${prompt.taskId}-${prompt.segmentIndex}`}>
+          <PromptReviewCard prompt={prompt} loading={loading} onSave={onSave} canReview={canReview} />
+          <PromptFeedbackCard prompt={prompt} loading={loading} onSave={onSaveFeedback} canGiveFeedback={canGiveFeedback} />
+        </div>
       ))}
     </div>
   );
@@ -4227,6 +4275,80 @@ function PromptReviewCard({
       >
         Save Review
       </button>
+    </section>
+  );
+}
+
+// B-02: "프롬프트 생성 품질" 평가(prompt_feedback) 전용 카드. PromptReviewCard(위,
+// task_prompts 기반 "영상 결과 평가")와 역할을 분리해 별도로 저장한다 - 같은 화면(3f)
+// 안에서 두 평가가 섞이지 않도록 저장 버튼과 API 호출을 완전히 나눴다. 세그먼트 편집
+// 화면(PromptBuilderModal)에는 이 카드를 넣지 않는다(설계에서 의도적으로 제거된 부분).
+function PromptFeedbackCard({
+  prompt,
+  loading,
+  onSave,
+  canGiveFeedback
+}: {
+  prompt: TaskPromptItem;
+  loading: boolean;
+  onSave: (outputId: string, payload: { rating?: number; notes?: string }) => void;
+  canGiveFeedback: boolean;
+}) {
+  const existing = prompt.promptFeedback || null;
+  const [rating, setRating] = useState(String(existing?.rating || ""));
+  const [notes, setNotes] = useState(existing?.notes || "");
+
+  useEffect(() => {
+    setRating(String(existing?.rating || ""));
+    setNotes(existing?.notes || "");
+  }, [prompt.id, existing?.id, existing?.rating, existing?.notes]);
+
+  const outputId = prompt.promptGenerationOutputId;
+
+  return (
+    <section className="prompt-review-card prompt-feedback-card">
+      <div className="section-title">
+        <h4>프롬프트 생성 품질</h4>
+        <span>{existing ? `평가됨 · ${existing.rating ?? "-"}` : "미평가"}</span>
+      </div>
+      {!outputId ? (
+        <p className="muted-text">AI로 생성된 프롬프트가 아니라(직접 입력) 평가 대상이 없습니다.</p>
+      ) : (
+        <>
+          <div className="prompt-review-form">
+            <label>
+              <span>생성 품질</span>
+              <select value={rating} disabled={!canGiveFeedback} onChange={(event) => setRating(event.target.value)}>
+                <option value="">미평가</option>
+                <option value="5">5 - 매우 좋음</option>
+                <option value="4">4 - 좋음</option>
+                <option value="3">3 - 보통</option>
+                <option value="2">2 - 낮음</option>
+                <option value="1">1 - 부적합</option>
+              </select>
+            </label>
+          </div>
+          <label className="prompt-review-comment">
+            <span>코멘트</span>
+            <textarea
+              value={notes}
+              rows={2}
+              disabled={!canGiveFeedback}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="생성된 프롬프트 자체의 품질(관계 적용, 문구 정확도 등)에 대한 메모"
+            />
+          </label>
+          {!canGiveFeedback ? <p className="modal-notice">프롬프트 생성 품질 평가를 저장하려면 프롬프트 생성 권한이 필요합니다.</p> : null}
+          <button
+            className="primary-button"
+            type="button"
+            disabled={loading || !canGiveFeedback}
+            onClick={() => onSave(outputId, { rating: rating ? Number(rating) : undefined, notes: notes.trim() || undefined })}
+          >
+            프롬프트 품질 평가 저장
+          </button>
+        </>
+      )}
     </section>
   );
 }
