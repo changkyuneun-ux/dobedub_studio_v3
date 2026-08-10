@@ -39,9 +39,9 @@ def load_history() -> list[dict]:
     return task_history_items()
 
 
-def paginated_history(page: int = 1, page_size: int = 50) -> dict:
+def paginated_history(page: int = 1, page_size: int = 20) -> dict:
     page = max(1, int(page or 1))
-    page_size = max(1, min(200, int(page_size or 50)))
+    page_size = max(1, min(200, int(page_size or 20)))
     return {
         "items": task_history_items(page, page_size),
         "page": page,

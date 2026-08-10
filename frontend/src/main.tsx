@@ -446,6 +446,9 @@ function StudioShell({
   const [workflows, setWorkflows] = useState<WorkflowItem[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyPage, setHistoryPage] = useState(1);
+  // B-01: 백엔드 기본값(20)·설계(3a 페이지 20건)와 통일. 사용자가 20/50 중
+  // 고르면 이 값을 그대로 apiClient.history에 명시 전송한다.
+  const [historyPageSize, setHistoryPageSize] = useState<20 | 50>(20);
   const [historyTotal, setHistoryTotal] = useState(0);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -526,11 +529,11 @@ function StudioShell({
     return nextSchema;
   }
 
-  async function loadHistoryPage(page = historyPage) {
+  async function loadHistoryPage(page = historyPage, pageSize = historyPageSize) {
     setHistoryLoading(true);
     setModalNotice("");
     try {
-      const response = await apiClient.history(page, 10);
+      const response = await apiClient.history(page, pageSize);
       const items = response.items || [];
       setHistory(items);
       setHistoryPage(response.page || page);
@@ -546,6 +549,13 @@ function StudioShell({
     } finally {
       setHistoryLoading(false);
     }
+  }
+
+  // B-01: 페이지 크기를 바꾸면 현재 페이지 번호 기준이 달라지므로 1페이지로
+  // 되돌아가 새 크기로 다시 불러온다.
+  function changeHistoryPageSize(pageSize: 20 | 50) {
+    setHistoryPageSize(pageSize);
+    void loadHistoryPage(1, pageSize);
   }
 
   async function loadPromptReview(taskId: string) {
@@ -1024,7 +1034,7 @@ function StudioShell({
 
   useEffect(() => {
     let active = true;
-    Promise.all([apiClient.workflows(), apiClient.history(1, 10)])
+    Promise.all([apiClient.workflows(), apiClient.history(1, historyPageSize)])
       .then(([workflowResponse, historyResponse]) => {
         if (!active) {
           return;
@@ -1303,7 +1313,7 @@ function StudioShell({
     () => history.find((item) => item.taskId === selectedHistoryTaskId) || history[0] || null,
     [history, selectedHistoryTaskId]
   );
-  const historyPageCount = Math.max(1, Math.ceil(historyTotal / 10));
+  const historyPageCount = Math.max(1, Math.ceil(historyTotal / historyPageSize));
 
   async function copyPromptList(prompts: PromptEntry[] | undefined) {
     const text = formatPromptList(prompts);
@@ -1401,7 +1411,7 @@ function StudioShell({
         setNotice("작업이 완료되었습니다.");
         setOutputAssets(finalJob.outputAssets || []);
         setSegments((items) => items.map((segment) => ({ ...segment, progress: 100 })));
-        setHistory((await apiClient.history(1, 10)).items || []);
+        setHistory((await apiClient.history(1, historyPageSize)).items || []);
       } else if (finalJob.status === "cancelled") {
         setNotice("작업이 취소되었습니다.");
       } else {
@@ -1675,6 +1685,7 @@ function StudioShell({
         history={history}
         page={historyPage}
         pageCount={historyPageCount}
+        pageSize={historyPageSize}
         total={historyTotal}
         loading={historyLoading}
         selectedItem={selectedHistory}
@@ -1686,6 +1697,7 @@ function StudioShell({
         promptReviewNotice={promptReviewNotice}
         onClose={() => onNavigate("studio")}
         onPageChange={(page) => void loadHistoryPage(page)}
+        onPageSizeChange={changeHistoryPageSize}
         onSelect={(item) => {
           setSelectedHistoryTaskId(item.taskId);
           setHistoryTab("overview");
@@ -3864,6 +3876,7 @@ function HistoryModal({
   history,
   page,
   pageCount,
+  pageSize,
   total,
   loading,
   selectedItem,
@@ -3875,6 +3888,7 @@ function HistoryModal({
   promptReviewNotice,
   onClose,
   onPageChange,
+  onPageSizeChange,
   onSelect,
   onTabChange,
   onCopyPrompt,
@@ -3891,6 +3905,7 @@ function HistoryModal({
   history: HistoryItem[];
   page: number;
   pageCount: number;
+  pageSize: 20 | 50;
   total: number;
   loading: boolean;
   selectedItem: HistoryItem | null;
@@ -3902,6 +3917,7 @@ function HistoryModal({
   promptReviewNotice: string;
   onClose: () => void;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: 20 | 50) => void;
   onSelect: (item: HistoryItem) => void;
   onTabChange: (tab: "overview" | "images" | "config" | "video" | "review") => void;
   onCopyPrompt: (prompts: PromptEntry[] | undefined) => void;
@@ -3915,8 +3931,8 @@ function HistoryModal({
   canReview: boolean;
   canGiveFeedback: boolean;
 }) {
-  const pageStart = total ? (page - 1) * 10 + 1 : 0;
-  const pageEnd = Math.min(total, page * 10);
+  const pageStart = total ? (page - 1) * pageSize + 1 : 0;
+  const pageEnd = Math.min(total, page * pageSize);
 
   return (
     <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="historyTitle" onMouseDown={(event) => {
@@ -3949,7 +3965,7 @@ function HistoryModal({
               </thead>
               <tbody>
                 {history.map((item, index) => {
-                  const sequence = (page - 1) * 10 + index + 1;
+                  const sequence = (page - 1) * pageSize + index + 1;
                   const selected = item.taskId === selectedTaskId;
                   return (
                     <tr className={selected ? "is-selected" : ""} key={item.taskId} onClick={() => onSelect(item)}>
@@ -3975,20 +3991,33 @@ function HistoryModal({
             </table>
             <div className="history-pagination">
               <span>{pageStart}-{pageEnd} / {total}</span>
-              <div>
-                <button className="secondary-button" type="button" disabled={page <= 1 || loading} onClick={() => onPageChange(page - 1)}>Prev</button>
-                {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-                  <button
-                    className={`secondary-button ${pageNumber === page ? "is-active" : ""}`}
-                    key={pageNumber}
-                    type="button"
+              <div className="history-pagination-controls">
+                <div>
+                  <button className="secondary-button" type="button" disabled={page <= 1 || loading} onClick={() => onPageChange(page - 1)}>Prev</button>
+                  {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
+                    <button
+                      className={`secondary-button ${pageNumber === page ? "is-active" : ""}`}
+                      key={pageNumber}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => onPageChange(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+                  <button className="secondary-button" type="button" disabled={page >= pageCount || loading} onClick={() => onPageChange(page + 1)}>Next</button>
+                </div>
+                <label className="history-page-size">
+                  <span>페이지당</span>
+                  <select
+                    value={pageSize}
                     disabled={loading}
-                    onClick={() => onPageChange(pageNumber)}
+                    onChange={(event) => onPageSizeChange(Number(event.target.value) === 50 ? 50 : 20)}
                   >
-                    {pageNumber}
-                  </button>
-                ))}
-                <button className="secondary-button" type="button" disabled={page >= pageCount || loading} onClick={() => onPageChange(page + 1)}>Next</button>
+                    <option value={20}>20건</option>
+                    <option value={50}>50건</option>
+                  </select>
+                </label>
               </div>
             </div>
           </div>

@@ -631,7 +631,10 @@ export const apiClient = {
     }
     return response.text();
   },
-  history: (page = 1, pageSize = 10) => requestJson<HistoryResponse>(`/api/history?page=${page}&pageSize=${pageSize}`),
+  // B-01: 기본값 20(3a 설계 기준). 프론트는 항상 사용자가 고른 값(20/50)을
+  // 명시 전송하므로 이 기본값은 호출부가 실수로 pageSize를 생략했을 때의
+  // 안전망일 뿐이다.
+  history: (page = 1, pageSize = 20) => requestJson<HistoryResponse>(`/api/history?page=${page}&pageSize=${pageSize}`),
   promptCatalog: () => requestJson<PromptCatalogResponse>("/api/prompts/catalog"),
   promptSystemPrompt: () => requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt"),
   savePromptSystemPrompt: (payload: Record<string, unknown>) =>

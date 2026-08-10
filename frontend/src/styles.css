@@ -2937,6 +2937,25 @@ textarea {
   justify-content: flex-end;
 }
 
+/* B-01: 3a 페이지네이션의 페이지 크기 선택(20/50). 기존 history-pagination div
+   규칙(flex, 6px gap)을 그대로 물려받아 버튼 그룹과 나란히 정렬된다. */
+.history-page-size {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.history-page-size select {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: inherit;
+  padding: 4px 6px;
+}
+
 .detail-tabs {
   display: flex;
   flex-wrap: nowrap;
