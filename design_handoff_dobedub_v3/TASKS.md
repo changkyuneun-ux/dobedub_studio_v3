@@ -253,17 +253,21 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `5a` 자산 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *A-01 API·화면 모두 완료(`Create5aScreen`). 아직 커밋 전.*
 - [ ] `5c` 컬렉션 — *의도적으로 범위 밖. A-02(컬렉션 테이블·API)가 저장소에 전혀 없어(`collections`/`collection_items` 마이그레이션 없음, `GET/POST /api/collections` 없음) 화면을 만들면 전부 가짜 데이터가 됨 — 원칙 위반이라 보류. A-02 착수 후 재개.*
 
-### E-04 · `4 Admin` 흐름 — P1
-- [ ] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능
-- [ ] `4b` Negative 기본값
-- [ ] `7a` 시스템 프롬프트 (C-06)
-- [ ] `4d`/`4a` 워크플로 정의
-- [ ] `6d` 메타데이터 (C-12)
-- [ ] `3b` 역할×권한 매트릭스
-- [ ] `7b` 기능 리소스 매핑 (C-07) — D-01의 "SCREEN 행 만들지 않음" 반영
-- [ ] `3e` 사용자 목록, `7c` 사용자 상세 (C-08)
-- [ ] `6c`/`5b` 시스템 상태·Sandbox Pod (C-11)
-- [ ] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음
+### E-04 · `4 Admin` 흐름 — P1 — **진행 중** (`7a`·`6c` 완료)
+구버전 `AdminConsoleModal`(탭형 단일 모달, main.tsx)이 users/roles/catalog/workflows/sandbox를 이미 다 구현해 두었고, `StatusModal`(6c)·`MetadataModal`(6d)·`SystemPromptEditor`(7a 원형)도 각각 독립 라우트/패널로 존재했다. E-04는 이 로직들을 유지한 채 화면만 `AppShell` 기반 v3 화면으로 하나씩 옮기는 작업이다 — 새 API를 만들 필요가 거의 없다(4b 제외).
+- [ ] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능. 기존 `PromptCatalogAdminContent`(main.tsx) 로직 재사용, 화면 2개로 분리 예정.
+- [ ] `4b` Negative 기본값 — *기존 admin UI 자체가 없음(신규 설계 필요). 4e/3d 완료 후 그 용어 선택 컴포넌트를 재사용해 진행 예정.*
+- [x] `7a` 시스템 프롬프트 (C-06) — *`Create7aScreen` 구현. `SystemPromptEditor`/2b의 systemPrompt 패널과 완전히 같은 상태(`promptSystemPrompt`/`promptSystemPromptText`)를 공유 — 어느 화면에서 고쳐도 같은 전역 레코드(`prompt_system_prompts`)에 반영됨(B-08 미착수라 버전 이력은 없음).*
+- [ ] `4d`/`4a` 워크플로 정의 — 기존 `AdminConsoleModal` Workflows 탭 로직(등록/활성화/비활성화) 재사용 예정.
+- [ ] `6d` 메타데이터 (C-12) — 기존 `MetadataModal` 로직 재사용 예정.
+- [ ] `3b` 역할×권한 매트릭스 — 기존 `AdminConsoleModal` Permissions 탭(역할 목록 + 권한 토글 그리드) 재사용 예정.
+- [ ] `7b` 기능 리소스 매핑 (C-07) — D-01의 "SCREEN 행 만들지 않음" 반영. 현재 3b와 같은 탭 안에 표만 있음 — 별도 화면으로 분리 예정.
+- [ ] `3e` 사용자 목록, `7c` 사용자 상세 (C-08) — 기존 Users 탭 로직 재사용하되, `client.ts`에 이미 있는 `resetAdminUserPassword`/`deactivateAdminUser`가 지금까지 어디서도 호출되지 않고 있어(미사용) 이번에 처음 UI에 연결해야 함.
+- [x] `6c` 시스템 상태 (C-11) — *`Create6cScreen` 구현. `StatusModal`/`StatusCard`와 동일한 판정식(dry-run/ok 계산) 그대로 이관, 카드 7장 전부 실제 헬스체크 응답 필드. 구버전 `StatusModal` 오픈 로직(`statusModalOpen`)은 이제 항상 false로 죽은 코드(E-06 정리 대상).*
+- [ ] `5b` Sandbox Pod (C-11) — 기존 Sandbox 탭 로직(status/start/stop, `SandboxPodConfirmModal`) 재사용 예정.
+- [ ] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음 — *각 화면 이관 시점마다 확인, 아직 전 화면 완료 전이라 최종 확인은 E-04 종료 시.*
+
+E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`adminMetadata`(6d) 두 항목을 추가했다 — design_handoff 원본은 이 둘을 6항목 Admin 사이드바가 아닌 별도 상단 nav로 그리지만, AppShell이 area를 `generate`/`admin` 두 가지만 지원하는 현재 구조에서는 관리 기능에 가까운 이 둘을 ADMIN 영역에 편입하는 편이 화면 골격 중복을 피할 수 있다고 판단했다. 화면 내용·API·권한은 design_handoff 그대로다.
 
 ### E-05 · `1 Access` 흐름 — P2
 - [ ] `6a` 로그인

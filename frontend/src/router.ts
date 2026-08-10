@@ -28,6 +28,10 @@
 //                       (컬렉션 API·테이블)가 전혀 없어 이번 구현 범위에서 뺐다 -
 //                       가짜 데이터로 채우지 않는다는 원칙에 따라 백엔드가 생기기
 //                       전까지 별도 라우트를 만들지 않는다.
+//   admin.systemPrompt — 7a 시스템 프롬프트 (신규 구현, E-04). "프롬프트 카탈로그"
+//                       Admin 사이드바 그룹 소속. 같은 그룹의 4e/3d/4b는 아직
+//                       이관 전이라, 그 메뉴를 누르면 당분간 admin.console(구버전
+//                       AdminConsoleModal)로 보낸다(shellNavigateAdmin 참조).
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -45,6 +49,7 @@ export type StudioRoute =
   | "review.runDetail"
   | "review.reuse"
   | "review.assets"
+  | "admin.systemPrompt"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -76,6 +81,7 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "review.runDetail": "/studio/review/run",
   "review.reuse": "/studio/review/reuse",
   "review.assets": "/studio/review/assets",
+  "admin.systemPrompt": "/studio/admin/system-prompt",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"

@@ -41,12 +41,19 @@ const GENERATE_NAV_ITEMS: NavItem[] = [
 
 // ADMIN 영역: design_handoff "4 Admin.dc.html" 사이드바 공통 상단.
 // 감사 로그는 A-04(TASKS.md) 착수 전까지 백엔드가 없어 "미구현" 배지를 유지한다.
+// adminStatus(6c)·adminMetadata(6d)는 design_handoff에서는 이 6항목 사이드바가
+// 아니라 별도 상단 nav 소속이지만(README/Screen Map), AppShell이 area를
+// generate/admin 두 가지만 지원하는 현재 구조에서 시스템 상태·메타데이터 조회는
+// 성격상 관리 기능에 가까워 E-04에서 ADMIN 영역에 편입했다 - 화면 자체(6c/6d)의
+// 내용·권한은 design_handoff 그대로다.
 const ADMIN_NAV_ITEMS: NavItem[] = [
   { key: "adminRoles", label: "역할 & 권한", permission: "roles:read" },
   { key: "adminUsers", label: "사용자", permission: "users:read" },
   { key: "adminCatalog", label: "프롬프트 카탈로그", permission: "prompt-catalog:read" },
   { key: "adminWorkflows", label: "워크플로 정의", permission: "workflows:read" },
   { key: "adminSandbox", label: "Sandbox Pod", permission: "sandbox:read" },
+  { key: "adminStatus", label: "System Status", permission: "system:read" },
+  { key: "adminMetadata", label: "Metadata", permission: "metadata:read" },
   { key: "adminAuditLog", label: "감사 로그", permission: "roles:read", unimplemented: true }
 ];
 

@@ -5098,6 +5098,31 @@ textarea {
   box-shadow: 0 0 0 1px var(--v3-accent);
 }
 
+/* E-04 · 6c System Status 카드 그리드 */
+.v3-status-card-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.v3-status-card.is-ok {
+  border-left: 3px solid var(--v3-success, var(--v3-accent));
+}
+
+.v3-status-card.is-alert {
+  border-left: 3px solid var(--v3-danger);
+}
+
+.v3-status-card-detail {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 16px 14px;
+  white-space: pre-line;
+}
+
 .v3-modal-body-text {
   color: var(--v3-text-secondary);
   font-size: 12.5px;

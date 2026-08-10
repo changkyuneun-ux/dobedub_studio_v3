@@ -120,6 +120,7 @@ function canUseAdminSandboxPod(user: User | null) {
 const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.history": "history:read",
   "review.assets": "history:read",
+  "admin.systemPrompt": "prompts:build",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -151,9 +152,27 @@ function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
   }
 }
 
+// E-04: Admin 영역 AppShell의 사이드바 1차 메뉴(adminRoles/adminUsers/adminCatalog/
+// adminWorkflows/adminSandbox)도 GENERATE 영역과 같은 방식으로 한 곳에서 매핑한다.
+// 지금은 "프롬프트 카탈로그" 그룹의 7a만 신규 화면으로 이관됐고 나머지 그룹(역할&권한·
+// 사용자·워크플로 정의·Sandbox Pod)은 아직 구버전 AdminConsoleModal 안에만 있다 -
+// 그 메뉴들을 누르면 이관 전까지 admin.console(구버전 모달)로 보낸다.
+function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
+  if (key === "adminCatalog") {
+    onGoTo("admin.systemPrompt");
+  } else if (key === "adminStatus") {
+    onGoTo("admin.status");
+  } else if (key === "adminMetadata") {
+    onGoTo("admin.metadata");
+  } else {
+    onGoTo("admin.console");
+  }
+}
+
 const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.history": "Task History",
   "review.assets": "Assets",
+  "admin.systemPrompt": "System Prompt",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -358,6 +377,7 @@ function TopBar({
         {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
         {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
         {canUse(user, "manual:read") ? <button className={route === "access.manual" ? "is-active" : ""} type="button" onClick={() => onNavigate("access.manual")}>User Manual</button> : null}
+        {canUse(user, "prompts:build") ? <button className={route === "admin.systemPrompt" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.systemPrompt")}>System Prompt</button> : null}
         {canUseAdminConsole(user) ? <button className={route === "admin.console" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.console")}>Admin</button> : null}
       </nav>
       <div className="service-status-group" aria-label="API 서버 상태">
@@ -2403,6 +2423,180 @@ function Create5aScreen({
   );
 }
 
+// E-04 · 7a "시스템 프롬프트" — design_handoff_dobedub_v3/4 Admin.dc.html의
+// 프롬프트 카탈로그 그룹 화면. 로직은 신규가 아니다 - 2b(Create2bScreen)의
+// systemPrompt 패널이 쓰던 것과 완전히 같은 상태(promptSystemPrompt/
+// promptSystemPromptText)·핸들러(loadPromptSystemPrompt/savePromptSystemPrompt)를
+// 그대로 재사용한다. `prompt_system_prompts`가 code당 1건만 저장하는 전역 레코드라
+// (B-08 미착수 - 버전 이력 없음) 2b에서 고쳐도 여기 반영되고 그 반대도 마찬가지다 -
+// 두 화면이 같은 데이터를 보는 것이 의도된 동작이다.
+//
+// 조회는 prompts:build 권한(백엔드 GET 요건과 동일), 저장은 prompt-catalog:write
+// 권한이 있어야 버튼이 활성화된다(백엔드 PUT 요건과 동일).
+function Create7aScreen({
+  user,
+  onGoTo,
+  loading,
+  systemPrompt,
+  value,
+  onChange,
+  onReload,
+  onSave
+}: {
+  user: User | null;
+  onGoTo: (route: StudioRoute) => void;
+  loading: boolean;
+  systemPrompt: PromptSystemPromptResponse | null;
+  value: string;
+  onChange: (value: string) => void;
+  onReload: () => void;
+  onSave: () => void;
+}) {
+  const canSave = canUse(user, "prompt-catalog:write");
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminCatalog"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 프롬프트 카탈로그"
+      headerTitle="시스템 프롬프트"
+      sidebarFooter={<p className="v3-muted-text">4e 카탈로그 계층 · 3d 용어 관리 · 4b Negative 기본값은 이관 예정입니다.</p>}
+    >
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">{systemPrompt?.name || "Qwen WAN I2V Positive Prompt Composer"}</div>
+          <span className="v3-card-header-meta">{systemPrompt?.provider || "runpod_vllm"}</span>
+        </div>
+        <div className="v3-system-prompt-body">
+          <p className="v3-muted-text">Code {systemPrompt?.code || "qwen_wan_i2v_positive"} · Model {systemPrompt?.modelFamily || "qwen"}</p>
+          <p className="v3-muted-text">이 값은 RunPod vLLM/Qwen prompt generation의 system prompt로 사용됩니다. Negative prompt는 앱의 기본값과 선택 키워드로 별도 관리됩니다.</p>
+          <textarea
+            className="v3-system-prompt-textarea"
+            style={{ minHeight: 320 }}
+            value={value}
+            spellCheck={false}
+            disabled={!canSave}
+            onChange={(event) => onChange(event.target.value)}
+          />
+          {!canSave ? <p className="v3-inline-notice">저장 권한(prompt-catalog:write)이 없어 읽기 전용입니다.</p> : null}
+          <div className="v3-inline-actions">
+            <button className="v3-secondary-button" type="button" disabled={loading} onClick={onReload}>Reload</button>
+            <button className="v3-primary-button" type="button" disabled={loading || !canSave || !value.trim()} onClick={onSave}>Save System Prompt</button>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// E-04 · 6c "System Status" — 구버전 StatusModal/StatusCard와 동일한 데이터·판정
+// 로직(ok 여부 계산식)을 그대로 옮겼다. 카드 6장(Execution/ComfyUI RunPod/Qwen
+// Prompt LLM/Workflows/Segment Defaults/Metadata/Storage)은 모두 실제 헬스체크
+// 응답 필드이고 새로 지어낸 값이 없다.
+function Create6cScreen({
+  user,
+  onGoTo,
+  status,
+  connection,
+  loading,
+  notice,
+  onRefresh,
+  onTestRunpod
+}: {
+  user: User | null;
+  onGoTo: (route: StudioRoute) => void;
+  status: SystemStatusResponse | null;
+  connection: RunpodConnectionResponse | null;
+  loading: boolean;
+  notice: string;
+  onRefresh: () => void;
+  onTestRunpod: () => void;
+}) {
+  const segmentDefaults = status?.segmentDefaults || {};
+  const metadata = status?.metadata || {};
+  const workflows = status?.workflows || {};
+  const storage = status?.storage || {};
+  const defaultsOk = Boolean((segmentDefaults.workflowCount || 0) > 0 && segmentDefaults.matchedCount === segmentDefaults.workflowCount);
+  const metadataOk = Boolean(metadata.manifest?.exists && metadata.workflowWidgetMap?.exists && metadata.models?.exists);
+  const cards: Array<{ title: string; value: string; detail: string; ok: boolean }> = [
+    {
+      title: "Execution",
+      value: status?.dryRun ? "Dry-run mode" : "RunPod live mode",
+      detail: status?.dryRun ? "Actual RunPod calls are disabled." : "Jobs will be submitted to RunPod.",
+      ok: Boolean(status?.ok && !status?.dryRun)
+    },
+    {
+      title: "ComfyUI RunPod",
+      value: status?.runpod?.configured ? "ONLINE" : "CHECK",
+      detail: `Endpoint: ${status?.runpod?.endpointId || "-"}\nBase: ${status?.runpod?.baseUrl || "-"}`,
+      ok: Boolean(status?.runpod?.configured)
+    },
+    {
+      title: "Qwen Prompt LLM",
+      value: qwenStatusLabel(status?.promptLlm, ""),
+      detail: `Provider: ${status?.promptLlm?.provider || "mock"}\nModel: ${status?.promptLlm?.model || "-"}\nAPI key: ${status?.promptLlm?.apiKeyConfigured ? "Configured" : "Not configured"}`,
+      ok: Boolean(status?.promptLlm?.configured && status?.promptLlm?.apiKeyConfigured && status?.promptLlm?.provider !== "mock")
+    },
+    {
+      title: "Workflows",
+      value: `${workflows.count || 0} files`,
+      detail: `${workflows.dir || "-"}\n${(workflows.items || []).slice(0, 6).join(", ") || "No workflow files found."}`,
+      ok: Boolean(workflows.exists && (workflows.count || 0) > 0)
+    },
+    {
+      title: "Segment Defaults",
+      value: `${segmentDefaults.matchedCount || 0}/${segmentDefaults.workflowCount || 0} matched`,
+      detail: defaultsOk ? "All workflow defaults are available." : `Missing: ${(segmentDefaults.missingWorkflows || []).join(", ") || "-"}`,
+      ok: defaultsOk
+    },
+    {
+      title: "Metadata",
+      value: metadataOk ? "Ready" : "Check files",
+      detail: `Manifest: ${metadata.manifest?.exists ? "OK" : "Missing"}\nWidget map: ${metadata.workflowWidgetMap?.exists ? "OK" : "Missing"}\nModels: ${metadata.models?.exists ? "OK" : "Missing"}`,
+      ok: metadataOk
+    },
+    {
+      title: "Storage",
+      value: storage.outputsDir?.writable ? "Writable" : "Check path",
+      detail: `Data: ${storage.dataDir?.path || "-"}\nOutputs: ${storage.outputsDir?.path || "-"}`,
+      ok: Boolean(storage.dataDir?.writable && storage.outputsDir?.writable)
+    }
+  ];
+
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminStatus"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · SYSTEM STATUS"
+      headerTitle="System Status"
+      headerActions={
+        <>
+          <button className="v3-secondary-button" type="button" disabled={loading} onClick={onTestRunpod}>Test ComfyUI</button>
+          <button className="v3-primary-button" type="button" disabled={loading} onClick={onRefresh}>Refresh</button>
+        </>
+      }
+      sidebarFooter={<p className="v3-muted-text">Last checked: {status?.checkedAt || "-"}</p>}
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {connection ? <p className={`v3-inline-notice ${connection.ok ? "" : "is-warning"}`}>{connection.message || "ComfyUI RunPod checked."}</p> : null}
+      <div className="v3-status-card-grid">
+        {cards.map((card) => (
+          <div className={`v3-card v3-status-card ${card.ok ? "is-ok" : "is-alert"}`} key={card.title}>
+            <div className="v3-card-header">
+              <div className="v3-card-header-title">{card.title}</div>
+              <span className={`v3-status-badge ${card.ok ? "is-ready" : "is-pending"}`}>{card.value}</span>
+            </div>
+            <p className="v3-status-card-detail">{card.detail}</p>
+          </div>
+        ))}
+      </div>
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -3111,8 +3305,9 @@ function StudioShell({
     // E-03: 3a(review.history)는 이제 전체 화면(Create3aScreen)이라 더 이상
     // historyModalOpen을 라우트로 자동 여닫지 않는다. historyModalOpen은 "Run
     // 상세 열기" 클릭 시(openLegacyHistoryDetail)에만 켜지는, 3f/3c가 생기기 전의
-    // 임시 다리다.
-    setStatusModalOpen(route === "admin.status" && granted);
+    // 임시 다리다. E-04: admin.status(6c)도 이제 전체 화면(Create6cScreen)이라
+    // 더 이상 모달을 자동으로 여닫지 않는다.
+    setStatusModalOpen(false);
     setManualModalOpen(route === "access.manual" && granted);
     setMetadataModalOpen(route === "admin.metadata" && granted);
     setAdminModalOpen(route === "admin.console" && granted);
@@ -3132,6 +3327,9 @@ function StudioShell({
     if (route === "review.assets") {
       void loadAssetsPage(1);
     }
+    if (route === "admin.systemPrompt" && !promptSystemPrompt) {
+      void loadPromptSystemPrompt();
+    }
     if (route === "admin.status") {
       void loadSystemStatus();
     }
@@ -3146,7 +3344,7 @@ function StudioShell({
       setMetadataWorkflowId(workflowId);
       void loadMetadata(workflowId);
     }
-  }, [route, selectedWorkflow, workflows.length, user]);
+  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt]);
 
   // E-02 · 2c → 2d: generateVideo()는 create.confirm(2f)의 onRun에서 호출되고
   // 완료(성공/실패/취소)까지 내부적으로 기다린다(pollJob). running이 false로
@@ -3796,6 +3994,28 @@ function StudioShell({
         onPageSizeChange={changeAssetsPageSize}
         onDownload={(item) => downloadProtectedAsset(item.downloadUrl, item.fileName).catch((downloadError) => setAssetsNotice(downloadError instanceof Error ? downloadError.message : "다운로드에 실패했습니다."))}
       />
+    ) : route === "admin.systemPrompt" ? (
+      <Create7aScreen
+        user={user}
+        onGoTo={onNavigate}
+        loading={promptBuilderLoading}
+        systemPrompt={promptSystemPrompt}
+        value={promptSystemPromptText}
+        onChange={setPromptSystemPromptText}
+        onReload={() => void loadPromptSystemPrompt()}
+        onSave={() => void savePromptSystemPrompt()}
+      />
+    ) : route === "admin.status" ? (
+      <Create6cScreen
+        user={user}
+        onGoTo={onNavigate}
+        status={systemStatus}
+        connection={runpodConnection}
+        loading={statusLoading}
+        notice={statusNotice}
+        onRefresh={() => void loadSystemStatus()}
+        onTestRunpod={() => void testRunpodConnection()}
+      />
     ) : (
     <main className="studio-grid">
       <aside className="sidebar">
@@ -4039,6 +4259,9 @@ function StudioShell({
         onConfirm={() => void deleteHistoryItem()}
       />
     ) : null}
+    {/* E-04: admin.status(6c)는 이제 Create6cScreen 전체 화면이라 statusModalOpen이
+        항상 false다 - 이 블록은 죽은 코드다(E-06 정리 대상, StatusModal/StatusCard도
+        함께 제거). */}
     {statusModalOpen ? (
       <StatusModal
         status={systemStatus}
