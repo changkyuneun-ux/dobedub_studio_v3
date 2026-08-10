@@ -4912,3 +4912,107 @@ textarea {
   font-size: 11.5px;
   padding: 10px 12px;
 }
+
+/* ==========================================================================
+   E-03: 3a "작업 이력" — 목록 행, 페이지네이션, 삭제 확인 오버레이. v3 토큰만 사용.
+   ========================================================================== */
+
+.v3-history-row:hover {
+  background: var(--v3-bg-table);
+}
+
+.v3-history-row.is-selected {
+  background: var(--v3-accent-bg);
+}
+
+.v3-pagination {
+  align-items: center;
+  background: var(--v3-bg-table);
+  border-top: 1px solid var(--v3-border-inner);
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding: 11px 15px;
+}
+
+.v3-pagination-meta {
+  color: var(--v3-text-label);
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+}
+
+.v3-pagination-controls {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
+.v3-page-button {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 6px;
+  color: var(--v3-text-secondary);
+  cursor: pointer;
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 5px 10px;
+}
+
+.v3-page-button:disabled {
+  color: var(--v3-text-disabled);
+  cursor: not-allowed;
+}
+
+.v3-page-button.is-current {
+  background: var(--v3-text-body);
+  border-color: var(--v3-text-body);
+  color: #fff;
+}
+
+.v3-page-size-select {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 6px;
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  margin-left: 6px;
+  padding: 5px 8px;
+}
+
+.v3-modal-overlay {
+  align-items: center;
+  background: rgba(22, 25, 26, 0.45);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 40;
+}
+
+.v3-modal-panel {
+  background: var(--v3-bg-panel);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  width: 420px;
+}
+
+.v3-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.v3-modal-body-text {
+  color: var(--v3-text-secondary);
+  font-size: 12.5px;
+  line-height: 1.7;
+  margin: 0;
+}

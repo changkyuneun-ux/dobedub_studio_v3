@@ -1612,6 +1612,215 @@ function Create2dScreen({
   );
 }
 
+// E-03 · 3a "작업 이력" — design_handoff_dobedub_v3/3 Review.dc.html의 첫 화면.
+// 목록·페이지네이션·삭제는 B-01/C-03에서 이미 완성된 로직(loadHistoryPage,
+// changeHistoryPageSize, deleteHistoryItem)을 그대로 재사용한다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - run id·프롬프트 검색, 날짜 범위, 워크플로 필터 칩, CSV 내보내기 — `GET
+//   /api/history`가 page/pageSize만 받고 검색·필터·내보내기 파라미터가 없다.
+// - 상태 필터(전체/완료/실패/진행 중/내 작업만)는 서버 필터가 아니라 **현재
+//   불러온 페이지 안에서만** 클라이언트 필터링한다 - 128건 전체가 아니라 화면에
+//   이미 있는 20/50건 중에서만 걸러진다는 뜻이라 이 화면에서만 유의미하다.
+// - "소요" 컬럼 — HistoryItem에 소요 시간 필드가 없다.
+// - 상세 패널의 "평가 4 · 재사용 등록됨" 같은 평가 요약 수치 — 이력 목록
+//   응답에 평가 집계가 없다. Run 상세(3f/3c, 다음 작업)에서 실제 값을 붙인다.
+function Create3aScreen({
+  user,
+  health,
+  history,
+  page,
+  pageCount,
+  pageSize,
+  total,
+  loading,
+  selectedTaskId,
+  deleteTarget,
+  onSelect,
+  onPageChange,
+  onPageSizeChange,
+  onDownload,
+  onRework,
+  onOpenDetail,
+  onRequestDelete,
+  onCancelDelete,
+  onConfirmDelete,
+  canRework,
+  canDelete
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  history: HistoryItem[];
+  page: number;
+  pageCount: number;
+  pageSize: 20 | 50;
+  total: number;
+  loading: boolean;
+  selectedTaskId: string;
+  deleteTarget: HistoryItem | null;
+  onSelect: (item: HistoryItem) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: 20 | 50) => void;
+  onDownload: (item: HistoryItem) => void;
+  onRework: (item: HistoryItem) => void;
+  onOpenDetail: (item: HistoryItem) => void;
+  onRequestDelete: (item: HistoryItem) => void;
+  onCancelDelete: () => void;
+  onConfirmDelete: () => void;
+  canRework: boolean;
+  canDelete: boolean;
+}) {
+  const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "failed">("all");
+  const filteredHistory = history.filter((item) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "completed") return isSuccessStatus(item.status);
+    if (statusFilter === "failed") return !isSuccessStatus(item.status) && Boolean(item.status);
+    return true;
+  });
+  const selectedItem = history.find((item) => item.taskId === selectedTaskId) || history[0] || null;
+  const pageStart = total ? (page - 1) * pageSize + 1 : 0;
+  const pageEnd = Math.min(total, page * pageSize);
+  const completedCount = history.filter((item) => isSuccessStatus(item.status)).length;
+  const failedCount = history.filter((item) => !isSuccessStatus(item.status) && item.status).length;
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="taskHistory"
+      onNavigate={() => {}}
+      headerEyebrow="TASK HISTORY"
+      headerTitle="작업 이력"
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>필터 · 현재 페이지 {history.length}건</div>
+          {([
+            ["all", "전체", history.length],
+            ["completed", "완료", completedCount],
+            ["failed", "실패", failedCount]
+          ] as const).map(([key, label, count]) => (
+            <button
+              key={key}
+              type="button"
+              className={`v3-segment-nav-item ${statusFilter === key ? "is-active" : ""}`}
+              onClick={() => setStatusFilter(key)}
+            >
+              <div className="v3-segment-nav-head"><span>{label}</span><span>{count}</span></div>
+            </button>
+          ))}
+        </div>
+      }
+      sidebarFooter={<p className="v3-muted-text">보관 기한 90일 · 한 페이지 {pageSize}건 · 이후 Assets만 유지</p>}
+      rightPanel={
+        selectedItem ? (
+          <>
+            <div className="v3-panel-title-row">
+              <div className="v3-panel-title">RUN #{selectedItem.taskId.slice(0, 8)}</div>
+              <span className={`v3-status-badge ${isSuccessStatus(selectedItem.status) ? "is-ready" : "is-pending"}`}>{selectedItem.status || "-"}</span>
+            </div>
+            <div className="v3-summary-card">
+              <div className="v3-summary-row"><span>워크플로</span><strong>{selectedItem.workflowName || selectedItem.workflow || selectedItem.workflowId || "-"} · {selectedItem.segmentCount || selectedItem.segments?.length || 1} seg</strong></div>
+              <div className="v3-summary-row"><span>실행자 · 시각</span><strong>{selectedItem.workerName || selectedItem.user?.name || "-"} · {formatTimestamp(selectedItem.timestamp).replace("\n", " ")}</strong></div>
+              <div className="v3-summary-row"><span>결과물</span><strong>{(selectedItem.outputAssets || []).length || (selectedItem.outputUrl ? 1 : 0)}건</strong></div>
+            </div>
+            <div className="v3-inline-actions">
+              <button className="v3-primary-button v3-flex-button" type="button" onClick={() => onOpenDetail(selectedItem)}>Run 상세 열기</button>
+            </div>
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => onDownload(selectedItem)}>Final 다운로드</button>
+              {canRework ? <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => onRework(selectedItem)}>재작업</button> : null}
+            </div>
+            <p className="v3-muted-text">프롬프트 · 구성값 · 평가 · 로그는 상세 화면에서 확인합니다</p>
+          </>
+        ) : (
+          <p className="v3-muted-text">왼쪽 목록에서 작업을 선택하세요.</p>
+        )
+      }
+    >
+      <div className="v3-card">
+        <div className="v3-review-table-head" style={{ gridTemplateColumns: "78px minmax(0,1fr) 84px 84px 56px" }}>
+          <span>RUN</span><span>WORKFLOW · 프롬프트</span><span>세그먼트</span><span>상태</span><span style={{ textAlign: "right" }}>삭제</span>
+        </div>
+        {loading ? <p className="v3-muted-text" style={{ padding: 16 }}>불러오는 중입니다...</p> : null}
+        {!loading && !filteredHistory.length ? <p className="v3-muted-text" style={{ padding: 16 }}>표시할 작업이 없습니다.</p> : null}
+        {filteredHistory.map((item) => {
+          const isSelected = item.taskId === selectedTaskId;
+          const promptSnippet = positivePromptEntries(item)[0]?.text || item.positivePrompt || item.prompt || "-";
+          return (
+            <div
+              key={item.taskId}
+              className={`v3-review-table-row v3-history-row ${isSelected ? "is-selected" : ""}`}
+              style={{ gridTemplateColumns: "78px minmax(0,1fr) 84px 84px 56px", cursor: "pointer" }}
+              onClick={() => onSelect(item)}
+            >
+              <span className="v3-review-seg-name">#{item.taskId.slice(0, 8)}</span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 12.5 }}>{item.workflowName || item.workflow || item.workflowId || "-"}</div>
+                <div className="v3-review-prompt">{promptSnippet}</div>
+              </div>
+              <span className="v3-review-config">{item.segmentCount || item.segments?.length || 1}</span>
+              <span>
+                <span className={`v3-status-badge ${isSuccessStatus(item.status) ? "is-ready" : "is-pending"}`}>{item.status || "-"}</span>
+              </span>
+              <span style={{ textAlign: "right" }}>
+                {canDelete ? (
+                  <button
+                    className="v3-text-link-button"
+                    style={{ color: "var(--v3-danger)" }}
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRequestDelete(item);
+                    }}
+                  >
+                    삭제
+                  </button>
+                ) : null}
+              </span>
+            </div>
+          );
+        })}
+        <div className="v3-pagination">
+          <span className="v3-pagination-meta">{pageStart}–{pageEnd} / {total}</span>
+          <div className="v3-pagination-controls">
+            <button className="v3-page-button" type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>이전</button>
+            <span className="v3-page-button is-current">{page}</span>
+            <button className="v3-page-button" type="button" disabled={page >= pageCount} onClick={() => onPageChange(page + 1)}>다음</button>
+            <select className="v3-page-size-select" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value) as 20 | 50)}>
+              <option value={20}>20건 / 페이지</option>
+              <option value={50}>50건 / 페이지</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {deleteTarget ? (
+        <div className="v3-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="v3DeleteHistoryTitle">
+          <div className="v3-modal-panel">
+            <div className="v3-label" style={{ color: "var(--v3-danger)" }}>HISTORY:DELETE</div>
+            <h2 id="v3DeleteHistoryTitle" className="v3-modal-title">작업 내역 삭제</h2>
+            <div className="v3-summary-card">
+              <div className="v3-summary-row"><span>작업</span><strong>#{deleteTarget.taskId.slice(0, 8)} · {deleteTarget.workflowName || deleteTarget.workflow || deleteTarget.workflowId || "-"}</strong></div>
+              <div className="v3-summary-row"><span>실행</span><strong>{formatTimestamp(deleteTarget.timestamp).replace("\n", " ")} · {deleteTarget.workerName || deleteTarget.user?.name || "-"}</strong></div>
+              <div className="v3-summary-row"><span>결과물</span><strong>{(deleteTarget.outputAssets || []).length || (deleteTarget.outputUrl ? 1 : 0)}건</strong></div>
+            </div>
+            <p className="v3-modal-body-text">이력에서 제거되면 이 작업의 프롬프트 평가와 재사용 등록도 함께 사라집니다. 결과물 파일은 Assets에 남습니다.</p>
+            <div className="v3-warning-strip" style={{ background: "var(--v3-danger-bg)", margin: 0 }}>
+              <span className="v3-warning-dot" style={{ background: "var(--v3-danger)" }} />
+              <span style={{ color: "var(--v3-danger)" }}>되돌릴 수 없습니다</span>
+            </div>
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button v3-flex-button" type="button" onClick={onCancelDelete}>취소</button>
+              <button className="v3-danger-button v3-flex-button" style={{ background: "var(--v3-danger)", color: "#fff", borderColor: "var(--v3-danger)" }} type="button" onClick={onConfirmDelete}>삭제</button>
+            </div>
+            <p className="v3-muted-text">진행 중인 작업은 삭제할 수 없습니다 · 권한이 없으면 버튼이 보이지 않습니다</p>
+          </div>
+        </div>
+      ) : null}
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -2267,7 +2476,10 @@ function StudioShell({
 
   useEffect(() => {
     const granted = routeAccessGranted(user, route);
-    setHistoryModalOpen(route === "review.history" && granted);
+    // E-03: 3a(review.history)는 이제 전체 화면(Create3aScreen)이라 더 이상
+    // historyModalOpen을 라우트로 자동 여닫지 않는다. historyModalOpen은 "Run
+    // 상세 열기" 클릭 시(openLegacyHistoryDetail)에만 켜지는, 3f/3c가 생기기 전의
+    // 임시 다리다.
     setStatusModalOpen(route === "admin.status" && granted);
     setManualModalOpen(route === "access.manual" && granted);
     setMetadataModalOpen(route === "admin.metadata" && granted);
@@ -2569,6 +2781,17 @@ function StudioShell({
     }
   }
 
+  // E-03: 3a의 "Run 상세 열기"는 아직 없는 3f/3c(Run 상세) 대신, 그 내용을 이미
+  // 갖고 있는 구버전 HistoryModal의 상세 탭을 임시로 띄운다. historyModalOpen은
+  // 더 이상 라우트가 아니라 이 클릭으로만 열리고 onClose로 닫힌다.
+  function openLegacyHistoryDetail(item: HistoryItem) {
+    setSelectedHistoryTaskId(item.taskId);
+    setHistoryTab("overview");
+    setPromptReviewItems([]);
+    setPromptReviewNotice("");
+    setHistoryModalOpen(true);
+  }
+
   async function applyHistoryRework(item: HistoryItem) {
     if (workflowSelectionLocked) {
       setModalNotice("생성 작업이 종료된 후 재작업 정보를 불러올 수 있습니다.");
@@ -2831,6 +3054,30 @@ function StudioShell({
         }}
         onReviewSettings={() => onNavigate("create.confirm")}
       />
+    ) : route === "review.history" ? (
+      <Create3aScreen
+        user={user}
+        health={health}
+        history={history}
+        page={historyPage}
+        pageCount={historyPageCount}
+        pageSize={historyPageSize}
+        total={historyTotal}
+        loading={historyLoading}
+        selectedTaskId={selectedHistoryTaskId}
+        deleteTarget={deleteTarget}
+        onSelect={(item) => setSelectedHistoryTaskId(item.taskId)}
+        onPageChange={(page) => void loadHistoryPage(page)}
+        onPageSizeChange={changeHistoryPageSize}
+        onDownload={(item) => openOutputAsset(item)}
+        onRework={(item) => void applyHistoryRework(item)}
+        onOpenDetail={(item) => openLegacyHistoryDetail(item)}
+        onRequestDelete={setDeleteTarget}
+        onCancelDelete={() => setDeleteTarget(null)}
+        onConfirmDelete={() => void deleteHistoryItem()}
+        canRework={canUse(user, "jobs:run")}
+        canDelete={canUse(user, "history:delete")}
+      />
     ) : (
     <main className="studio-grid">
       <aside className="sidebar">
@@ -3042,7 +3289,7 @@ function StudioShell({
         promptReviewItems={promptReviewItems}
         promptReviewLoading={promptReviewLoading}
         promptReviewNotice={promptReviewNotice}
-        onClose={() => onNavigate("create.workspace")}
+        onClose={() => setHistoryModalOpen(false)}
         onPageChange={(page) => void loadHistoryPage(page)}
         onPageSizeChange={changeHistoryPageSize}
         onSelect={(item) => {
