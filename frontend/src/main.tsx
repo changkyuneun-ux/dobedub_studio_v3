@@ -37,6 +37,7 @@ import { routeFromLocation, routePath, StudioRoute } from "./router";
 // E-01: User/AuthSession types and permission helpers moved to ./auth so
 // components/AppShell.tsx can use them without importing this entry file.
 import { User, AuthSession, canUse, canUseAny } from "./auth";
+import { AppShell } from "./components/AppShell";
 import "./styles.css";
 
 type SegmentState = {
@@ -116,14 +117,14 @@ function canUseAdminSandboxPod(user: User | null) {
 // 직접 URL 진입만 7g의 403 화면에 도달합니다." — 정식 7g 화면은 아직 없으므로(E-05/C-09
 // 대상) 여기서는 임시로 AccessDeniedModal을 띄운다. 화면이 만들어지면 그쪽으로 교체.
 const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
-  history: "history:read",
-  status: "system:read",
-  metadata: "metadata:read",
-  manual: "manual:read"
+  "review.history": "history:read",
+  "admin.status": "system:read",
+  "admin.metadata": "metadata:read",
+  "access.manual": "manual:read"
 };
 
 function routeAccessGranted(user: User | null, route: StudioRoute): boolean {
-  if (route === "admin") {
+  if (route === "admin.console") {
     return canUseAdminConsole(user);
   }
   const requiredPermission = ROUTE_REQUIRED_PERMISSION[route];
@@ -134,11 +135,11 @@ function routeAccessGranted(user: User | null, route: StudioRoute): boolean {
 }
 
 const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
-  history: "Task History",
-  status: "Check Status",
-  metadata: "Metadata View",
-  manual: "User Manual",
-  admin: "Admin"
+  "review.history": "Task History",
+  "admin.status": "Check Status",
+  "admin.metadata": "Metadata View",
+  "access.manual": "User Manual",
+  "admin.console": "Admin"
 };
 
 const PROMPT_SCOPE_ORDER = ["positive", "negative"];
@@ -192,8 +193,8 @@ function App() {
 
   useEffect(() => {
     const nextRoute = routeFromLocation(window.location.pathname, Boolean(user));
-    if (!user && window.location.pathname !== routePath("login")) {
-      navigate("login", true);
+    if (!user && window.location.pathname !== routePath("access.login")) {
+      navigate("access.login", true);
     } else if (nextRoute !== route) {
       setRoute(nextRoute);
     }
@@ -261,14 +262,16 @@ function App() {
     clearLoginSession();
     sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(nextSession));
     setUser(nextSession.user);
-    navigate("studio");
+    // 로그인 직후 랜딩은 구버전 전체 워크스페이스가 아니라 신규 S1(2a) 화면이다.
+    // E-02: design_handoff 2 Create.dc.html 흐름의 실제 첫 단계.
+    navigate("create.load");
   }
 
   function handleLogout() {
     clearLoginSession();
     setUser(null);
-    setRoute("login");
-    window.location.replace(routePath("login"));
+    setRoute("access.login");
+    window.location.replace(routePath("access.login"));
   }
 
   function navigate(nextRoute: StudioRoute, replace = false) {
@@ -294,7 +297,7 @@ function App() {
         route={route}
         onNavigate={navigate}
       />
-      {user && route !== "login" ? (
+      {user && route !== "access.login" ? (
         <StudioShell
           user={user}
           health={health}
@@ -331,11 +334,12 @@ function TopBar({
         <span>DOBEDUB STUDIO</span>
       </div>
       <nav className="toolbar" aria-label="주요 메뉴">
-        {canUse(user, "history:read") ? <button className={route === "history" ? "is-active" : ""} type="button" onClick={() => onNavigate("history")}>Task History</button> : null}
-        {canUse(user, "system:read") ? <button className={route === "status" ? "is-active" : ""} type="button" onClick={() => onNavigate("status")}>Check Status</button> : null}
-        {canUse(user, "metadata:read") ? <button className={route === "metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("metadata")}>Metadata View</button> : null}
-        {canUse(user, "manual:read") ? <button className={route === "manual" ? "is-active" : ""} type="button" onClick={() => onNavigate("manual")}>User Manual</button> : null}
-        {canUseAdminConsole(user) ? <button className={route === "admin" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin")}>Admin</button> : null}
+        <button className={route === "create.load" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
+        {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
+        {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
+        {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
+        {canUse(user, "manual:read") ? <button className={route === "access.manual" ? "is-active" : ""} type="button" onClick={() => onNavigate("access.manual")}>User Manual</button> : null}
+        {canUseAdminConsole(user) ? <button className={route === "admin.console" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.console")}>Admin</button> : null}
       </nav>
       <div className="service-status-group" aria-label="API 서버 상태">
         <div className={`status-pill ${comfyStatus.toLowerCase()}`}>ComfyUI: <strong>{comfyStatus}</strong><span /></div>
@@ -419,6 +423,216 @@ function loginErrorMessage(error: unknown) {
     return "아이디와 비밀번호를 입력하세요.";
   }
   return message || "로그인에 실패했습니다.";
+}
+
+// E-02 · 2a "S1 이미지 로드" — design_handoff_dobedub_v3/2 Create.dc.html의 첫 화면을
+// AppShell(E-01) + v3 디자인 토큰(E-00)으로 다시 구현했다. 워크플로 선택·키프레임
+// 업로드 로직은 StudioShell에 이미 있던 state/handler를 그대로 물려받아 재사용하고
+// (README "재사용할 것은 로직") 화면 구조·스타일만 새로 짰다.
+//
+// 설계 원본에는 "최근 사용 이미지"·"Recent Runs" 패널과 "Save Draft" 버튼이 있지만,
+// 이를 채울 실제 API가 없다(자산 목록 API는 TASKS.md A-01 미착수, 임시저장 API는
+// 존재하지 않음). 예시 데이터를 채워 넣지 않기 위해 이 두 패널과 버튼은 이번
+// 구현에서 의도적으로 제외했다 - A-01 완료 후 다시 채운다.
+function Create2aScreen({
+  user,
+  health,
+  workflows,
+  selectedWorkflow,
+  workflowSelectionLocked,
+  onSelectWorkflow,
+  schema,
+  keyframes,
+  activeImageIndexes,
+  onUploadFiles,
+  onClearKeyframe,
+  onNext
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  workflows: WorkflowItem[];
+  selectedWorkflow: string;
+  workflowSelectionLocked: boolean;
+  onSelectWorkflow: (workflowId: string) => void;
+  schema: WorkflowSchema | null;
+  keyframes: KeyframeState[];
+  activeImageIndexes: Set<number>;
+  onUploadFiles: (index: number, files: FileList | null) => void;
+  onClearKeyframe: (index: number) => void;
+  onNext: () => void;
+}) {
+  const selected = workflows.find((workflow) => workflow.id === selectedWorkflow) || null;
+  const requiredKeyframeCount = schema?.keyframeCount || selected?.keyframeCount || keyframes.length || 0;
+  const filledKeyframeCount = keyframes.filter((keyframe) => Boolean(keyframe.previewUrl)).length;
+  const segmentCount = schema?.segmentCount || selected?.segmentCount || 0;
+  const missingCount = Math.max(requiredKeyframeCount - filledKeyframeCount, 0);
+  const canProceed = Boolean(selectedWorkflow) && missingCount === 0;
+  const system = health?.system || health?.legacy;
+  const comfyStatus = serviceStatusLabel(Boolean(system?.runpod?.configured), "", system?.dryRun ? "DRY-RUN" : undefined);
+  const qwenStatus = qwenStatusLabel(system?.promptLlm, "");
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow="STEP 1 / 4 · 워크플로 선택 포함"
+      headerTitle="이미지 로드"
+      headerActions={
+        <button
+          className="v3-primary-button"
+          type="button"
+          disabled={!canProceed}
+          onClick={onNext}
+        >
+          세그먼트 설정으로 →
+        </button>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-step is-active">
+            <span className="v3-step-index">1</span>
+            <span>이미지 로드</span>
+          </div>
+          <div className="v3-step">
+            <span className="v3-step-index">2</span>
+            <span>세그먼트 설정</span>
+          </div>
+          <div className="v3-step">
+            <span className="v3-step-index">3</span>
+            <span>실행 전 확인</span>
+          </div>
+          <div className="v3-step">
+            <span className="v3-step-index">4</span>
+            <span>결과 조회</span>
+          </div>
+        </div>
+      }
+      sidebarFooter={
+        <div className="v3-service-status">
+          <div>
+            <span>ComfyUI</span>
+            <strong className={comfyStatus === "ONLINE" ? "is-online" : "is-offline"}>{comfyStatus}</strong>
+          </div>
+          <div>
+            <span>Qwen LLM</span>
+            <strong className={qwenStatus === "ONLINE" ? "is-online" : "is-offline"}>{qwenStatus}</strong>
+          </div>
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title">Run Summary</div>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>Workflow</span><strong>{selected?.label || selected?.name || selected?.id || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Keyframes</span><strong>{filledKeyframeCount} / {requiredKeyframeCount}</strong></div>
+            <div className="v3-summary-row"><span>Segments</span><strong>{segmentCount} <span className="v3-summary-note">(자동)</span></strong></div>
+          </div>
+          <div className="v3-summary-card">
+            <div className="v3-label">CHECKLIST</div>
+            <div className={`v3-checklist-item ${selectedWorkflow ? "is-done" : ""}`}>
+              <span className="v3-checklist-dot">{selectedWorkflow ? "✓" : ""}</span>
+              워크플로 선택
+            </div>
+            <div className={`v3-checklist-item ${missingCount === 0 && requiredKeyframeCount > 0 ? "is-done" : "is-warning"}`}>
+              <span className="v3-checklist-dot">{missingCount === 0 && requiredKeyframeCount > 0 ? "✓" : ""}</span>
+              키프레임 {filledKeyframeCount} / {requiredKeyframeCount}
+            </div>
+            <div className="v3-checklist-item is-pending">
+              <span className="v3-checklist-dot" />
+              세그먼트 설정
+            </div>
+            <div className="v3-checklist-item is-pending">
+              <span className="v3-checklist-dot" />
+              실행 전 확인
+            </div>
+          </div>
+        </>
+      }
+    >
+      <div className="v3-field-block">
+        <div className="v3-field-block-header">
+          <div className="v3-field-block-title">Workflow</div>
+        </div>
+        <div className="v3-workflow-grid">
+          {workflows.map((workflow) => (
+            <button
+              key={workflow.id}
+              type="button"
+              className={`v3-workflow-card ${workflow.id === selectedWorkflow ? "is-selected" : ""}`}
+              disabled={workflowSelectionLocked}
+              onClick={() => onSelectWorkflow(workflow.id)}
+            >
+              <div className="v3-workflow-card-head">
+                <span>{workflow.label || workflow.name || workflow.id}</span>
+                {workflow.id === selectedWorkflow ? <span className="v3-workflow-card-check">✓</span> : null}
+              </div>
+              <div className="v3-workflow-card-meta">
+                {workflow.keyframeCount || 1} kf · {workflow.segmentCount || 0} seg
+              </div>
+            </button>
+          ))}
+        </div>
+        {workflowSelectionLocked ? (
+          <p className="v3-inline-notice">생성 중에는 워크플로우 변경이 잠깐 잠깁니다. 현재 작업이 완료 또는 실패하면 다시 선택할 수 있습니다.</p>
+        ) : null}
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">
+            <span>Keyframe Slots</span>
+            <span className="v3-card-header-meta">{filledKeyframeCount} / {requiredKeyframeCount} 필수</span>
+          </div>
+        </div>
+        <div className="v3-keyframe-row">
+          {keyframes.map((keyframe) => (
+            <label
+              key={keyframe.index}
+              className={`v3-keyframe-slot ${activeImageIndexes.has(keyframe.index) ? "is-linked" : ""} ${keyframe.previewUrl ? "has-image" : ""}`}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(event) => onUploadFiles(keyframe.index, event.target.files)}
+              />
+              <div className="v3-keyframe-slot-preview">
+                {keyframe.previewUrl ? <ProtectedImage src={keyframe.previewUrl} alt={`Input ${keyframe.index}`} /> : <span>SLOT {String(keyframe.index).padStart(2, "0")} 비어있음</span>}
+              </div>
+              <div className="v3-keyframe-slot-meta">
+                <span>SLOT {String(keyframe.index).padStart(2, "0")}</span>
+                <span>{keyframe.uploading ? "uploading..." : keyframe.error || keyframe.metaText || ""}</span>
+              </div>
+              {keyframe.previewUrl ? (
+                <button
+                  type="button"
+                  className="v3-keyframe-slot-clear"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onClearKeyframe(keyframe.index);
+                  }}
+                >
+                  삭제
+                </button>
+              ) : null}
+            </label>
+          ))}
+        </div>
+        {missingCount > 0 ? (
+          <div className="v3-warning-strip">
+            <span className="v3-warning-dot" />
+            <span>{missingCount}개 슬롯이 비어 있습니다 — 업로드해야 다음 단계로 넘어갈 수 있습니다</span>
+          </div>
+        ) : null}
+        <div className="v3-note-block">
+          <div className="v3-label">SEGMENT 규칙</div>
+          <div>세그먼트는 <strong>이미지 사이의 전환 구간</strong>입니다. 워크플로가 자동 계산하며 사용자가 개수를 바꿀 수 없습니다.</div>
+        </div>
+      </div>
+    </AppShell>
+  );
 }
 
 function StudioShell({
@@ -1076,27 +1290,31 @@ function StudioShell({
 
   useEffect(() => {
     const granted = routeAccessGranted(user, route);
-    setHistoryModalOpen(route === "history" && granted);
-    setStatusModalOpen(route === "status" && granted);
-    setManualModalOpen(route === "manual" && granted);
-    setMetadataModalOpen(route === "metadata" && granted);
-    setAdminModalOpen(route === "admin" && granted);
-    setAccessDeniedRoute(!granted && route !== "studio" && route !== "login" ? route : null);
+    setHistoryModalOpen(route === "review.history" && granted);
+    setStatusModalOpen(route === "admin.status" && granted);
+    setManualModalOpen(route === "access.manual" && granted);
+    setMetadataModalOpen(route === "admin.metadata" && granted);
+    setAdminModalOpen(route === "admin.console" && granted);
+    setAccessDeniedRoute(
+      !granted && route !== "create.workspace" && route !== "create.load" && route !== "access.login"
+        ? route
+        : null
+    );
 
     if (!granted) {
       return;
     }
 
-    if (route === "history") {
+    if (route === "review.history") {
       void loadHistoryPage(1);
     }
-    if (route === "status") {
+    if (route === "admin.status") {
       void loadSystemStatus();
     }
-    if (route === "manual" && !manualHtml) {
+    if (route === "access.manual" && !manualHtml) {
       void loadManual();
     }
-    if (route === "metadata") {
+    if (route === "admin.metadata") {
       const workflowId = selectedWorkflow || workflows[0]?.id || "";
       if (!workflowId) {
         return;
@@ -1369,7 +1587,7 @@ function StudioShell({
       resetRunState();
       // The history modal is route-controlled. Closing only its local state leaves
       // the URL on /studio/history, which prevents the Task History button opening it again.
-      onNavigate("studio");
+      onNavigate("create.workspace");
       setNotice(`재작업 정보를 생성 화면에 불러왔습니다. 입력 이미지 ${nextKeyframes.filter((keyframe) => keyframe.upload?.assetId).length}개 로드됨.`);
     } catch (error) {
       setModalNotice(error instanceof Error ? error.message : "재작업 정보를 불러오지 못했습니다.");
@@ -1478,6 +1696,31 @@ function StudioShell({
 
   return (
     <>
+    {route === "create.load" ? (
+      <Create2aScreen
+        user={user}
+        health={health}
+        workflows={workflows}
+        selectedWorkflow={selectedWorkflow}
+        workflowSelectionLocked={workflowSelectionLocked}
+        onSelectWorkflow={(workflowId) => {
+          if (workflowSelectionLocked) {
+            setNotice("생성 중에는 워크플로우를 변경할 수 없습니다. 완료 또는 실패 후 다시 선택하세요.");
+            return;
+          }
+          setSelectedWorkflow(workflowId);
+        }}
+        schema={schema}
+        keyframes={keyframes}
+        activeImageIndexes={activeImageIndexes}
+        onUploadFiles={applySelectedFiles}
+        onClearKeyframe={clearKeyframe}
+        // E-02: 2b~2f가 아직 없어 "다음 단계"는 구버전 통합 워크스페이스(create.workspace)로
+        // 이동한다. 같은 StudioShell 상태를 공유하므로 여기서 고른 워크플로/키프레임은
+        // 그대로 이어진다 - 데이터 유실 없음. 2b(세그먼트 설정)가 생기면 그쪽으로 교체.
+        onNext={() => onNavigate("create.workspace")}
+      />
+    ) : (
     <main className="studio-grid">
       <aside className="sidebar">
         <h2>Control Panel</h2>
@@ -1672,6 +1915,7 @@ function StudioShell({
         </div>
       </section>
     </main>
+    )}
     {historyModalOpen ? (
       <HistoryModal
         history={history}
@@ -1687,7 +1931,7 @@ function StudioShell({
         promptReviewItems={promptReviewItems}
         promptReviewLoading={promptReviewLoading}
         promptReviewNotice={promptReviewNotice}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
         onPageChange={(page) => void loadHistoryPage(page)}
         onPageSizeChange={changeHistoryPageSize}
         onSelect={(item) => {
@@ -1725,7 +1969,7 @@ function StudioShell({
         connection={runpodConnection}
         loading={statusLoading}
         notice={statusNotice}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
         onRefresh={() => void loadSystemStatus()}
         onTestRunpod={() => void testRunpodConnection()}
       />
@@ -1735,7 +1979,7 @@ function StudioShell({
         html={manualHtml}
         loading={manualLoading}
         error={manualError}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
       />
     ) : null}
     {metadataModalOpen ? (
@@ -1748,7 +1992,7 @@ function StudioShell({
         models={modelMetadata}
         loading={metadataLoading}
         notice={metadataNotice}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
         onWorkflowChange={(workflowId) => void loadMetadata(workflowId)}
         onTabChange={setMetadataTab}
         onRebuild={() => void rebuildMetadata()}
@@ -1757,7 +2001,7 @@ function StudioShell({
     {adminModalOpen ? (
       <AdminConsoleModal
         user={user}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
         catalog={promptCatalog}
         catalogLoading={promptBuilderLoading}
         catalogNotice={promptBuilderNotice}
@@ -1778,7 +2022,7 @@ function StudioShell({
     {accessDeniedRoute ? (
       <AccessDeniedModal
         routeLabel={ROUTE_LABEL[accessDeniedRoute] || accessDeniedRoute}
-        onClose={() => onNavigate("studio")}
+        onClose={() => onNavigate("create.workspace")}
       />
     ) : null}
     {promptBuilderOpen ? (
