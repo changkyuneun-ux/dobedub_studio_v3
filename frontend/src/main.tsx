@@ -2890,8 +2890,14 @@ function PromptBuilderModal({
   const positivePrompt = generated?.positivePrompt || positiveKeywordDraft || sceneDetailDraft;
   const negativePromptAddition = generated?.negativePrompt || negativeKeywordDraft;
   const negativePrompt = combinePromptText(baseNegativePrompt, negativePromptAddition);
-  const warnings = generated?.warnings || [];
-  // C-01: 화면 `2b` 설계대로 "용어 규칙 위반"(error) 심각도가 있으면 적용을 막는다 -
+  // C-01: 용어 검증·관계 적용·prompt_rules 평가·필수값 누락 경고는
+  // buildPromptScene()(POST /prompts/scene)의 응답(scene.warnings)에 담기고,
+  // generatePrompt()(POST /prompts/generate)의 응답(generated.warnings)에는
+  // LLM 생성 자체의 경고(예: missing_scene_detail)만 담긴다 - 화면 2b 설계가
+  // 보여주는 "용어 규칙 위반"/"필수 값 누락" 예시는 scene.warnings 쪽이라 두
+  // 소스를 합쳐야 실제로 존재하는 경고가 전부 드러난다.
+  const warnings = [...(scene?.warnings || []), ...(generated?.warnings || [])];
+  // 화면 `2b` 설계대로 "용어 규칙 위반"(error) 심각도가 있으면 적용을 막는다 -
   // BLOCK 배지만 그리고 실제로는 막지 않으면 라벨과 동작이 어긋난다.
   const warningGroups = groupPromptWarningsBySeverity(warnings);
   const hasBlockingWarning = warningGroups.some((group) => group.severity === "error");
