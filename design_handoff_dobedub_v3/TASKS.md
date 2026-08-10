@@ -183,7 +183,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] **C-05 `4c` 재사용** — `GET /api/prompts/reusable` (keyword·workflowId·minRating·reviewedOnly·reuseEligible·limit) 존재. — *E-03(금번 세션, 커밋 예정)에서 `Create4cScreen` 구현으로 반영.*
 - [ ] **C-06 `7a` 시스템 프롬프트** — `GET/PUT /api/prompts/system-prompt` 존재.
 - [ ] **C-07 `7b` 기능 리소스 매핑** — `GET /api/admin/permissions`가 roles·permissions·resources를 함께 반환. 조회 전용 화면.
-- [ ] **C-08 `7c` 사용자 상세** — `PUT /admin/users/{id}`, `POST …/reset-password`, `POST …/deactivate`, `user_permissions` 테이블 존재.
+- [x] **C-08 `7c` 사용자 상세** — `PUT /admin/users/{id}`, `POST …/reset-password`, `POST …/deactivate`, `user_permissions` 테이블 존재. — *E-04(금번 세션)에서 `Create3eScreen`/`Create7cScreen` 구현으로 반영, `resetAdminUserPassword`/`deactivateAdminUser`를 처음으로 UI에 연결.*
 - [ ] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요.
 - [x] **C-10 `2e` 세그먼트 설정** — `GET /api/segment-defaults`, `/workflows/{id}/segment-defaults` 존재. — *E-02(`8ac0c7a`)에서 `Create2eScreen` 구현으로 반영.*
 - [ ] **C-11 `6c` `5b` 상태·Pod** — `/system/status`, `/runpod/connection`, `/admin/sandbox-pod` 존재.
@@ -253,7 +253,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `5a` 자산 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *A-01 API·화면 모두 완료(`Create5aScreen`). 아직 커밋 전.*
 - [ ] `5c` 컬렉션 — *의도적으로 범위 밖. A-02(컬렉션 테이블·API)가 저장소에 전혀 없어(`collections`/`collection_items` 마이그레이션 없음, `GET/POST /api/collections` 없음) 화면을 만들면 전부 가짜 데이터가 됨 — 원칙 위반이라 보류. A-02 착수 후 재개.*
 
-### E-04 · `4 Admin` 흐름 — P1 — **진행 중** (`7a`·`6c` 완료)
+### E-04 · `4 Admin` 흐름 — P1 — **완료**
 구버전 `AdminConsoleModal`(탭형 단일 모달, main.tsx)이 users/roles/catalog/workflows/sandbox를 이미 다 구현해 두었고, `StatusModal`(6c)·`MetadataModal`(6d)·`SystemPromptEditor`(7a 원형)도 각각 독립 라우트/패널로 존재했다. E-04는 이 로직들을 유지한 채 화면만 `AppShell` 기반 v3 화면으로 하나씩 옮기는 작업이다 — 새 API를 만들 필요가 거의 없다(4b 제외).
 - [x] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능. — *`PromptCatalogAdminPanelV3` 구현. 구버전 `PromptCatalogAdminContent`의 스코프→그룹→서브카테고리→용어 트리 탐색·폼 상태·저장 payload 구성 로직을 그대로 옮기고 마크업만 v3로 재작성. 설계 문서는 4e/3d를 별도 화면 id로 나누지만, 원본부터 하나의 연결된 트리+상세 패널로 설계돼 있어(구버전 코드 자체가 그렇게 만들어짐) 컴포넌트 하나를 두 라우트(`admin.catalogHierarchy`/`admin.catalogTerms`)가 함께 쓰도록 했다 - 3f/3c 병합과 같은 이유. `focus` prop으로 헤더 타이틀·상호 링크만 다르게 표시.*
 - [x] `4b` Negative 기본값 — *기존 admin UI 자체가 없었으나, 조사 결과 4b는 별도 데이터가 아니라 4e/3d와 같은 카탈로그 트리를 NEGATIVE scope로 필터링한 뷰임을 확인(design_handoff 4b 원본 문구: "모든 Run에 적용되는 네거티브는 여기서 관리하지 않습니다 - 기본 네거티브는 워크플로 JSON의 네거티브 노드에 내장되어 있습니다"). `PromptCatalogAdminPanelV3`에 `focus="negativeDefaults"`를 추가해 같은 컴포넌트를 재사용 — 새 컴포넌트나 API를 만들지 않음. `defaultNegativePrompt`(워크플로 JSON에 내장된, 세그먼트별 읽기 전용 값)와는 별개 개념임을 화면 안내 카드로 명시. "변경 이력"은 A-04 미착수라 미구현 배지로 표시.*
@@ -262,7 +262,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `6d` 메타데이터 (C-12) — *`Create6dScreen` + `renderMetadataTabV3` 구현. 구버전 `renderMetadataTab`과 데이터 로직은 동일하고 마크업만 v3 카드로 새로 짬. 구버전 `metadataModalOpen` 오픈 로직은 이제 항상 false로 죽은 코드(E-06 정리 대상, `MetadataModal`/`renderMetadataTab`/`ConfigRow` 포함).*
 - [x] `3b` 역할×권한 매트릭스 — *`Create3bScreen` 구현. 구버전 `AdminConsoleModal` Permissions 탭의 역할 목록·권한 토글·저장 로직(`toggleRolePermission`/`saveRolePermissions`)을 화면 자체의 독립 상태로 옮김.*
 - [x] `7b` 기능 리소스 매핑 (C-07) — D-01의 "SCREEN 행 만들지 않음" 반영. — *`Create7bScreen`으로 3b와 분리 구현(설계 문서가 둘을 별도 화면 id로 나눠서). 두 화면은 `GET /api/admin/permissions`를 각자 독립적으로 호출한다(데이터가 작아 상태 공유의 이점이 없음). D-01 결정대로 reports/configs는 표에 없음(애초에 리소스 카탈로그에 없어 별도 조치 불필요).*
-- [ ] `3e` 사용자 목록, `7c` 사용자 상세 (C-08) — 기존 Users 탭 로직 재사용하되, `client.ts`에 이미 있는 `resetAdminUserPassword`/`deactivateAdminUser`가 지금까지 어디서도 호출되지 않고 있어(미사용) 이번에 처음 UI에 연결해야 함.
+- [x] `3e` 사용자 목록, `7c` 사용자 상세 (C-08) — *`Create3eScreen`(목록)·`Create7cScreen`(상세/등록)으로 분리 구현, 4a/4d와 같은 이유로 상태(`adminUsers`/`selectedAdminUserId`/`adminUserForm` 등)를 `StudioShell`에 두었다. 구버전 `AdminConsoleModal` Users 탭의 폼 로직(`adminUserFormFrom`/`adminRoleOptions`/`adminRolePermissionCodes`/`adminPermissionOptions`/`adminPermissionLabel`)을 그대로 재사용했다. 두 가지를 새로 연결했다 - `client.ts`에 정의만 있고 어디서도 호출되지 않던 `resetAdminUserPassword`(전용 "비밀번호 재설정" 카드)와 `deactivateAdminUser`(전용 "사용자 비활성화" 버튼). 구버전은 비밀번호 변경을 일반 Save User payload에 얹어 보냈지만, 신규 화면은 기존 사용자의 비밀번호 변경을 전용 엔드포인트로만 받도록 분리했다(두 경로가 같은 값을 다르게 덮어쓰는 경합 방지) - 신규 사용자 생성 시 초기 비밀번호만 예외적으로 Save User와 함께 보낸다. 재활성화(INACTIVE→ACTIVE)는 전용 활성화 엔드포인트가 없어 기존처럼 State를 바꾸고 Save User로 처리한다.*
 - [x] `6c` 시스템 상태 (C-11) — *`Create6cScreen` 구현. `StatusModal`/`StatusCard`와 동일한 판정식(dry-run/ok 계산) 그대로 이관, 카드 7장 전부 실제 헬스체크 응답 필드. 구버전 `StatusModal` 오픈 로직(`statusModalOpen`)은 이제 항상 false로 죽은 코드(E-06 정리 대상).*
 - [x] `5b` Sandbox Pod (C-11) — *`Create5bScreen` 구현. 구버전 `AdminConsoleModal`의 Sandbox 탭은 users/roles/workflows 등 다른 탭 상태와 한 컴포넌트에 얽혀 있어 재사용이 불가능했다 — `sandboxPod`/`sandboxPodLoading`/`sandboxPodPendingAction` 상태와 `loadSandboxPod`/`controlSandboxPod` 로직만 화면 자체의 독립 상태로 옮겨왔다(계산식·API 호출은 그대로).*
 - [ ] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음 — *각 화면 이관 시점마다 확인, 아직 전 화면 완료 전이라 최종 확인은 E-04 종료 시.*
@@ -287,7 +287,7 @@ E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`admin
 1. ~~**S-01 · D-03 · D-02 · D-01**~~ — **완료.** 코드 정렬과 정리, 다른 작업의 토대.
 2. ~~**B-06**~~ — **완료(1~3단계, 4단계 컬럼 정리까지).** 카탈로그 관련 화면 전부가 여기에 막혀 있었으나 이제 해제됨.
 3. ~~**B-02 · B-03 · B-01 · B-04**~~ — **완료.** 로직은 끝났고 화면은 E 절에서 이관.
-4. ~~**E-00 → E-01 → E-02 → E-03**~~ — **완료 (`5c`만 A-02 대기로 제외).** 다음은 **E-04 → E-05 → E-06**. C-01~C-12는 이 단계에 흡수됨.
+4. ~~**E-00 → E-01 → E-02 → E-03 → E-04**~~ — **완료 (`5c`만 A-02 대기로 제외).** 다음은 **E-06**(사용자 지시 순서 `a-01→5a/5c→e04→e06`에 따름) → **E-05**. C-01~C-12는 이 단계에 흡수됨.
 5. **A-01 → A-04 → B-05** — 신규 개발.
 6. **A-02 · A-03 · A-06 · B-08** — 후순위.
 

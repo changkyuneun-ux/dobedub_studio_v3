@@ -39,6 +39,14 @@
 //   admin.resourceMap  — 7b 기능 리소스 매핑 (신규 구현, E-04). 3b와 같은
 //                       PermissionGovernance 데이터를 공유하지만, 원본 구버전
 //                       탭 안에 같이 있던 것을 설계 문서 화면 구분대로 분리했다.
+//   admin.users        — 3e 사용자 목록 (신규 구현, E-04). "사용자" Admin
+//                       사이드바 그룹 소속.
+//   admin.userDetail   — 7c 사용자 상세/등록 (신규 구현, E-04). 3e 목록에서
+//                       행을 클릭하거나 New User를 누르면 이 화면으로 이동한다.
+//                       구버전 AdminConsoleModal Users 탭은 목록·상세를 한
+//                       화면에 같이 그렸지만, design_handoff가 3e/7c로 화면
+//                       id를 분리하므로 4a/4d와 같은 방식(목록/상세 분리, 상태는
+//                       StudioShell에 유지)으로 나눴다.
 //   admin.workflows      — 4a 워크플로 정의 목록/조회/활성화 (신규 구현, E-04).
 //   admin.workflowRegister — 4d 워크플로 등록/갱신 단일 저장 폼 (신규 구현, E-04).
 //                       "워크플로 정의" Admin 사이드바 그룹 소속.
@@ -75,6 +83,8 @@ export type StudioRoute =
   | "admin.sandbox"
   | "admin.roles"
   | "admin.resourceMap"
+  | "admin.users"
+  | "admin.userDetail"
   | "admin.workflows"
   | "admin.workflowRegister"
   | "admin.catalogHierarchy"
@@ -115,6 +125,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.sandbox": "/studio/admin/sandbox",
   "admin.roles": "/studio/admin/roles",
   "admin.resourceMap": "/studio/admin/resource-map",
+  "admin.users": "/studio/admin/users",
+  "admin.userDetail": "/studio/admin/users/detail",
   "admin.workflows": "/studio/admin/workflows",
   "admin.workflowRegister": "/studio/admin/workflows/register",
   "admin.catalogHierarchy": "/studio/admin/catalog/hierarchy",

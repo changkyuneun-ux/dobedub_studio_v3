@@ -124,6 +124,8 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "admin.sandbox": "sandbox:read",
   "admin.roles": "roles:read",
   "admin.resourceMap": "roles:read",
+  "admin.users": "users:read",
+  "admin.userDetail": "users:read",
   "admin.workflows": "workflows:read",
   "admin.workflowRegister": "workflows:write",
   "admin.catalogHierarchy": "prompt-catalog:read",
@@ -162,9 +164,9 @@ function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
 
 // E-04: Admin 영역 AppShell의 사이드바 1차 메뉴(adminRoles/adminUsers/adminCatalog/
 // adminWorkflows/adminSandbox)도 GENERATE 영역과 같은 방식으로 한 곳에서 매핑한다.
-// 지금은 "프롬프트 카탈로그" 그룹의 7a만 신규 화면으로 이관됐고 나머지 그룹(역할&권한·
-// 사용자·워크플로 정의·Sandbox Pod)은 아직 구버전 AdminConsoleModal 안에만 있다 -
-// 그 메뉴들을 누르면 이관 전까지 admin.console(구버전 모달)로 보낸다.
+// E-04가 끝나면서 모든 그룹이 신규 화면으로 이관됐다 - 남는 admin.console(구버전
+// 모달) 분기는 이제 어떤 사이드바 메뉴에서도 도달하지 않고, 옛 북마크(/studio/admin/
+// console)로만 남아 있다(E-06 정리 대상).
 function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
   if (key === "adminCatalog") {
     onGoTo("admin.catalogHierarchy");
@@ -176,6 +178,8 @@ function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
     onGoTo("admin.sandbox");
   } else if (key === "adminRoles") {
     onGoTo("admin.roles");
+  } else if (key === "adminUsers") {
+    onGoTo("admin.users");
   } else if (key === "adminWorkflows") {
     onGoTo("admin.workflows");
   } else {
@@ -190,6 +194,8 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "admin.sandbox": "Sandbox Pod",
   "admin.roles": "역할 & 권한",
   "admin.resourceMap": "기능 리소스 매핑",
+  "admin.users": "사용자",
+  "admin.userDetail": "사용자 상세",
   "admin.workflows": "워크플로 정의",
   "admin.workflowRegister": "워크플로 등록",
   "admin.catalogHierarchy": "카탈로그 계층",
@@ -3118,6 +3124,237 @@ function Create7bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRo
   );
 }
 
+// E-04 · 3e "사용자 목록" — 구버전 AdminConsoleModal Users 탭의 왼쪽 사용자
+// 목록을 독립 화면으로 뺐다. 상세/등록 폼은 7c로 분리했고, 상태(users 목록·선택된
+// 사용자·폼 값)는 4a/4d와 같은 이유로 StudioShell에 있다 - 3e↔7c를 오갈 때 목록을
+// 다시 불러오지 않기 위해서다.
+function Create3eScreen({
+  user,
+  onGoTo,
+  items,
+  loading,
+  notice,
+  onSelectUser,
+  onNewUser
+}: {
+  user: User;
+  onGoTo: (route: StudioRoute) => void;
+  items: AdminUser[];
+  loading: boolean;
+  notice: string;
+  onSelectUser: (userId: string) => void;
+  onNewUser: () => void;
+}) {
+  const canWrite = canUse(user, "users:write");
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminUsers"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 사용자"
+      headerTitle={`사용자 ${items.length}명`}
+      headerActions={canWrite ? <button className="v3-primary-button" type="button" onClick={onNewUser}>New User</button> : undefined}
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      <div className="v3-card">
+        <div className="v3-review-table-head" style={{ gridTemplateColumns: "1.2fr 1fr 1fr 1fr" }}>
+          <span>NAME</span><span>ID</span><span>ROLE</span><span>STATE</span>
+        </div>
+        {items.map((item) => (
+          <button
+            className="v3-review-table-row"
+            style={{ gridTemplateColumns: "1.2fr 1fr 1fr 1fr", width: "100%", textAlign: "left", background: "none", border: "none", borderTop: "1px solid var(--v3-border)", cursor: "pointer" }}
+            type="button"
+            key={item.id}
+            onClick={() => onSelectUser(item.id)}
+          >
+            <span>{item.name || item.id}</span>
+            <span className="v3-review-config">{item.id}</span>
+            <span>{item.role}</span>
+            <span className={`v3-status-badge ${item.isActive === false ? "is-pending" : "is-ready"}`}>{item.isActive === false ? "INACTIVE" : "ACTIVE"}</span>
+          </button>
+        ))}
+        {!loading && !items.length ? <p className="v3-muted-text" style={{ padding: 16 }}>등록된 사용자가 없습니다.</p> : null}
+        {loading && !items.length ? <p className="v3-muted-text" style={{ padding: 16 }}>불러오는 중입니다...</p> : null}
+      </div>
+    </AppShell>
+  );
+}
+
+// E-04 · 7c "사용자 상세/등록" — 구버전 AdminConsoleModal Users 탭의 상세 폼
+// (ID/Name/Password/Role/State, Role Guide, Role Default Permissions, Extra
+// Permissions, Effective Permissions) 로직을 그대로 옮겼다. 두 가지를 새로
+// 추가했다 - client.ts에 이미 정의돼 있었지만 어디서도 호출되지 않던
+// resetAdminUserPassword/deactivateAdminUser를 각각 별도 액션(비밀번호 재설정
+// 입력창, 비활성화 버튼)으로 처음 연결했다. 기존 Save User는 이름/역할/State/
+// 예외 권한만 저장하고(신규 생성 시엔 초기 비밀번호도 함께 저장), 기존 사용자의
+// 비밀번호 변경은 이제 전용 엔드포인트로만 이뤄진다 - 두 경로가 같은 값을 다르게
+// 덮어쓰는 경합을 없애기 위해서다.
+function Create7cScreen({
+  user,
+  onGoTo,
+  selectedUser,
+  form,
+  governance,
+  loading,
+  notice,
+  passwordResetValue,
+  onFieldChange,
+  onRoleChange,
+  onTogglePermission,
+  onSave,
+  onPasswordResetValueChange,
+  onResetPassword,
+  onDeactivate,
+  onNewUser
+}: {
+  user: User;
+  onGoTo: (route: StudioRoute) => void;
+  selectedUser: AdminUser | null;
+  form: Record<string, string>;
+  governance: PermissionGovernance | null;
+  loading: boolean;
+  notice: string;
+  passwordResetValue: string;
+  onFieldChange: (field: "id" | "name" | "password" | "isActive", value: string) => void;
+  onRoleChange: (role: string) => void;
+  onTogglePermission: (permission: string) => void;
+  onSave: () => void;
+  onPasswordResetValueChange: (value: string) => void;
+  onResetPassword: () => void;
+  onDeactivate: () => void;
+  onNewUser: () => void;
+}) {
+  const canWrite = canUse(user, "users:write");
+  const isDefaultAdmin = selectedUser?.id === "dobedub";
+  const rolePermissions = adminRolePermissionCodes(governance, form.role);
+  const extraPermissions = adminPermissionsFromText(form.permissions);
+  const effectivePermissions = Array.from(new Set([...rolePermissions, ...extraPermissions]));
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminUsers"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 사용자"
+      headerTitle={selectedUser ? "사용자 상세" : "사용자 등록"}
+      headerActions={
+        <>
+          <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.users")}>목록으로</button>
+          {canWrite ? <button className="v3-secondary-button" type="button" onClick={onNewUser}>New User</button> : null}
+        </>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">{selectedUser ? selectedUser.name || selectedUser.id : "신규 사용자"}</div>
+          <span className={`v3-status-badge ${selectedUser?.isActive === false ? "is-pending" : "is-ready"}`}>{selectedUser?.isActive === false ? "INACTIVE" : selectedUser ? "ACTIVE" : "NEW"}</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: 16 }}>
+          <div className="v3-reuse-grid">
+            <label className="v3-checklist-item" style={{ display: "block" }}>ID
+              <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={form.id} disabled={Boolean(selectedUser)} onChange={(event) => onFieldChange("id", event.target.value)} />
+            </label>
+            <label className="v3-checklist-item" style={{ display: "block" }}>Name
+              <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={form.name} onChange={(event) => onFieldChange("name", event.target.value)} />
+            </label>
+            {!selectedUser ? (
+              <label className="v3-checklist-item" style={{ display: "block" }}>초기 비밀번호
+                <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} type="password" value={form.password} onChange={(event) => onFieldChange("password", event.target.value)} />
+              </label>
+            ) : null}
+            <label className="v3-checklist-item" style={{ display: "block" }}>Role
+              <select className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={form.role} onChange={(event) => onRoleChange(event.target.value)}>
+                {adminRoleOptions(governance).map((role) => <option value={role.code} key={role.code}>{role.code}</option>)}
+              </select>
+            </label>
+            <label className="v3-checklist-item" style={{ display: "block" }}>State
+              <select className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={isDefaultAdmin ? "true" : form.isActive} disabled={isDefaultAdmin} onChange={(event) => onFieldChange("isActive", event.target.value)}>
+                <option value="true">ACTIVE</option>
+                <option value="false">INACTIVE</option>
+              </select>
+            </label>
+          </div>
+          {isDefaultAdmin ? <p className="v3-muted-text">기본 SUPER_ADMIN 계정은 시스템 잠금 방지를 위해 비활성화할 수 없습니다.</p> : null}
+          <div className="v3-inline-actions">
+            <button className="v3-primary-button" type="button" disabled={loading || !canWrite || !form.id || !form.name} onClick={onSave}>Save User</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header"><div className="v3-card-header-title">Role Default Permissions</div><span className="v3-card-header-meta">{rolePermissions.length}</span></div>
+        <div className="v3-term-chip-row" style={{ padding: 16 }}>
+          {rolePermissions.map((permission) => (
+            <span className="v3-term-chip is-selected" key={permission} title={adminPermissionLabel(governance, permission)}>{permission}</span>
+          ))}
+          {!rolePermissions.length ? <p className="v3-muted-text">선택한 role의 기본 권한이 없습니다.</p> : null}
+        </div>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header"><div className="v3-card-header-title">Extra Permissions</div><span className="v3-card-header-meta">{extraPermissions.length} selected</span></div>
+        <div className="v3-term-chip-row" style={{ padding: 16 }}>
+          {adminPermissionOptions(governance).map((item) => {
+            const isRolePermission = rolePermissions.includes(item.value);
+            const selected = extraPermissions.includes(item.value);
+            return (
+              <button
+                key={item.value}
+                type="button"
+                className={`v3-term-chip ${selected ? "is-selected" : ""}`}
+                disabled={!canWrite || isRolePermission}
+                onClick={() => onTogglePermission(item.value)}
+                title={isRolePermission ? "Role 기본 권한" : `${item.label} · ${item.description}`}
+              >
+                {item.value}
+              </button>
+            );
+          })}
+        </div>
+        <p className="v3-muted-text" style={{ padding: "0 16px 16px" }}>Role 기본 권한은 여기서 중복 선택하지 않습니다. 사용자 예외 권한만 추가로 선택합니다.</p>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header"><div className="v3-card-header-title">Effective Permissions</div><span className="v3-card-header-meta">{effectivePermissions.length}</span></div>
+        <div className="v3-term-chip-row" style={{ padding: 16 }}>
+          {effectivePermissions.map((permission) => (
+            <span className="v3-term-chip is-selected" key={permission}>{permission}</span>
+          ))}
+        </div>
+      </div>
+
+      {selectedUser ? (
+        <div className="v3-card">
+          <div className="v3-card-header"><div className="v3-card-header-title">비밀번호 재설정</div></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 16 }}>
+            <label className="v3-checklist-item" style={{ display: "block" }}>새 비밀번호
+              <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} type="password" value={passwordResetValue} onChange={(event) => onPasswordResetValueChange(event.target.value)} />
+            </label>
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button" type="button" disabled={loading || !canWrite || !passwordResetValue} onClick={onResetPassword}>비밀번호 재설정</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {selectedUser && !isDefaultAdmin && selectedUser.isActive !== false ? (
+        <div className="v3-card">
+          <div className="v3-card-header"><div className="v3-card-header-title" style={{ color: "var(--v3-danger)" }}>사용자 비활성화</div></div>
+          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+            <p className="v3-muted-text">비활성화된 사용자는 로그인할 수 없습니다. 다시 활성화하려면 State를 ACTIVE로 바꾸고 Save User를 누르세요.</p>
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button" type="button" disabled={loading || !canWrite} onClick={onDeactivate}>사용자 비활성화</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </AppShell>
+  );
+}
+
 // E-04 · 4a "워크플로 정의" 목록/조회/활성화 — 구버전 AdminConsoleModal Workflows
 // 탭의 목록·상세·활성화 로직을 그대로 옮겼다(등록 폼은 4d로 분리). 상태는
 // StudioShell에 있다(adminWorkflowItems 등) - 4a↔4d를 오갈 때 같은 목록을
@@ -3729,6 +3966,17 @@ function StudioShell({
   });
   const [adminWorkflowsLoading, setAdminWorkflowsLoading] = useState(false);
   const [adminWorkflowsNotice, setAdminWorkflowsNotice] = useState("");
+  // E-04(3e/7c): 구버전 AdminConsoleModal Users 탭의 상태를 그대로 옮겨왔다. 4a/4d와
+  // 같은 이유로 StudioShell에 둔다 - 목록(3e)과 상세(7c)를 오갈 때 다시 불러오지
+  // 않기 위해서다. permissionGovernance는 apiClient.adminUsers() 응답에 이미
+  // 포함돼 있어(admin_service.list_admin_users) 별도 요청 없이 재사용한다.
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [adminUserGovernance, setAdminUserGovernance] = useState<PermissionGovernance | null>(null);
+  const [selectedAdminUserId, setSelectedAdminUserId] = useState("");
+  const [adminUserForm, setAdminUserForm] = useState<Record<string, string>>(() => adminUserFormFrom(null));
+  const [adminUserPasswordReset, setAdminUserPasswordReset] = useState("");
+  const [adminUsersLoading, setAdminUsersLoading] = useState(false);
+  const [adminUsersNotice, setAdminUsersNotice] = useState("");
   const [modalNotice, setModalNotice] = useState("");
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatusResponse | null>(null);
@@ -4444,6 +4692,124 @@ function StudioShell({
     }
   }
 
+  async function loadAdminUsers() {
+    setAdminUsersLoading(true);
+    setAdminUsersNotice("");
+    try {
+      const response = await apiClient.adminUsers();
+      const items = response.items || [];
+      setAdminUsers(items);
+      setAdminUserGovernance(response.permissionGovernance || null);
+      setSelectedAdminUserId((current) => (current && items.some((item) => item.id === current)) ? current : "");
+    } catch (error) {
+      setAdminUsersNotice(error instanceof Error ? error.message : "사용자 목록을 불러오지 못했습니다.");
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }
+
+  function selectAdminUser(userId: string) {
+    setSelectedAdminUserId(userId);
+    setAdminUserForm(adminUserFormFrom(adminUsers.find((item) => item.id === userId) || null));
+    setAdminUserPasswordReset("");
+    setAdminUsersNotice("");
+    onNavigate("admin.userDetail");
+  }
+
+  function startNewAdminUserRegistration() {
+    setSelectedAdminUserId("");
+    setAdminUserForm(adminUserFormFrom(null));
+    setAdminUserPasswordReset("");
+    setAdminUsersNotice("");
+    onNavigate("admin.userDetail");
+  }
+
+  function changeAdminUserRole(role: string) {
+    setAdminUserForm((current) => ({
+      ...current,
+      role,
+      permissions: adminPermissionsToText(adminPermissionsFromText(current.permissions).filter((permission) => !adminRolePermissionCodes(adminUserGovernance, role).includes(permission)))
+    }));
+  }
+
+  function toggleAdminUserPermission(permission: string) {
+    const rolePermissions = adminRolePermissionCodes(adminUserGovernance, adminUserForm.role);
+    if (rolePermissions.includes(permission)) {
+      return;
+    }
+    setAdminUserForm((current) => {
+      const currentPermissions = adminPermissionsFromText(current.permissions);
+      const next = currentPermissions.includes(permission)
+        ? currentPermissions.filter((item) => item !== permission)
+        : [...currentPermissions, permission];
+      return { ...current, permissions: adminPermissionsToText(next) };
+    });
+  }
+
+  // 신규 사용자는 초기 비밀번호를 이 저장 경로로 함께 보낸다. 기존 사용자의
+  // 비밀번호 변경은 resetSelectedAdminUserPassword()의 전용 엔드포인트로만
+  // 이뤄지므로, 여기서는 selectedAdminUserId가 있을 때 password를 보내지 않는다.
+  async function saveAdminUserDetail() {
+    setAdminUsersLoading(true);
+    setAdminUsersNotice("");
+    try {
+      const payload: Record<string, unknown> = {
+        id: adminUserForm.id,
+        name: adminUserForm.name,
+        role: adminUserForm.role,
+        permissions: adminPermissionsFromText(adminUserForm.permissions),
+        isActive: adminUserForm.isActive === "true"
+      };
+      if (!selectedAdminUserId) {
+        payload.password = adminUserForm.password;
+      }
+      const response = await apiClient.saveAdminUser(payload, selectedAdminUserId || undefined);
+      setAdminUsers(response.items || []);
+      setSelectedAdminUserId(response.user?.id || adminUserForm.id);
+      setAdminUsersNotice("사용자 정보를 저장했습니다.");
+    } catch (error) {
+      setAdminUsersNotice(error instanceof Error ? error.message : "User save failed");
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }
+
+  // client.ts에 정의만 돼 있고 어디서도 호출되지 않던 엔드포인트를 처음 연결한다.
+  async function resetSelectedAdminUserPassword() {
+    if (!selectedAdminUserId || !adminUserPasswordReset) {
+      return;
+    }
+    setAdminUsersLoading(true);
+    setAdminUsersNotice("");
+    try {
+      await apiClient.resetAdminUserPassword(selectedAdminUserId, adminUserPasswordReset);
+      setAdminUserPasswordReset("");
+      setAdminUsersNotice("비밀번호를 재설정했습니다.");
+    } catch (error) {
+      setAdminUsersNotice(error instanceof Error ? error.message : "Password reset failed");
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }
+
+  async function deactivateSelectedAdminUser() {
+    if (!selectedAdminUserId) {
+      return;
+    }
+    setAdminUsersLoading(true);
+    setAdminUsersNotice("");
+    try {
+      const response = await apiClient.deactivateAdminUser(selectedAdminUserId);
+      setAdminUsers(response.items || []);
+      setAdminUserForm((current) => ({ ...current, isActive: "false" }));
+      setAdminUsersNotice("사용자를 비활성화했습니다.");
+    } catch (error) {
+      setAdminUsersNotice(error instanceof Error ? error.message : "User deactivate failed");
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }
+
   useEffect(() => {
     let active = true;
     Promise.all([apiClient.workflows(), apiClient.history(1, historyPageSize)])
@@ -4528,6 +4894,9 @@ function StudioShell({
     if (route === "admin.workflows" && !adminWorkflowItems.length) {
       void loadAdminWorkflows();
     }
+    if ((route === "admin.users" || route === "admin.userDetail") && !adminUsers.length) {
+      void loadAdminUsers();
+    }
     if ((route === "admin.catalogHierarchy" || route === "admin.catalogTerms" || route === "admin.negativeDefaults") && !promptCatalog && !promptBuilderLoading) {
       void loadPromptCatalog();
     }
@@ -4545,7 +4914,7 @@ function StudioShell({
       setMetadataWorkflowId(workflowId);
       void loadMetadata(workflowId);
     }
-  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt, adminWorkflowItems.length, promptCatalog, promptBuilderLoading]);
+  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt, adminWorkflowItems.length, adminUsers.length, promptCatalog, promptBuilderLoading]);
 
   // E-02 · 2c → 2d: generateVideo()는 create.confirm(2f)의 onRun에서 호출되고
   // 완료(성공/실패/취소)까지 내부적으로 기다린다(pollJob). running이 false로
@@ -5239,6 +5608,35 @@ function StudioShell({
       <Create3bScreen user={user} onGoTo={onNavigate} />
     ) : route === "admin.resourceMap" ? (
       <Create7bScreen user={user} onGoTo={onNavigate} />
+    ) : route === "admin.users" ? (
+      <Create3eScreen
+        user={user}
+        onGoTo={onNavigate}
+        items={adminUsers}
+        loading={adminUsersLoading}
+        notice={adminUsersNotice}
+        onSelectUser={selectAdminUser}
+        onNewUser={startNewAdminUserRegistration}
+      />
+    ) : route === "admin.userDetail" ? (
+      <Create7cScreen
+        user={user}
+        onGoTo={onNavigate}
+        selectedUser={adminUsers.find((item) => item.id === selectedAdminUserId) || null}
+        form={adminUserForm}
+        governance={adminUserGovernance}
+        loading={adminUsersLoading}
+        notice={adminUsersNotice}
+        passwordResetValue={adminUserPasswordReset}
+        onFieldChange={(field, value) => setAdminUserForm((current) => ({ ...current, [field]: value }))}
+        onRoleChange={changeAdminUserRole}
+        onTogglePermission={toggleAdminUserPermission}
+        onSave={() => void saveAdminUserDetail()}
+        onPasswordResetValueChange={setAdminUserPasswordReset}
+        onResetPassword={() => void resetSelectedAdminUserPassword()}
+        onDeactivate={() => void deactivateSelectedAdminUser()}
+        onNewUser={startNewAdminUserRegistration}
+      />
     ) : route === "admin.workflows" ? (
       <Create4aScreen
         user={user}
