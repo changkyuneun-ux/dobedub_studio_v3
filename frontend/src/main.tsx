@@ -334,7 +334,7 @@ function TopBar({
         <span>DOBEDUB STUDIO</span>
       </div>
       <nav className="toolbar" aria-label="주요 메뉴">
-        <button className={route === "create.load" || route === "create.prompt" || route === "create.segments" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
+        <button className={["create.load", "create.prompt", "create.segments", "create.confirm", "create.progress", "create.result", "create.workspace"].includes(route) ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
         {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
         {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
         {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
@@ -1131,6 +1131,487 @@ function Create2eScreen({
   );
 }
 
+// E-02 · 2f "S4 실행 전 전체 구성 확인 & Run" — design_handoff_dobedub_v3/
+// 2 Create.dc.html의 네 번째 화면. 제출 payload는 기존 jobPayloadPreview를 그대로
+// 보여준다(설계 원본의 요약 문구 대신 실제 JSON을 노출 - 값을 지어내지 않기 위함).
+//
+// 설계 원본과 다르게 뺀 것:
+// - 대기 큐 · 예상 시작 시각 · 엔드포인트 HEALTHY 표시 — 이 정보를 주는 API가 없다.
+// - "완료 시 알림 받기" · "결과를 Assets에 자동 저장" 체크박스 — 알림 저장 기능은
+//   A-03 미착수, 자산 저장은 이미 항상 자동이라 끌 수 있는 옵션 자체가 없다.
+// - "이 구성을 초안으로 저장" — 임시저장 API가 없다.
+function Create2fScreen({
+  user,
+  health,
+  selected,
+  selectedWorkflow,
+  keyframes,
+  segments,
+  jobPayloadPreview,
+  running,
+  onEditSegments,
+  onRun
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  selected: WorkflowItem | null;
+  selectedWorkflow: string;
+  keyframes: KeyframeState[];
+  segments: SegmentState[];
+  jobPayloadPreview: unknown;
+  running: boolean;
+  onEditSegments: () => void;
+  onRun: () => void;
+}) {
+  const keyframesFilled = keyframes.every((keyframe) => Boolean(keyframe.upload?.assetId));
+  const filledKeyframeCount = keyframes.filter((keyframe) => Boolean(keyframe.upload?.assetId)).length;
+  const segmentsPromptFilled = segments.length > 0 && segments.every((segment) => segment.positivePrompt.trim());
+  const negativeFixedIncluded = segments.length > 0 && segments.every((segment) => Boolean(segment.defaultNegativePrompt));
+  const validationItems = [
+    { label: `키프레임 슬롯 ${filledKeyframeCount} / ${keyframes.length} 채워짐`, done: keyframesFilled },
+    { label: `세그먼트 ${segments.length}개 모두 프롬프트 적용`, done: segmentsPromptFilled },
+    { label: "노드 구성값 범위 내", done: true },
+    { label: "Negative 고정 프롬프트 포함", done: negativeFixedIncluded }
+  ];
+  const passedCount = validationItems.filter((item) => item.done).length;
+  const canRun = keyframesFilled && segmentsPromptFilled && !running && canUse(user, "jobs:run");
+  const totalFrames = segments.reduce((sum, segment) => {
+    const frames = Number(segment.config.frames ?? segment.config.FRAMES ?? 0);
+    return Number.isFinite(frames) ? sum + frames : sum;
+  }, 0);
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow={`STEP 3 / 4 · ${selected?.label || selected?.name || selectedWorkflow} · 세그먼트 ${segments.length}`}
+      headerTitle="실행 전 전체 구성 확인"
+      headerActions={
+        <>
+          <button className="v3-secondary-button" type="button" onClick={onEditSegments}>세그먼트 설정으로</button>
+          <button className="v3-primary-button" type="button" disabled={!canRun} onClick={onRun}>
+            {running ? "제출 중..." : "Run"}
+          </button>
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-step is-done"><span className="v3-step-index">✓</span><span>이미지 로드</span></div>
+          <div className="v3-step is-done"><span className="v3-step-index">✓</span><span>세그먼트 설정</span></div>
+          <div className="v3-step is-active"><span className="v3-step-index">3</span><span>실행 전 확인</span></div>
+          <div className="v3-step"><span className="v3-step-index">4</span><span>결과 조회</span></div>
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title">실행</div>
+          <div className="v3-summary-card is-highlight">
+            <div className="v3-label" style={{ color: "var(--v3-accent-text)" }}>제출 요약</div>
+            <div className="v3-summary-row"><span>작업</span><strong>1건 · segments {segments.length}</strong></div>
+            {totalFrames > 0 ? <div className="v3-summary-row"><span>총 프레임</span><strong>{totalFrames}</strong></div> : null}
+          </div>
+          <button className="v3-primary-button" type="button" disabled={!canRun} onClick={onRun}>
+            {running ? "제출 중..." : "Run · 영상 생성 시작"}
+          </button>
+          <p className="v3-muted-text">제출 후에는 세그먼트 설정을 바꿀 수 없습니다 · 수정하려면 취소 후 재실행</p>
+          {!canUse(user, "jobs:run") ? <p className="v3-inline-notice">작업 실행 권한이 없습니다.</p> : null}
+        </>
+      }
+    >
+      <div className="v3-summary-tiles">
+        <div className="v3-summary-tile"><span className="v3-label">WORKFLOW</span><strong>{selected?.label || selected?.name || selectedWorkflow || "-"}</strong></div>
+        <div className="v3-summary-tile"><span className="v3-label">KEYFRAMES</span><strong>{filledKeyframeCount} / {keyframes.length}</strong></div>
+        <div className="v3-summary-tile"><span className="v3-label">SEGMENTS</span><strong>{segments.length}</strong></div>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-review-table-head">
+          <span>세그먼트</span>
+          <span>프롬프트</span>
+          <span>노드 컨피그</span>
+          <span style={{ textAlign: "center" }}>상태</span>
+        </div>
+        {segments.map((segment) => (
+          <div className="v3-review-table-row" key={segment.index}>
+            <span className="v3-review-seg-name">SEG {String(segment.index).padStart(2, "0")}</span>
+            <span className="v3-review-prompt">{segment.positivePrompt.trim() || "프롬프트 미적용"}</span>
+            <span className="v3-review-config">
+              {[
+                segment.config.fps ?? segment.config.FPS,
+                segment.config.frames ?? segment.config.FRAMES,
+                segment.config.motion_shift ?? segment.config.motionShift
+              ].filter((value) => value !== undefined && value !== null).join(" · ") || "-"}
+            </span>
+            <span style={{ textAlign: "center" }}>
+              <span className={`v3-status-badge ${segment.positivePrompt.trim() ? "is-ready" : "is-pending"}`}>
+                {segment.positivePrompt.trim() ? "준비됨" : "필요"}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">제출 검증</div>
+          <span className="v3-card-header-meta">{passedCount === validationItems.length ? "모두 통과" : `${passedCount} / ${validationItems.length}`} · {validationItems.length}</span>
+        </div>
+        <div className="v3-validation-grid">
+          {validationItems.map((item) => (
+            <div className={`v3-checklist-item ${item.done ? "is-done" : "is-warning"}`} key={item.label}>
+              <span className="v3-checklist-dot">{item.done ? "✓" : ""}</span>
+              {item.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">PAYLOAD</div>
+          <span className="v3-card-header-meta">POST /api/jobs</span>
+        </div>
+        <pre className="v3-payload-json">{JSON.stringify(jobPayloadPreview, null, 2)}</pre>
+      </div>
+    </AppShell>
+  );
+}
+
+// E-02 · 2c "S4 진행 · 상태 인포그래픽 · 로그 · 취소 요청" — design_handoff_dobedub_v3/
+// 2 Create.dc.html의 다섯 번째 화면. running/progress/elapsedSeconds/logText/
+// currentTaskId/cancelRequested는 전부 기존 StudioShell 상태를 그대로 물려받는다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - "예상 잔여" 시간 — 남은 시간을 추정하는 로직이 없다(progress_by_state가
+//   TASKS.md에 적힌 대로 3단계뿐이라 선형 추정도 근거가 약하다).
+// - SEEDS 패널의 실제 seed 값 — generationSeed는 완료(latestJob) 이후에만 응답에
+//   실리고, 세그먼트별 개별 seed를 진행 중에 보여줄 API가 없다.
+// - "History에 저장" 버튼 — 완료 시 자동으로 저장되고 있어(job_service) 별도
+//   수동 저장 동작이 없다.
+function Create2cScreen({
+  user,
+  health,
+  selected,
+  selectedWorkflow,
+  keyframes,
+  segments,
+  progress,
+  elapsedSeconds,
+  logText,
+  running,
+  cancelRequested,
+  currentTaskId,
+  onCancel,
+  onViewPayload
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  selected: WorkflowItem | null;
+  selectedWorkflow: string;
+  keyframes: KeyframeState[];
+  segments: SegmentState[];
+  progress: number;
+  elapsedSeconds: number;
+  logText: string;
+  running: boolean;
+  cancelRequested: boolean;
+  currentTaskId: string;
+  onCancel: () => void;
+  onViewPayload: () => void;
+}) {
+  const stage: "queue" | "progress" | "completed" = !running ? "completed" : progress >= 100 ? "completed" : progress > 0 ? "progress" : "queue";
+  const totalFrames = segments.reduce((sum, segment) => {
+    const frames = Number(segment.config.frames ?? segment.config.FRAMES ?? 0);
+    return Number.isFinite(frames) ? sum + frames : sum;
+  }, 0);
+  const logLines = logText ? logText.split("\n").filter(Boolean) : [];
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow={`STEP 4 / 4 · RUN ${currentTaskId ? `#${currentTaskId.slice(0, 8)}` : "-"} · 단일 작업`}
+      headerTitle="영상 생성 중"
+      headerActions={
+        <>
+          <span className="v3-run-status-chip">
+            <span className="v3-run-status-dot" />
+            {running ? `IN_PROGRESS · ${formatElapsed(elapsedSeconds)}` : "COMPLETED"}
+          </span>
+          <button className="v3-secondary-button" type="button" onClick={onViewPayload}>Payload 보기</button>
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>RUN {currentTaskId ? `#${currentTaskId.slice(0, 8)}` : ""} · {selected?.label || selected?.name || selectedWorkflow}</div>
+          {(["queue", "progress", "completed"] as const).map((key) => (
+            <div key={key} className={`v3-run-stage-item ${stage === key ? "is-active" : stage === "completed" || (key === "queue" && stage !== "queue") ? "is-past" : ""}`}>
+              <span>{key === "queue" ? "IN_QUEUE" : key === "progress" ? "IN_PROGRESS" : "COMPLETED"}</span>
+              <span>{stage === key ? "현재" : stage === "completed" && key !== "completed" ? "지남" : key === "completed" ? "대기" : ""}</span>
+            </div>
+          ))}
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title-row">
+            <div className="v3-panel-title">제출된 Run</div>
+            <span className="v3-card-header-meta">{currentTaskId ? `#${currentTaskId.slice(0, 8)}` : "-"}</span>
+          </div>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>Workflow</span><strong>{selected?.label || selected?.name || selectedWorkflow || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Keyframes</span><strong>{keyframes.length}</strong></div>
+            <div className="v3-summary-row"><span>Segments</span><strong>{segments.length} <span className="v3-summary-note">· 단일 작업</span></strong></div>
+            {totalFrames > 0 ? <div className="v3-summary-row"><span>총 프레임</span><strong>{totalFrames}</strong></div> : null}
+          </div>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <span className="v3-label">SEG</span>
+              <span className="v3-card-header-meta">프롬프트 출처</span>
+            </div>
+            {segments.map((segment) => (
+              <div className="v3-status-row" key={segment.index}>
+                <span>{String(segment.index).padStart(2, "0")}</span>
+                <span>{segment.positivePrompt.trim() ? "프롬프트 적용됨" : "-"}</span>
+              </div>
+            ))}
+          </div>
+          <div className="v3-inline-actions">
+            <button className="v3-secondary-button v3-flex-button" type="button" onClick={onViewPayload}>Payload 보기</button>
+            {canUse(user, "jobs:cancel") ? (
+              <button
+                className="v3-danger-button v3-flex-button"
+                type="button"
+                disabled={!running || !currentTaskId || cancelRequested}
+                onClick={onCancel}
+              >
+                {cancelRequested ? "Cancelling..." : "생성 취소"}
+              </button>
+            ) : null}
+          </div>
+          {cancelRequested ? (
+            <div className="v3-warning-strip">
+              <span className="v3-warning-dot" />
+              <span>취소를 누르면 워커가 수락할 때까지 CANCELLED로 끝나며 부분 결과는 저장되지 않습니다.</span>
+            </div>
+          ) : null}
+          <p className="v3-muted-text">제출 구성은 실행 중 변경할 수 없습니다 · 결과 파일만 완료 이후 저장됩니다</p>
+        </>
+      }
+    >
+      <div className="v3-card v3-progress-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">작업 진행</div>
+          <span className="v3-card-header-meta">/api/jobs/{"{id}"} · 3초 폴링</span>
+        </div>
+        <div className="v3-progress-stages">
+          {(["queue", "progress", "completed"] as const).map((key, index) => (
+            <React.Fragment key={key}>
+              {index > 0 ? <div className={`v3-progress-connector ${stage === "completed" || (stage === "progress" && key === "completed") ? "" : "is-filled"}`} /> : null}
+              <div className="v3-progress-stage">
+                <div className={`v3-progress-dot ${stage === key ? "is-active" : (key === "queue" && stage !== "queue") || (key === "progress" && stage === "completed") ? "is-past" : "is-pending"}`}>
+                  {(key === "queue" && stage !== "queue") || (key === "progress" && stage === "completed") ? "✓" : key === "progress" ? Math.round(progress) : key === "completed" && stage === "completed" ? "✓" : "100"}
+                </div>
+                <div className="v3-progress-stage-label">
+                  <div>{key === "queue" ? "IN_QUEUE" : key === "progress" ? "IN_PROGRESS" : "COMPLETED"}</div>
+                  <span>{key === "progress" && stage === "progress" ? `현재 · ${formatElapsed(elapsedSeconds)} 경과` : key === "completed" ? "결과물 저장" : ""}</span>
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="v3-progress-tiles">
+          <div className="v3-summary-tile"><span className="v3-label">경과</span><strong>{formatElapsed(elapsedSeconds)}</strong></div>
+          <div className="v3-summary-tile"><span className="v3-label">세그먼트</span><strong>{segments.length}</strong></div>
+          {totalFrames > 0 ? <div className="v3-summary-tile"><span className="v3-label">총 프레임</span><strong>{totalFrames}</strong></div> : null}
+        </div>
+      </div>
+
+      <div className="v3-card v3-log-card">
+        <div className="v3-log-header">
+          <span>STATUS LOG</span>
+          <span className="v3-log-header-meta">auto-scroll</span>
+        </div>
+        <div className="v3-log-body">
+          {logLines.length ? logLines.map((line, index) => <div key={index}>{line}</div>) : <div>대기 중...</div>}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// E-02 · 2d "S5 결과 · 실행 직후 결과 확인" — design_handoff_dobedub_v3/
+// 2 Create.dc.html의 마지막 화면. 성공/실패 판정과 다운로드는 기존
+// hasSuccessfulOutput/hasFailedJob/downloadProtectedAsset을 그대로 재사용한다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - "공유 링크" · "시드 고정해 재실행" — 공유 링크 발급 API도, 시드를 고정해
+//   재제출하는 경로도 없다.
+// - GPU 시간 · Final 파일 크기(MB) · 재생바 스크럽 — 응답에 없는 값이다.
+// - 실패 시에도 설계는 성공 레이아웃만 그려서, 실패 상태는 구버전 UI의
+//   failure-card 문구를 그대로 옮겨와 별도로 처리했다.
+function Create2dScreen({
+  user,
+  health,
+  selected,
+  selectedWorkflow,
+  keyframes,
+  segments,
+  latestJob,
+  outputAssets,
+  displayOutput,
+  displayOutputMediaUrl,
+  displayOutputDownloadUrl,
+  hasSuccessfulOutput,
+  hasFailedJob,
+  elapsedSeconds,
+  onDownload,
+  onOpenHistory,
+  onNewRun,
+  onReviewSettings
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  selected: WorkflowItem | null;
+  selectedWorkflow: string;
+  keyframes: KeyframeState[];
+  segments: SegmentState[];
+  latestJob: JobStatusResponse | null;
+  outputAssets: OutputAsset[];
+  displayOutput: OutputAsset | { fileName?: string; assetId?: string } | null;
+  displayOutputMediaUrl: string;
+  displayOutputDownloadUrl: string;
+  hasSuccessfulOutput: boolean;
+  hasFailedJob: boolean;
+  elapsedSeconds: number;
+  onDownload: () => void;
+  onOpenHistory: () => void;
+  onNewRun: () => void;
+  onReviewSettings: () => void;
+}) {
+  const segmentOutputs = outputAssets.filter((asset) => asset.outputRole === "segment");
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow={`RUN · ${selected?.label || selected?.name || selectedWorkflow} · 세그먼트 ${segments.length}`}
+      headerTitle={hasFailedJob ? "생성 실패" : "생성 완료"}
+      headerActions={
+        <>
+          <span className={`v3-run-status-chip ${hasFailedJob ? "is-failed" : ""}`}>
+            <span className="v3-run-status-dot" />
+            {hasFailedJob ? "FAILED" : `COMPLETE · ${formatElapsed(elapsedSeconds)}`}
+          </span>
+          {hasSuccessfulOutput ? (
+            <button className="v3-primary-button" type="button" onClick={onDownload}>Final 다운로드</button>
+          ) : null}
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>RUN · 결과물</div>
+          <div className="v3-run-stage-item is-active">
+            <span>Final 병합본</span>
+            <span>{segments.length}장</span>
+          </div>
+          {segmentOutputs.length ? (
+            <div className="v3-run-stage-item">
+              <span>구간 검수본</span>
+              <span>{segmentOutputs.length}</span>
+            </div>
+          ) : null}
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title">Run 정보</div>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>Workflow</span><strong>{selected?.label || selected?.name || selectedWorkflow || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Keyframes</span><strong>{keyframes.length}</strong></div>
+            <div className="v3-summary-row"><span>Segments</span><strong>{segments.length}</strong></div>
+            <div className="v3-summary-row"><span>Applied Seed</span><strong>{latestJob?.generationSeed || "-"}</strong></div>
+          </div>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <span className="v3-label">프롬프트 출처</span>
+              <span className="v3-card-header-meta">SEG별</span>
+            </div>
+            {segments.map((segment) => (
+              <div className="v3-status-row" key={segment.index}>
+                <span>SEG {String(segment.index).padStart(2, "0")}</span>
+                <span>{segment.positivePrompt.trim() ? "적용됨" : "-"}</span>
+              </div>
+            ))}
+          </div>
+          <div className="v3-note-block" style={{ border: "none", padding: 0, margin: 0 }}>
+            <div className="v3-label">평가 &amp; 재사용 등록</div>
+            <p className="v3-muted-text">이 화면은 실행 직후 결과 확인용입니다. 평가와 재사용 등록은 Task History의 Run 상세에서 진행합니다.</p>
+            <button className="v3-text-link-button" type="button" onClick={onOpenHistory}>Task History에서 열기</button>
+          </div>
+          <div className="v3-inline-actions">
+            <button className="v3-secondary-button v3-flex-button" type="button" onClick={onReviewSettings}>세팅 열고 수정</button>
+            <button className="v3-primary-button v3-flex-button" type="button" onClick={onNewRun}>새 Run 시작</button>
+          </div>
+          <p className="v3-muted-text">재실행은 항상 전체 세그먼트를 다시 생성합니다 · 부분 재실행 없음</p>
+        </>
+      }
+    >
+      {hasFailedJob ? (
+        <div className="v3-card v3-failure-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">Generation Failed</div>
+          </div>
+          <p className="v3-failure-message">{latestJob?.message || "작업이 실패했습니다. RunPod 로그를 확인하세요."}</p>
+        </div>
+      ) : (
+        <div className="v3-card v3-result-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">
+              <span>Final 병합본</span>
+              <span className="v3-status-badge is-ready">최종 출력 ({keyframes.length}장)</span>
+            </div>
+          </div>
+          {hasSuccessfulOutput ? (
+            <>
+              <video className="v3-result-video" src={displayOutputMediaUrl} controls playsInline preload="metadata" />
+              <div className="v3-result-footer">
+                <span>File: {displayOutput?.fileName || displayOutput?.assetId || "generated output"}</span>
+                <button className="v3-primary-button" type="button" onClick={onDownload}>Download MP4</button>
+              </div>
+            </>
+          ) : (
+            <p className="v3-muted-text" style={{ padding: 16 }}>결과 영상을 불러오는 중입니다.</p>
+          )}
+        </div>
+      )}
+
+      {segmentOutputs.length ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">구간 검수본</div>
+            <span className="v3-card-header-meta">품질 확인용 · 배포 대상 아님</span>
+          </div>
+          <div className="v3-segment-output-grid">
+            {segmentOutputs.map((asset) => (
+              <div className="v3-segment-output-row" key={asset.assetId || asset.fileName}>
+                <span>SEG {asset.segmentIndex ?? "-"} · {asset.fileName || asset.assetId}</span>
+              </div>
+            ))}
+          </div>
+          <p className="v3-muted-text" style={{ padding: "0 16px 14px" }}>전환 품질 점검용 출력입니다 · 배포에는 Final을 사용하세요</p>
+        </div>
+      ) : null}
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -1820,6 +2301,16 @@ function StudioShell({
     }
   }, [route, selectedWorkflow, workflows.length, user]);
 
+  // E-02 · 2c → 2d: generateVideo()는 create.confirm(2f)의 onRun에서 호출되고
+  // 완료(성공/실패/취소)까지 내부적으로 기다린다(pollJob). running이 false로
+  // 바뀌는 시점이 곧 종료 시점이므로, 진행 화면(create.progress)에 있는 동안 이
+  // 전환이 일어나면 결과 화면(create.result)으로 자동 이동한다.
+  useEffect(() => {
+    if (route === "create.progress" && !running && latestJob) {
+      onNavigate("create.result");
+    }
+  }, [running, latestJob, route]);
+
   useEffect(() => {
     if (historyModalOpen && historyTab === "review" && selectedHistoryTaskId) {
       void loadPromptReview(selectedHistoryTaskId);
@@ -2281,10 +2772,64 @@ function StudioShell({
         onResetDefaults={() => void resetSegmentConfigsToDefaults()}
         onCopyFirstSegmentConfig={copyFirstSegmentConfig}
         onEditPrompt={() => onNavigate("create.prompt")}
-        // E-02: 2f(실행 전 확인)가 아직 없어 "실행 전 확인으로"는 구버전 통합
-        // 워크스페이스로 이동한다. 같은 StudioShell 상태를 공유하므로 여기서 설정한
-        // 노드 컨피그는 그대로 이어진다 - 데이터 유실 없음.
-        onNext={() => onNavigate("create.workspace")}
+        onNext={() => onNavigate("create.confirm")}
+      />
+    ) : route === "create.confirm" ? (
+      <Create2fScreen
+        user={user}
+        health={health}
+        selected={selected || null}
+        selectedWorkflow={selectedWorkflow}
+        keyframes={keyframes}
+        segments={segments}
+        jobPayloadPreview={jobPayloadPreview}
+        running={running}
+        onEditSegments={() => onNavigate("create.segments")}
+        onRun={() => {
+          onNavigate("create.progress");
+          void generateVideo();
+        }}
+      />
+    ) : route === "create.progress" ? (
+      <Create2cScreen
+        user={user}
+        health={health}
+        selected={selected || null}
+        selectedWorkflow={selectedWorkflow}
+        keyframes={keyframes}
+        segments={segments}
+        progress={progress}
+        elapsedSeconds={elapsedSeconds}
+        logText={logText}
+        running={running}
+        cancelRequested={cancelRequested}
+        currentTaskId={currentTaskId}
+        onCancel={() => void cancelGeneration()}
+        onViewPayload={() => onNavigate("create.confirm")}
+      />
+    ) : route === "create.result" ? (
+      <Create2dScreen
+        user={user}
+        health={health}
+        selected={selected || null}
+        selectedWorkflow={selectedWorkflow}
+        keyframes={keyframes}
+        segments={segments}
+        latestJob={latestJob}
+        outputAssets={outputAssets}
+        displayOutput={displayOutput}
+        displayOutputMediaUrl={displayOutputMediaUrl}
+        displayOutputDownloadUrl={displayOutputDownloadUrl}
+        hasSuccessfulOutput={hasSuccessfulOutput}
+        hasFailedJob={hasFailedJob}
+        elapsedSeconds={elapsedSeconds}
+        onDownload={() => downloadProtectedAsset(displayOutputDownloadUrl, displayOutput?.fileName || "generated-output.mp4").catch((downloadError) => setError(downloadError instanceof Error ? downloadError.message : "영상 다운로드에 실패했습니다."))}
+        onOpenHistory={() => onNavigate("review.history")}
+        onNewRun={() => {
+          resetRunState();
+          onNavigate("create.load");
+        }}
+        onReviewSettings={() => onNavigate("create.confirm")}
       />
     ) : (
     <main className="studio-grid">

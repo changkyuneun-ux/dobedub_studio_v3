@@ -13,9 +13,13 @@
 //   create.load       — 2a · S1 이미지 로드 (신규 구현, E-02)
 //   create.prompt     — 2b · S2 세그먼트 설정 · 프롬프트 구성 (신규 구현, E-02)
 //   create.segments   — 2e · S3 세그먼트 설정 · 노드 컨피그 & seed (신규 구현, E-02)
-//   create.workspace  — 2f를 아직 분리하지 않은 구버전 전체 워크스페이스(임시).
-//                       E-02가 진행되며 create.confirm/create.progress/create.result로
-//                       분할되고 이 값은 제거된다.
+//   create.confirm    — 2f · S4 실행 전 전체 구성 확인 & Run (신규 구현, E-02)
+//   create.progress   — 2c · S4 진행 상태 · 취소 요청 (신규 구현, E-02)
+//   create.result     — 2d · S5 결과 · Final 병합본과 구간 검수본 (신규 구현, E-02)
+//   create.workspace  — E-02 완료 후 제거 예정이던 임시 다리였으나, 2a~2d가 모두
+//                       구현되며 더 이상 랜딩 지점으로 쓰이지 않는다. 다른 화면에서
+//                       참조하던 구버전 인라인 워크스페이스 자체는 아직 코드에 남아
+//                       있어(E-06 정리 대상) 경로는 유지한다.
 //   review.history    — 3a 작업 이력 ("3 Review.dc.html" 소속)
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -26,6 +30,9 @@ export type StudioRoute =
   | "create.load"
   | "create.prompt"
   | "create.segments"
+  | "create.confirm"
+  | "create.progress"
+  | "create.result"
   | "create.workspace"
   | "review.history"
   | "admin.console"
@@ -51,6 +58,9 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "create.load": "/studio/create/load",
   "create.prompt": "/studio/create/prompt",
   "create.segments": "/studio/create/segments",
+  "create.confirm": "/studio/create/confirm",
+  "create.progress": "/studio/create/progress",
+  "create.result": "/studio/create/result",
   "create.workspace": "/studio/create/workspace",
   "review.history": "/studio/review/history",
   "admin.console": "/studio/admin/console",

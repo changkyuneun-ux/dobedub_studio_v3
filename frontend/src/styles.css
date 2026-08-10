@@ -4555,3 +4555,360 @@ textarea {
 .v3-seed-block span:last-child {
   color: var(--v3-text-secondary);
 }
+
+/* ==========================================================================
+   E-02: 2f "S4 실행 전 전체 구성 확인 & Run" — 요약 타일, 세그먼트 검토 표,
+   제출 검증, payload JSON. v3 토큰만 사용.
+   ========================================================================== */
+
+.v3-summary-tiles {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.v3-summary-tile {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 13px;
+}
+
+.v3-review-table-head {
+  background: var(--v3-bg-table);
+  border-bottom: 1px solid var(--v3-border-inner);
+  color: var(--v3-text-label);
+  display: grid;
+  font-family: var(--v3-font-mono);
+  font-size: var(--v3-font-size-label);
+  font-weight: 500;
+  gap: 12px;
+  grid-template-columns: 64px minmax(0, 1fr) 140px 96px;
+  letter-spacing: var(--v3-label-letter-spacing);
+  padding: 11px 15px;
+}
+
+.v3-review-table-row {
+  align-items: center;
+  border-bottom: 1px solid var(--v3-border-inner);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 64px minmax(0, 1fr) 140px 96px;
+  padding: 12px 15px;
+}
+
+.v3-review-table-row:last-child {
+  border-bottom: none;
+}
+
+.v3-review-seg-name {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.v3-review-prompt {
+  color: var(--v3-text-secondary);
+  font-size: 11.5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v3-review-config {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+}
+
+.v3-status-badge {
+  border-radius: 5px;
+  font-family: var(--v3-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+}
+
+.v3-status-badge.is-ready {
+  background: var(--v3-accent-bg);
+  color: var(--v3-accent-text);
+}
+
+.v3-status-badge.is-pending {
+  background: var(--v3-warning-bg);
+  color: var(--v3-warning-text);
+}
+
+.v3-validation-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 14px 15px;
+}
+
+.v3-payload-json {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 11px;
+  line-height: 1.75;
+  margin: 0;
+  max-height: 260px;
+  overflow: auto;
+  padding: 11px 15px;
+  white-space: pre-wrap;
+}
+
+.v3-summary-card.is-highlight {
+  background: #f4fbf8;
+  border: 1.5px solid var(--v3-accent);
+}
+
+/* ==========================================================================
+   E-02: 2c "S4 진행 · 상태 인포그래픽 · 로그 · 취소 요청". v3 토큰만 사용.
+   ========================================================================== */
+
+.v3-run-status-chip {
+  align-items: center;
+  background: var(--v3-accent-bg);
+  border-radius: 20px;
+  color: var(--v3-accent-text);
+  display: flex;
+  font-family: var(--v3-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  gap: 8px;
+  padding: 5px 11px;
+}
+
+.v3-run-status-dot {
+  background: var(--v3-accent);
+  border-radius: 50%;
+  height: 7px;
+  width: 7px;
+}
+
+.v3-run-stage-item {
+  border-radius: 7px;
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 8px 10px;
+}
+
+.v3-run-stage-item.is-active {
+  background: var(--v3-accent-bg);
+  color: var(--v3-accent-text);
+  font-weight: 600;
+}
+
+.v3-run-stage-item.is-past {
+  color: var(--v3-text-label);
+}
+
+.v3-run-stage-item span:last-child {
+  color: var(--v3-text-label);
+  font-family: var(--v3-font-mono);
+  font-size: 9.5px;
+}
+
+.v3-danger-button {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-danger-border);
+  border-radius: 8px;
+  color: var(--v3-danger);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 9px;
+}
+
+.v3-danger-button:disabled {
+  color: var(--v3-text-disabled);
+  cursor: not-allowed;
+}
+
+.v3-progress-card {
+  flex: 1;
+  min-height: 0;
+}
+
+.v3-progress-stages {
+  align-items: flex-start;
+  display: flex;
+  padding: 22px 26px;
+}
+
+.v3-progress-connector {
+  background: var(--v3-border-inner);
+  border-radius: 3px;
+  flex: 1;
+  height: 4px;
+  margin-top: 24px;
+}
+
+.v3-progress-connector.is-filled {
+  background: var(--v3-accent);
+}
+
+.v3-progress-stage {
+  align-items: center;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 9px;
+  width: 132px;
+}
+
+.v3-progress-dot {
+  align-items: center;
+  border-radius: 50%;
+  display: grid;
+  font-family: var(--v3-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+
+.v3-progress-dot.is-active {
+  background: var(--v3-accent-bg);
+  border: 2.5px solid var(--v3-accent);
+  color: var(--v3-accent-text);
+}
+
+.v3-progress-dot.is-past {
+  background: var(--v3-accent);
+  color: #fff;
+}
+
+.v3-progress-dot.is-pending {
+  background: var(--v3-bg-panel);
+  border: 2px dashed var(--v3-border);
+  color: var(--v3-text-label);
+}
+
+.v3-progress-stage-label {
+  text-align: center;
+}
+
+.v3-progress-stage-label div {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.v3-progress-stage-label span {
+  color: var(--v3-text-label);
+  font-family: var(--v3-font-mono);
+  font-size: 10px;
+}
+
+.v3-progress-tiles {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 26px 22px;
+}
+
+.v3-log-card {
+  flex: none;
+  height: 186px;
+}
+
+.v3-log-header {
+  border-bottom: 1px solid var(--v3-border-inner);
+  color: var(--v3-text-body);
+  display: flex;
+  font-family: var(--v3-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  gap: 14px;
+  letter-spacing: var(--v3-label-letter-spacing);
+  padding: 10px 15px;
+}
+
+.v3-log-header-meta {
+  color: var(--v3-text-label);
+  margin-left: auto;
+}
+
+.v3-log-body {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow: auto;
+  padding: 10px 15px;
+}
+
+/* ==========================================================================
+   E-02: 2d "S5 결과 · 실행 직후 결과 확인". v3 토큰만 사용.
+   ========================================================================== */
+
+.v3-run-status-chip.is-failed {
+  background: var(--v3-danger-bg);
+  color: var(--v3-danger);
+}
+
+.v3-run-status-chip.is-failed .v3-run-status-dot {
+  background: var(--v3-danger);
+}
+
+.v3-failure-card {
+  border-color: var(--v3-danger-border);
+}
+
+.v3-failure-message {
+  color: var(--v3-danger);
+  font-size: 12.5px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 15px 16px;
+}
+
+.v3-result-card {
+  flex: 1;
+  min-height: 0;
+}
+
+.v3-result-video {
+  background: #000;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.v3-result-footer {
+  align-items: center;
+  border-top: 1px solid var(--v3-border-inner);
+  display: flex;
+  justify-content: space-between;
+  padding: 11px 15px;
+}
+
+.v3-result-footer span {
+  color: var(--v3-text-secondary);
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+}
+
+.v3-segment-output-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 13px 16px 0;
+}
+
+.v3-segment-output-row {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 9px;
+  font-size: 11.5px;
+  padding: 10px 12px;
+}
