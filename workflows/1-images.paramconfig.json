@@ -57,6 +57,34 @@
           "default": 5.000000000000001,
           "sync": true
         },
+        "width": {
+          "targets": [
+            {
+              "node": "129:98",
+              "field": "width"
+            }
+          ],
+          "type": "int",
+          "min": 256,
+          "max": 1280,
+          "step": 16,
+          "default": 720,
+          "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다."
+        },
+        "height": {
+          "targets": [
+            {
+              "node": "129:98",
+              "field": "height"
+            }
+          ],
+          "type": "int",
+          "min": 256,
+          "max": 1280,
+          "step": 16,
+          "default": 720,
+          "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다."
+        },
         "duration_seconds": {
           "targets": [
             {

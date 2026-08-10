@@ -4750,7 +4750,7 @@ function ConfigRow({
           type="range"
           min={min}
           max={max}
-          step={control.type === "int" ? 1 : 0.1}
+          step={control.step ?? (control.type === "int" ? 1 : 0.1)}
           value={stringValue}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
         />

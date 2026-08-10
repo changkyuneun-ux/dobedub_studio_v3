@@ -77,13 +77,14 @@ def main():
         schema = response.json()
         assert schema["workflowId"] == "1-images.json"
         assert schema["keyframeCount"] == 1
+        schema_control_keys = {control.get("key") for control in schema["segments"][0].get("configControls", [])}
+        assert {"width", "height"}.issubset(schema_control_keys)
 
         response = client.get("/api/v1/workflows/1-images.json/segment-defaults", headers=admin_headers)
         assert response.status_code == 200, response.text
         defaults = response.json()
         assert len(defaults["segments"]) == 1
         assert "seed" not in defaults["segments"][0].get("config", {})
-        assert all(control.get("key", "").lower() != "seed" for control in defaults["segments"][0].get("configControls", []))
 
         response = client.get("/api/v1/workflows/1-images.json/widget-metadata", headers=admin_headers)
         assert response.status_code == 200, response.text
@@ -135,7 +136,12 @@ def main():
                 "displayName": segment.get("displayName", ""),
                 "positivePrompt": "fastapi smoke prompt",
                 "negativePromptAddition": "fastapi smoke negative",
-                "config": segment.get("config", {}),
+                "config": {
+                    **segment.get("config", {}),
+                    "width": 736,
+                    "height": 704,
+                    "durationSeconds": 3,
+                },
             }],
             "user": {"id": "dobedub", "name": "장균은"},
         }
@@ -143,6 +149,17 @@ def main():
         response = client.post("/api/jobs", headers=admin_headers, json=missing_image_payload)
         assert response.status_code == 400, response.text
         assert response.json()["detail"] == "입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다."
+
+        invalid_resolution_payload = {
+            **job_payload,
+            "segments": [{
+                **job_payload["segments"][0],
+                "config": {**job_payload["segments"][0]["config"], "width": 730},
+            }],
+        }
+        response = client.post("/api/jobs", headers=admin_headers, json=invalid_resolution_payload)
+        assert response.status_code == 400, response.text
+        assert "multiple of 16" in response.json()["detail"]
 
         response = client.post("/api/jobs", headers=admin_headers, json=job_payload)
         assert response.status_code == 201, response.text
@@ -177,6 +194,10 @@ def main():
         assert seed_patch.get("mode") == "automatic"
         assert seed_patch.get("value") == created_job["generationSeed"]
         assert seed_patch.get("targets")
+        node_config_patch = history_item.get("patchSummary", {}).get("nodeConfig", [])
+        assert any(item.get("param") == "width" and item.get("value") == 736 for item in node_config_patch)
+        assert any(item.get("param") == "height" and item.get("value") == 704 for item in node_config_patch)
+        assert any(item.get("param") == "duration_seconds" and item.get("value") == 3 for item in node_config_patch)
         from backend.app.services import workflow_parser
         workflow = workflow_parser.load_workflow("1-images.json", PROJECT_ROOT / "workflows")
         for target in seed_patch["targets"]:

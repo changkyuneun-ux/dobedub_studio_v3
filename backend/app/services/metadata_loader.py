@@ -200,6 +200,7 @@ def metadata_param_controls(workflow, segment_spec):
             "type": param_spec.get("type", "float"),
             "min": param_spec.get("min"),
             "max": param_spec.get("max"),
+            "step": param_spec.get("step"),
             "default": param_spec.get("default"),
             "randomizable": bool(param_spec.get("randomizable")),
             "sync": bool(param_spec.get("sync")),

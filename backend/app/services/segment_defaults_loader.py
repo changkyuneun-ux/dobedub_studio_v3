@@ -9,13 +9,31 @@ def read_json(path: Path):
         return json.load(stream)
 
 
+def merge_defaults(base: object, override: object) -> object:
+    """Merge runtime overrides without discarding newly bundled default fields."""
+    if isinstance(base, dict) and isinstance(override, dict):
+        merged = dict(base)
+        for key, value in override.items():
+            merged[key] = merge_defaults(merged[key], value) if key in merged else value
+        return merged
+    if isinstance(base, list) and isinstance(override, list):
+        merged = list(base)
+        for index, value in enumerate(override):
+            if index < len(merged):
+                merged[index] = merge_defaults(merged[index], value)
+            else:
+                merged.append(value)
+        return merged
+    return override
+
+
 def load_segment_defaults(data_dir: Path, bundled_defaults_path: Path) -> dict:
     runtime_path = data_dir / "segment-defaults.json"
-    defaults = {}
+    defaults: dict = {}
     if bundled_defaults_path.exists():
-        defaults.update(read_json(bundled_defaults_path))
+        defaults = read_json(bundled_defaults_path)
     if runtime_path.exists() and runtime_path != bundled_defaults_path:
-        defaults.update(read_json(runtime_path))
+        defaults = merge_defaults(defaults, read_json(runtime_path))
     return defaults
 
 
