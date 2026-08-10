@@ -128,6 +128,7 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "admin.workflowRegister": "workflows:write",
   "admin.catalogHierarchy": "prompt-catalog:read",
   "admin.catalogTerms": "prompt-catalog:read",
+  "admin.negativeDefaults": "prompt-catalog:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -193,6 +194,7 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "admin.workflowRegister": "워크플로 등록",
   "admin.catalogHierarchy": "카탈로그 계층",
   "admin.catalogTerms": "용어 관리",
+  "admin.negativeDefaults": "Negative 기본값",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -3307,11 +3309,17 @@ function PromptCatalogAdminPanelV3({
 }: {
   user: User;
   onGoTo: (route: StudioRoute) => void;
-  focus: "hierarchy" | "terms";
+  focus: "hierarchy" | "terms" | "negativeDefaults";
 } & PromptCatalogAdminContentProps) {
   const groups = catalog?.groups || [];
-  const scopes = promptCatalogAdminScopes(groups);
-  const [selectedScopeKey, setSelectedScopeKey] = useState<"positive" | "negative">("positive");
+  const allScopes = promptCatalogAdminScopes(groups);
+  // E-04 · 4b: "Negative 기본값"은 별도 데이터가 아니라 이 트리의 NEGATIVE
+  // scope를 필터링한 뷰다(design_handoff 4b 원본 문구: 모든 Run에 적용되는
+  // 네거티브는 워크플로 JSON에 내장돼 있고 여기서 관리하지 않음 - 이 화면은 그
+  // 위에 "추가"할 선택 용어만 다룬다). scope 선택기 자체를 negative 하나로만
+  // 좁혀서 별도 lock 상태 없이 필터만으로 구현한다.
+  const scopes = focus === "negativeDefaults" ? allScopes.filter((scope) => scope.key === "negative") : allScopes;
+  const [selectedScopeKey, setSelectedScopeKey] = useState<"positive" | "negative">(focus === "negativeDefaults" ? "negative" : "positive");
   const [activeCatalogAdminLevel, setActiveCatalogAdminLevel] = useState<"none" | "category" | "subcategory" | "keyword">("none");
   const [selectedGroupId, setSelectedGroupId] = useState<number | "new">("new");
   const selectedGroup = selectedGroupId === "new" ? null : groups.find((group) => group.id === selectedGroupId) || null;
@@ -3419,13 +3427,13 @@ function PromptCatalogAdminPanelV3({
       activeItem="adminCatalog"
       onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
       headerEyebrow="ADMIN · 프롬프트 카탈로그"
-      headerTitle={focus === "terms" ? "용어 관리" : "카탈로그 계층"}
+      headerTitle={focus === "terms" ? "용어 관리" : focus === "negativeDefaults" ? "Negative 기본값" : "카탈로그 계층"}
       headerActions={
-        focus === "terms" ? (
-          <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogHierarchy")}>카탈로그 계층으로</button>
-        ) : (
-          <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogTerms")}>용어 관리로</button>
-        )
+        <>
+          {focus !== "hierarchy" ? <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogHierarchy")}>카탈로그 계층</button> : null}
+          {focus !== "terms" ? <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogTerms")}>용어 관리</button> : null}
+          {focus !== "negativeDefaults" ? <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.negativeDefaults")}>Negative 기본값</button> : null}
+        </>
       }
       sidebarExtra={
         <div className="v3-step-tracker">
@@ -3513,6 +3521,19 @@ function PromptCatalogAdminPanelV3({
       }
     >
       {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+
+      {focus === "negativeDefaults" ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">내장 네거티브 + 선택 용어 = 세그먼트 네거티브</div>
+            <span className="v3-sidebar-nav-item-badge">변경 이력 · 미구현</span>
+          </div>
+          <p className="v3-muted-text" style={{ padding: "0 16px 16px" }}>
+            모든 Run에 적용되는 네거티브는 여기서 관리하지 않습니다 - 기본 네거티브는 워크플로 JSON의 네거티브 노드에 내장되어 있고 읽기 전용입니다(워크플로 정의 화면에서 확인).
+            이 화면은 그 위에 추가로 얹을 선택 용어(아래 트리의 Negative 계열)만 관리합니다.
+          </p>
+        </div>
+      ) : null}
 
       {activeCatalogAdminLevel === "none" ? (
         <div className="v3-card">
@@ -4507,7 +4528,7 @@ function StudioShell({
     if (route === "admin.workflows" && !adminWorkflowItems.length) {
       void loadAdminWorkflows();
     }
-    if ((route === "admin.catalogHierarchy" || route === "admin.catalogTerms") && !promptCatalog && !promptBuilderLoading) {
+    if ((route === "admin.catalogHierarchy" || route === "admin.catalogTerms" || route === "admin.negativeDefaults") && !promptCatalog && !promptBuilderLoading) {
       void loadPromptCatalog();
     }
     if (route === "admin.status") {
@@ -5242,11 +5263,11 @@ function StudioShell({
         onLoadFile={(event, target) => void loadAdminWorkflowFile(event, target)}
         onSave={() => void saveAdminWorkflow()}
       />
-    ) : route === "admin.catalogHierarchy" || route === "admin.catalogTerms" ? (
+    ) : route === "admin.catalogHierarchy" || route === "admin.catalogTerms" || route === "admin.negativeDefaults" ? (
       <PromptCatalogAdminPanelV3
         user={user}
         onGoTo={onNavigate}
-        focus={route === "admin.catalogTerms" ? "terms" : "hierarchy"}
+        focus={route === "admin.catalogTerms" ? "terms" : route === "admin.negativeDefaults" ? "negativeDefaults" : "hierarchy"}
         catalog={promptCatalog}
         loading={promptBuilderLoading}
         notice={promptBuilderNotice}

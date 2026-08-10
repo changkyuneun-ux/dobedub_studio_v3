@@ -49,6 +49,11 @@
 //                       설계돼 있어(PromptCatalogAdminContent), 화면을 억지로
 //                       둘로 쪼개면 같은 트리를 두 번 그리게 된다. 3f/3c를 하나의
 //                       컴포넌트로 합친 것과 같은 이유(E-03 참조).
+//   admin.negativeDefaults — 4b Negative 기본값 (신규 구현, E-04). 별도 데이터가
+//                       아니라 위 트리를 NEGATIVE scope로 필터링한 같은 화면이다
+//                       (design_handoff 4b 원본: 모든 Run에 적용되는 네거티브는
+//                       워크플로 JSON에 내장돼 읽기 전용이고, 이 화면은 그 위에
+//                       "추가"할 선택 용어만 다룸).
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -74,6 +79,7 @@ export type StudioRoute =
   | "admin.workflowRegister"
   | "admin.catalogHierarchy"
   | "admin.catalogTerms"
+  | "admin.negativeDefaults"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -113,6 +119,7 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.workflowRegister": "/studio/admin/workflows/register",
   "admin.catalogHierarchy": "/studio/admin/catalog/hierarchy",
   "admin.catalogTerms": "/studio/admin/catalog/terms",
+  "admin.negativeDefaults": "/studio/admin/catalog/negative-defaults",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"
