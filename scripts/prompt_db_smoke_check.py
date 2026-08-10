@@ -230,26 +230,43 @@ def main() -> None:
         admin_group_after_category = next(group for group in admin_catalog["groups"] if group["id"] == updated_group["id"])
         admin_category = next(subcategory for subcategory in admin_group_after_category["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
         assert admin_category["selectionMode"] == "multi"
-        # B-06 3단계: 새로 만든 서브카테고리는 구형 카테고리와 연결되어 있지 않다.
-        assert admin_category["legacyCategoryId"] is None
 
-        # discrepancy 재확인(의도된 동작으로 명시적 테스트): prompt_subcategory_keywords는
-        # 용어 콘텐츠 컬럼이 없고 prompt_terms.category_id는 NOT NULL FK이므로,
-        # legacy_category_id가 없는(이번 3단계에서 새로 만든) 서브카테고리 아래에는
-        # 신규 용어를 추가할 수 없다 - 명확한 400으로 실패해야 한다.
-        blocked_term_response = client.post("/api/prompts/terms", json={
+        # B-06 4단계: 3단계 당시엔 legacy_category_id가 없는(새로 만든) 서브카테고리
+        # 아래에 신규 용어를 추가할 수 없어 400으로 차단됐었다(discrepancy로 보고).
+        # 4단계가 prompt_terms.category_id를 nullable로 완화하며 그 제약을 완전히
+        # 해소했다 - 방금 새로 만든 TEST_ADMIN_CATEGORY 아래에도 신규 용어가 정상
+        # 생성되어야 한다.
+        new_category_term_response = client.post("/api/prompts/terms", json={
             "categoryId": admin_category["id"],
-            "code": "test_blocked_term",
-            "canonicalKey": "test.blocked.term",
-            "labelKo": "차단된 term",
-            "labelEn": "blocked term",
-            "promptText": "blocked prompt term",
+            "code": "test_new_category_term",
+            "canonicalKey": "test.new_category.term",
+            "labelKo": "신규 카테고리 term",
+            "labelEn": "new category term",
+            "promptText": "new category prompt term",
             "negativeText": "",
             "riskLevel": "NONE",
             "sortOrder": 10,
         })
-        assert blocked_term_response.status_code == 400, blocked_term_response.text
-        assert "구형 카테고리와 연결되어 있지 않아" in blocked_term_response.text
+        assert new_category_term_response.status_code == 200, new_category_term_response.text
+        new_category_group_after_term = next(group for group in new_category_term_response.json()["groups"] if group["id"] == updated_group["id"])
+        new_category_subcategory_after_term = next(subcategory for subcategory in new_category_group_after_term["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
+        new_category_term = next(term for term in new_category_subcategory_after_term["terms"] if term["code"] == "test_new_category_term")
+        assert new_category_term["promptText"] == "new category prompt term"
+
+        # 완료 기준 확인: "4e에서 만든 서브카테고리와 용어가 2b 프롬프트 생성에 그대로
+        # 나타난다" - 이관 이력이 전혀 없는, 순수하게 4단계 이후 새로 만든 카테고리/
+        # 용어로 검증한다(이관된 카테고리로만 검증하면 이 케이스를 놓친다).
+        new_category_scene_response = client.post("/api/prompts/scene", json={
+            "workflowId": "1-images.json",
+            "segmentIndex": 1,
+            "language": "ko",
+            "termIds": [new_category_term["id"]],
+        })
+        assert new_category_scene_response.status_code == 200, new_category_scene_response.text
+        assert new_category_term["id"] in new_category_scene_response.json()["usedTermIds"]
+
+        new_category_term_deactivate_response = client.post(f"/api/prompts/terms/{new_category_term['id']}/deactivate")
+        assert new_category_term_deactivate_response.status_code == 200, new_category_term_deactivate_response.text
 
         admin_category_update = client.put(f"/api/prompts/categories/{admin_category['id']}", json={
             **admin_category,
@@ -261,11 +278,12 @@ def main() -> None:
         updated_category = next(subcategory for subcategory in admin_group_after_update["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
         assert updated_category["selectionMode"] == "single"
 
-        # 성공 경로: 이미 이관된(legacy_category_id가 있는) 기존 서브카테고리(GENRE) 아래
-        # 신규 용어 추가는 정상 동작해야 한다. prompt_terms에는 불가피하게 1행이 늘지만
-        # (discrepancy로 보고됨), 구형 조인 테이블 prompt_category_terms는 더 이상 늘지
-        # 않고 prompt_subcategory_keywords만 늘어난다 - 이는 아래 별도 검증 스크립트에서
-        # 직접 테이블 카운트로 확인한다.
+        # 성공 경로: 이관 이력이 있는 기존 서브카테고리(GENRE) 아래 신규 용어 추가도
+        # (신규 카테고리와 마찬가지로) 정상 동작해야 한다. prompt_terms에는 콘텐츠
+        # 저장을 위해 1행이 늘지만(스키마상 불가피 - prompt_subcategory_keywords에는
+        # 콘텐츠 컬럼이 없음), 구형 조인 테이블 prompt_category_terms는 늘지 않고
+        # prompt_subcategory_keywords만 늘어난다 - 이는 별도 검증 스크립트에서 직접
+        # 테이블 카운트로 확인한다.
         admin_term_response = client.post("/api/prompts/terms", json={
             "categoryId": genre_subcategory["id"],
             "code": "test_admin_term",

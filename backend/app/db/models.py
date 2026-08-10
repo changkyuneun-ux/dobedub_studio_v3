@@ -261,7 +261,13 @@ class PromptCategory(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
-    terms: Mapped[list["PromptTerm"]] = relationship(back_populates="category", cascade="all, delete-orphan")
+    # B-06 4단계: 이 관계는 구형 데이터를 위해 남겨두지만(prompt_categories 자체는
+    # 이번 단계에서 드롭하지 않음 - TASKS.md가 별도 릴리스로 미루는 것을 명시적으로
+    # 허용), 더 이상 어떤 서비스 코드도 여기 의존하지 않는다. prompt_terms.category_id가
+    # nullable로 바뀌면서 신규 용어는 이 컬렉션에 절대 속하지 않으므로, delete-orphan은
+    # 더 이상 의미 있는 보호 장치가 아니라 오히려 예기치 않은 삭제를 유발할 수 있는
+    # 위험 요소라 제거한다.
+    terms: Mapped[list["PromptTerm"]] = relationship(back_populates="category")
 
 
 class PromptScope(Base):
@@ -303,7 +309,7 @@ class PromptSubcategory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     category_group_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_category_groups.id", ondelete="CASCADE"), nullable=False)
-    legacy_category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("prompt_categories.id", ondelete="SET NULL"), nullable=True, unique=True)
+    # B-06 4단계: legacy_category_id 컬럼 제거(마이그레이션 20260810_0013).
     code: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     scope_type: Mapped[str] = mapped_column(String(32), nullable=False, default="SCENE")
     selection_type: Mapped[str] = mapped_column(String(32), nullable=False, default="MULTIPLE")
@@ -318,7 +324,6 @@ class PromptSubcategory(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
     category_group: Mapped[PromptCategoryGroup] = relationship(back_populates="subcategories")
-    legacy_category: Mapped[PromptCategory | None] = relationship()
     keyword_links: Mapped[list["PromptSubcategoryKeyword"]] = relationship(back_populates="subcategory", cascade="all, delete-orphan")
 
 
@@ -326,7 +331,10 @@ class PromptTerm(Base):
     __tablename__ = "prompt_terms"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_categories.id", ondelete="CASCADE"), nullable=False)
+    # B-06 4단계: category_id를 nullable로 완화(마이그레이션 20260810_0013) - 신형
+    # 서브카테고리 귀속은 prompt_subcategory_keywords가 전담하고, 이 FK는 과거 데이터
+    # 호환용으로만 남는다. 신규 용어는 category_id=None으로 생성된다.
+    category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("prompt_categories.id", ondelete="CASCADE"), nullable=True)
     code: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
     canonical_key: Mapped[str | None] = mapped_column(String(191), nullable=True, index=True)
     label_ko: Mapped[str] = mapped_column(String(191), nullable=False)
@@ -341,7 +349,7 @@ class PromptTerm(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
-    category: Mapped[PromptCategory] = relationship(back_populates="terms")
+    category: Mapped[PromptCategory | None] = relationship(back_populates="terms")
 
 
 class PromptCategoryTerm(Base):

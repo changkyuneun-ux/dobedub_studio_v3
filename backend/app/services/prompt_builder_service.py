@@ -17,9 +17,7 @@ from backend.app.core.config import get_settings
 from backend.app.db.models import (
     ModelProfile,
     PromptFeedback,
-    PromptCategory,
     PromptCategoryGroup,
-    PromptCategoryTerm,
     PromptGenerationOutput,
     PromptGenerationRequest,
     PromptRule,
@@ -230,6 +228,15 @@ EXAMPLE_PROMPT_CATALOG = {
 
 
 def apply_example_prompt_catalog(session: Session, *, force: bool = False) -> dict:
+    """B-06 4단계: 이 시드 함수는 더 이상 구형 prompt_categories/prompt_category_terms를
+    거치지 않고, 신형 계층(prompt_scopes -> prompt_category_groups -> prompt_subcategories
+    -> prompt_subcategory_keywords)에 직접 쓴다. 예전에는 여기서 PromptCategory/
+    PromptCategoryTerm을 만들고 sync_prompt_catalog_hierarchy()의 lazy backfill에 기대
+    신형 계층을 채웠지만, 그 backfill 함수 자체가 이 단계에서 제거되었다(더 이상 구형
+    테이블에 쓰는 코드가 없으므로 브릿지가 필요 없음). EXAMPLE_PROMPT_CATALOG의 원본
+    데이터 구조(categories/terms 키, groupCode/parentCode 등)는 그대로 두되(콘텐츠
+    자체는 이 정리 작업의 대상이 아님), 여기서 신형 테이블 행으로 직접 변환한다.
+    """
     if force:
         for model in (
             PromptTermRendering,
@@ -238,53 +245,89 @@ def apply_example_prompt_catalog(session: Session, *, force: bool = False) -> di
             PromptSubcategory,
             PromptCategoryGroup,
             PromptScope,
-            PromptCategoryTerm,
             PromptTermRelation,
             PromptTemplate,
             PromptRule,
             PromptTerm,
-            PromptCategory,
         ):
             session.query(model).delete()
         session.flush()
 
-    category_by_code = {}
-    for item in EXAMPLE_PROMPT_CATALOG["categories"]:
-        category = session.scalar(select(PromptCategory).where(PromptCategory.code == item["code"]))
-        if not category:
-            category = PromptCategory(code=item["code"])
-            session.add(category)
-        category.group_code = item["groupCode"]
-        category.parent_category_id = item.get("parentCategoryId")
-        category.scope_type = item.get("scopeType", "SCENE")
-        category.selection_type = item.get("selectionType", "MULTIPLE")
-        category.required_yn = bool(item.get("required", False))
-        category.max_select_count = item.get("maxSelectCount")
-        category.name_ko = item["nameKo"]
-        category.name_en = item["nameEn"]
-        category.description = item.get("description")
-        category.sort_order = item.get("sortOrder", 100)
-        category.is_active = True
-        category.updated_at = datetime.utcnow()
-        category_by_code[category.code] = category
+    now = datetime.utcnow()
+
+    # 1) scopes (POSITIVE/NEGATIVE) - 신형 계층의 최상위.
+    scope_by_code: dict[str, PromptScope] = {}
+    for code, item in PROMPT_SCOPE_SEED.items():
+        scope = session.scalar(select(PromptScope).where(PromptScope.code == code))
+        if not scope:
+            scope = PromptScope(code=code, created_at=now)
+            session.add(scope)
+        scope.name_ko = item["nameKo"]
+        scope.name_en = item["nameEn"]
+        scope.sort_order = item["sortOrder"]
+        scope.is_active = True
+        scope.updated_at = now
+        scope_by_code[code] = scope
     session.flush()
 
+    # 2) category groups - ROOT(POSITIVE_ROOT/NEGATIVE_ROOT)를 제외한 모든 예시
+    # 카테고리의 groupCode에서 도출한다(구형 sync_prompt_catalog_hierarchy가 활성
+    # 카테고리에서 하던 것과 동일한 규칙).
+    group_codes = sorted({
+        item["groupCode"] for item in EXAMPLE_PROMPT_CATALOG["categories"]
+        if item["code"] not in FIXED_PROMPT_ROOT_CODES
+    })
+    group_by_code: dict[str, PromptCategoryGroup] = {}
+    for group_code in group_codes:
+        scope = scope_by_code[_scope_code_for_group(group_code)]
+        group = session.scalar(select(PromptCategoryGroup).where(PromptCategoryGroup.code == group_code))
+        if not group:
+            group = PromptCategoryGroup(code=group_code, scope_id=scope.id, created_at=now)
+            session.add(group)
+        group.scope_id = scope.id
+        label_ko, label_en = PROMPT_GROUP_LABELS.get(group_code, (_title_from_code(group_code), _title_from_code(group_code)))
+        group.name_ko = label_ko
+        group.name_en = label_en
+        group.sort_order = _prompt_group_sort_order(group_code)
+        group.is_active = True
+        group.updated_at = now
+        group_by_code[group_code] = group
+    session.flush()
+
+    # 3) subcategories - ROOT를 제외한 예시 카테고리 1건당 1개. legacy_category_id는
+    # 더 이상 컬럼 자체가 없다(20260810_0013 마이그레이션 참조).
+    subcategory_by_code: dict[str, PromptSubcategory] = {}
     for item in EXAMPLE_PROMPT_CATALOG["categories"]:
-        parent_code = item.get("parentCode")
-        if not parent_code:
+        if item["code"] in FIXED_PROMPT_ROOT_CODES:
             continue
-        category = category_by_code[item["code"]]
-        parent = category_by_code.get(parent_code)
-        category.parent_category_id = parent.id if parent else None
+        group = group_by_code[item["groupCode"]]
+        subcategory = session.scalar(select(PromptSubcategory).where(PromptSubcategory.code == item["code"]))
+        if not subcategory:
+            subcategory = PromptSubcategory(code=item["code"], category_group_id=group.id, created_at=now)
+            session.add(subcategory)
+        subcategory.category_group_id = group.id
+        subcategory.scope_type = item.get("scopeType", "SCENE")
+        subcategory.selection_type = item.get("selectionType", "MULTIPLE")
+        subcategory.required_yn = bool(item.get("required", False))
+        subcategory.max_select_count = item.get("maxSelectCount")
+        subcategory.name_ko = item["nameKo"]
+        subcategory.name_en = item["nameEn"]
+        subcategory.description = item.get("description")
+        subcategory.sort_order = item.get("sortOrder", 100)
+        subcategory.is_active = True
+        subcategory.updated_at = now
+        subcategory_by_code[subcategory.code] = subcategory
     session.flush()
 
+    # 4) terms - 콘텐츠(label/prompt text 등)는 여전히 prompt_terms에만 저장 가능하다
+    # (upsert_prompt_keyword의 docstring 참조). category_id는 이제 nullable이며 항상
+    # None으로 남긴다 - 귀속은 아래 5)의 prompt_subcategory_keywords 링크가 전담한다.
+    term_by_code: dict[str, PromptTerm] = {}
     for item in EXAMPLE_PROMPT_CATALOG["terms"]:
-        category = category_by_code[item["category"]]
         term = session.scalar(select(PromptTerm).where(PromptTerm.code == item["code"]))
         if not term:
-            term = PromptTerm(code=item["code"], category_id=category.id)
+            term = PromptTerm(code=item["code"])
             session.add(term)
-        term.category_id = category.id
         term.canonical_key = item.get("canonicalKey") or item["code"]
         term.label_ko = item["labelKo"]
         term.label_en = item["labelEn"]
@@ -295,21 +338,21 @@ def apply_example_prompt_catalog(session: Session, *, force: bool = False) -> di
         term.metadata_json = item.get("metadata", {})
         term.sort_order = item.get("sortOrder", 100)
         term.is_active = True
-        term.updated_at = datetime.utcnow()
+        term.updated_at = now
+        term_by_code[term.code] = term
     session.flush()
 
+    # 5) subcategory <-> keyword 링크 - 구형 prompt_category_terms를 완전히 대체한다.
     for item in EXAMPLE_PROMPT_CATALOG["terms"]:
-        category = category_by_code[item["category"]]
-        term = session.scalar(select(PromptTerm).where(PromptTerm.code == item["code"]))
-        if not term:
-            continue
-        category_term = session.get(PromptCategoryTerm, {"category_id": category.id, "term_id": term.id})
-        if not category_term:
-            category_term = PromptCategoryTerm(category_id=category.id, term_id=term.id)
-            session.add(category_term)
-        category_term.default_polarity = "NEGATIVE" if item.get("negativeText") else "POSITIVE"
-        category_term.sort_order = item.get("sortOrder", 100)
-        category_term.active_yn = True
+        subcategory = subcategory_by_code[item["category"]]
+        term = term_by_code[item["code"]]
+        link = session.get(PromptSubcategoryKeyword, {"subcategory_id": subcategory.id, "keyword_id": term.id})
+        if not link:
+            link = PromptSubcategoryKeyword(subcategory_id=subcategory.id, keyword_id=term.id)
+            session.add(link)
+        link.default_polarity = "NEGATIVE" if item.get("negativeText") else "POSITIVE"
+        link.sort_order = item.get("sortOrder", 100)
+        link.active_yn = True
 
     session.flush()
     for item in EXAMPLE_PROMPT_CATALOG.get("relations", []):
@@ -415,95 +458,19 @@ def apply_example_prompt_catalog(session: Session, *, force: bool = False) -> di
         template.updated_at = datetime.utcnow()
 
     session.commit()
-    sync_prompt_catalog_hierarchy(session)
     return prompt_catalog(session)
 
 
-def sync_prompt_catalog_hierarchy(session: Session) -> None:
-    now = datetime.utcnow()
-    scope_by_code: dict[str, PromptScope] = {}
-    for code, item in PROMPT_SCOPE_SEED.items():
-        scope = session.scalar(select(PromptScope).where(PromptScope.code == code))
-        if not scope:
-            scope = PromptScope(code=code, created_at=now)
-            session.add(scope)
-        scope.name_ko = item["nameKo"]
-        scope.name_en = item["nameEn"]
-        scope.sort_order = item["sortOrder"]
-        scope.is_active = True
-        scope.updated_at = now
-        scope_by_code[code] = scope
-    session.flush()
-
-    categories = session.scalars(
-        select(PromptCategory)
-        .options(selectinload(PromptCategory.terms))
-        .where(PromptCategory.is_active.is_(True))
-        .order_by(PromptCategory.sort_order, PromptCategory.code)
-    ).all()
-    category_by_id = {category.id: category for category in categories}
-    group_codes = sorted({category.group_code for category in categories if category.code not in FIXED_PROMPT_ROOT_CODES})
-    group_by_code: dict[str, PromptCategoryGroup] = {}
-    for group_code in group_codes:
-        scope_code = _scope_code_for_group(group_code)
-        scope = scope_by_code[scope_code]
-        group = session.scalar(select(PromptCategoryGroup).where(PromptCategoryGroup.code == group_code))
-        if not group:
-            group = PromptCategoryGroup(code=group_code, scope_id=scope.id, created_at=now)
-            session.add(group)
-        group.scope_id = scope.id
-        label_ko, label_en = PROMPT_GROUP_LABELS.get(group_code, (_title_from_code(group_code), _title_from_code(group_code)))
-        group.name_ko = label_ko
-        group.name_en = label_en
-        group.sort_order = _prompt_group_sort_order(group_code)
-        group.is_active = True
-        group.updated_at = now
-        group_by_code[group_code] = group
-    session.flush()
-
-    for category in categories:
-        if category.code in FIXED_PROMPT_ROOT_CODES:
-            continue
-        group = group_by_code.get(category.group_code)
-        if not group:
-            continue
-        parent = category_by_id.get(category.parent_category_id) if category.parent_category_id else None
-        scope_code = _scope_code_for_group(category.group_code, parent)
-        group.scope_id = scope_by_code[scope_code].id
-        subcategory = session.scalar(select(PromptSubcategory).where(PromptSubcategory.code == category.code))
-        if not subcategory:
-            subcategory = PromptSubcategory(code=category.code, category_group_id=group.id, created_at=now)
-            session.add(subcategory)
-        subcategory.category_group_id = group.id
-        subcategory.legacy_category_id = category.id
-        subcategory.scope_type = category.scope_type
-        subcategory.selection_type = category.selection_type
-        subcategory.required_yn = category.required_yn
-        subcategory.max_select_count = category.max_select_count
-        subcategory.name_ko = category.name_ko
-        subcategory.name_en = category.name_en
-        subcategory.description = category.description
-        subcategory.sort_order = category.sort_order
-        subcategory.is_active = category.is_active
-        subcategory.updated_at = now
-        session.flush()
-        for term in category.terms:
-            if not term.is_active:
-                continue
-            link = session.get(PromptSubcategoryKeyword, {"subcategory_id": subcategory.id, "keyword_id": term.id})
-            if not link:
-                link = PromptSubcategoryKeyword(subcategory_id=subcategory.id, keyword_id=term.id)
-                session.add(link)
-            link.default_polarity = "NEGATIVE" if term.negative_text and not term.prompt_text else "POSITIVE"
-            link.sort_order = term.sort_order
-            link.active_yn = True
-    session.commit()
+# B-06 4단계: sync_prompt_catalog_hierarchy()(구형<->신형 계층 lazy 브릿지)는 이 단계에서
+# 완전히 제거했다. TASKS.md 0번 항목이 "전환 후에는 이 동기화 호출도 제거 대상입니다"라고
+# 명시했고, 3단계까지 admin CRUD가, 이번 4단계에서 apply_example_prompt_catalog()까지
+# 신형 계층에만 직접 쓰도록 바뀌면서 이 브릿지의 유일한 존재 이유(구형 쓰기를 신형에 반영)가
+# 사라졌다. 남아있던 호출부(prompt_catalog/build_scene_json/upsert_prompt_category_group/
+# upsert_prompt_category)에서도 모두 제거했다.
 
 
-def _scope_code_for_group(group_code: str, parent: PromptCategory | None = None) -> str:
-    if group_code.lower().startswith("negative") or (parent and parent.code == "NEGATIVE_ROOT"):
-        return "NEGATIVE"
-    return "POSITIVE"
+def _scope_code_for_group(group_code: str) -> str:
+    return "NEGATIVE" if group_code.lower().startswith("negative") else "POSITIVE"
 
 
 def _prompt_group_sort_order(group_code: str) -> int:
@@ -518,7 +485,6 @@ def _title_from_code(code: str) -> str:
 
 
 def prompt_catalog(session: Session) -> dict:
-    sync_prompt_catalog_hierarchy(session)
     rules = session.scalars(
         select(PromptRule).where(PromptRule.is_active.is_(True)).order_by(PromptRule.code)
     ).all()
@@ -556,7 +522,6 @@ def prompt_catalog(session: Session) -> dict:
                 "subcategories": [
                     {
                         "id": subcategory.id,
-                        "legacyCategoryId": subcategory.legacy_category_id,
                         "code": subcategory.code,
                         "groupId": subcategory.category_group_id,
                         "scopeType": subcategory.scope_type,
@@ -641,14 +606,12 @@ def _prompt_term_payload(term: PromptTerm, sort_order: int | None = None) -> dic
 
 
 def upsert_prompt_category_group(session: Session, payload: dict, group_id: int | None = None) -> dict:
-    # B-06 3단계: 이 함수는 원래부터 신형 PromptCategoryGroup에만 쓴다 - 구형
-    # prompt_categories/prompt_terms는 이 함수에서 애초에 건드리지 않았으므로
-    # "구형 테이블에 신규 쓰기 금지" 요건을 이미 만족한다. 변경 없음.
+    # B-06: 이 함수는 원래부터 신형 PromptCategoryGroup에만 쓴다 - 구형
+    # prompt_categories/prompt_terms는 이 함수에서 애초에 건드리지 않았다.
     code = _required_admin_string(payload, "code").lower()
     scope_code = _required_admin_string(payload, "scopeType").upper()
     if scope_code not in PROMPT_SCOPE_SEED:
         raise ValueError("scopeType must be POSITIVE or NEGATIVE")
-    sync_prompt_catalog_hierarchy(session)
     scope = session.scalar(select(PromptScope).where(PromptScope.code == scope_code))
     if not scope:
         raise ValueError("Prompt scope is not ready")
@@ -672,11 +635,9 @@ def upsert_prompt_category_group(session: Session, payload: dict, group_id: int 
 
 
 def deactivate_prompt_category_group(session: Session, group_id: int) -> dict:
-    # B-06 3단계: 신형 테이블만 갱신 대상으로 삼되(신규 행은 없음, UPDATE만),
-    # 이미 이관된 구형 legacy_category가 있다면 화면 간 일관성을 위해 함께
-    # 비활성화한다 - 이는 새 행을 만드는 것이 아니라 기존 legacy 행의 상태를
-    # 갱신하는 것이므로 "신규 쓰기 금지"에 위배되지 않는다.
-    sync_prompt_catalog_hierarchy(session)
+    # B-06 4단계: legacy_category_id/legacy_category 관계가 제거되어 구형 카테고리로의
+    # cascade도 함께 제거했다 - prompt_categories는 이제 어떤 서비스 코드에서도
+    # 읽거나 쓰지 않는, 순수 과거 데이터다.
     group = session.get(PromptCategoryGroup, group_id)
     if not group:
         raise ValueError("Prompt category not found")
@@ -685,9 +646,6 @@ def deactivate_prompt_category_group(session: Session, group_id: int) -> dict:
     for subcategory in group.subcategories:
         subcategory.is_active = False
         subcategory.updated_at = datetime.utcnow()
-        if subcategory.legacy_category:
-            subcategory.legacy_category.is_active = False
-            subcategory.legacy_category.updated_at = datetime.utcnow()
         for link in subcategory.keyword_links:
             link.active_yn = False
     session.commit()
@@ -695,18 +653,18 @@ def deactivate_prompt_category_group(session: Session, group_id: int) -> dict:
 
 
 def upsert_prompt_category(session: Session, payload: dict, category_id: int | None = None) -> dict:
-    """B-06 3단계: 이름/엔드포인트(/prompts/categories)는 프론트 계약을 지키기 위해
-    그대로 두지만, 실제로는 신형 PromptSubcategory에만 쓴다. 구형 prompt_categories는
-    이 시점부터 이 함수에서 더 이상 생성/수정하지 않는다("이관 후 읽기 전용" 원칙).
-    category_id 인자와 반환되는 catalog의 subcategory "id"는 PromptSubcategory.id다.
-    새로 만든 서브카테고리는 legacy_category_id가 NULL이며, 그 아래 신규 용어를
-    추가하려면 구형 카테고리 연결이 필요하다는 제약이 upsert_prompt_keyword()에 있다
-    (아래 주석 참조 - discrepancy로 별도 보고).
+    """B-06: 이름/엔드포인트(/prompts/categories)는 프론트 계약을 지키기 위해 그대로
+    두지만, 실제로는 신형 PromptSubcategory에만 쓴다. 구형 prompt_categories는 이
+    함수에서 생성/수정하지 않는다("이관 후 읽기 전용" 원칙 - 4단계에서는 아예 참조도
+    하지 않음). category_id 인자와 반환되는 catalog의 subcategory "id"는
+    PromptSubcategory.id다. 3단계에서 보고했던 discrepancy(legacy_category_id가 없는
+    서브카테고리 아래 신규 용어를 만들 수 없던 제약)는 4단계에서
+    prompt_terms.category_id를 nullable로 완화하며 완전히 해소했다 -
+    upsert_prompt_keyword() 참조.
     """
     code = _required_admin_string(payload, "code").upper()
     if code in FIXED_PROMPT_ROOT_CODES:
         raise ValueError("Positive/Negative root categories are fixed system classifications.")
-    sync_prompt_catalog_hierarchy(session)
     subcategory = session.get(PromptSubcategory, category_id) if category_id else None
     existing = session.scalar(select(PromptSubcategory).where(PromptSubcategory.code == code))
     if existing and (not subcategory or existing.id != subcategory.id):
@@ -736,9 +694,8 @@ def upsert_prompt_category(session: Session, payload: dict, category_id: int | N
 
 
 def deactivate_prompt_category(session: Session, category_id: int) -> dict:
-    # B-06 3단계: category_id는 PromptSubcategory.id. 구형 legacy_category가 남아있으면
-    # (이관된 서브카테고리라면) 화면 일관성을 위해 함께 비활성화하지만, 이는 기존 행의
-    # UPDATE일 뿐 신규 행 생성이 아니다.
+    # B-06 4단계: category_id는 PromptSubcategory.id. legacy_category cascade는
+    # legacy_category_id 컬럼과 함께 제거했다.
     subcategory = session.get(PromptSubcategory, category_id)
     if not subcategory:
         raise ValueError("Prompt category not found")
@@ -747,9 +704,6 @@ def deactivate_prompt_category(session: Session, category_id: int) -> dict:
     now = datetime.utcnow()
     subcategory.is_active = False
     subcategory.updated_at = now
-    if subcategory.legacy_category:
-        subcategory.legacy_category.is_active = False
-        subcategory.legacy_category.updated_at = now
     for link in subcategory.keyword_links:
         link.active_yn = False
         if link.keyword:
@@ -760,31 +714,21 @@ def deactivate_prompt_category(session: Session, category_id: int) -> dict:
 
 
 def upsert_prompt_keyword(session: Session, payload: dict, term_id: int | None = None) -> dict:
-    """B-06 3단계: "categoryId" 페이로드 키는 이름을 그대로 유지하되(프론트 계약 불변),
-    이제 PromptSubcategory.id를 가리키는 것으로 의미가 바뀐다 - main.tsx의
+    """B-06: "categoryId" 페이로드 키는 이름을 그대로 유지하되(프론트 계약 불변), 이제
+    PromptSubcategory.id를 가리키는 것으로 의미가 바뀐다 - main.tsx의
     promptCatalogCategories()가 groups[].subcategories[]를 펼쳐 만드는 "category" 객체의
     id가 이미 subcategory.id이므로, 프론트는 코드 변경 없이 자연스럽게 맞는 값을 보낸다.
 
-    구조적 제약(discrepancy, 사용자에게 보고함): prompt_subcategory_keywords는
-    라벨/프롬프트 텍스트 등 용어 콘텐츠를 담는 컬럼이 전혀 없고(subcategory_id,
-    keyword_id, default_polarity, sort_order, active_yn뿐), keyword_id는
-    prompt_terms.id를 가리키는 FK다. 즉 "새 용어"의 실제 콘텐츠(label_ko 등)를 저장할
-    곳은 스키마상 prompt_terms 하나뿐이다. 게다가 prompt_terms.category_id는
-    NOT NULL FK(ForeignKey("prompt_categories.id"))라서, 신규 term 행을 만들려면
-    구형 카테고리 id가 반드시 있어야 한다. 따라서:
-      - "구형 prompt_terms에 신규 행이 생기지 않는다"는 요건은 신규 용어 생성 자체에
-        대해서는 현재 스키마로 구조적으로 만족시킬 수 없다(스키마 변경 없이는 불가능
-        - prompt_subcategory_keywords에 콘텐츠 컬럼을 추가하거나 category_id를
-        nullable로 바꾸는 4단계급 스키마 작업이 필요하며, 이는 이번 턴의 승인 범위
-        밖이다). 이 사실을 그대로 보고하고 임의로 스키마를 바꾸지 않았다.
-      - 대신 구조적으로 피할 수 있는 구형 쓰기는 전부 제거했다: 더 이상
-        prompt_category_terms(구형 조인 테이블)에는 쓰지 않고,
-        prompt_subcategory_keywords 링크를 이 함수가 직접, 명시적으로 만든다(더 이상
-        sync_prompt_catalog_hierarchy의 lazy backfill에 기대지 않음).
-      - 이관된(legacy_category_id가 있는) 기존 서브카테고리 아래 신규 용어를 추가하는
-        경우는 정상 동작한다(현재 운영 데이터 100%가 이 케이스). legacy_category_id가
-        없는, 이번 3단계에서 새로 만든 서브카테고리 아래에는 신규 용어를 추가할 수
-        없고 명확한 에러로 실패한다(아래 참조).
+    3단계에서 보고했던 discrepancy(해소됨): prompt_subcategory_keywords는 용어
+    콘텐츠 컬럼이 전혀 없어(subcategory_id, keyword_id, default_polarity, sort_order,
+    active_yn뿐) 새 용어의 실제 콘텐츠(label_ko 등)는 여전히 prompt_terms에 저장한다
+    (keyword_id는 prompt_terms.id를 가리키는 FK). 3단계 당시엔 prompt_terms.category_id가
+    NOT NULL FK(→prompt_categories.id)라서 legacy_category_id가 없는(=이관되지 않은)
+    서브카테고리 아래에는 신규 용어를 만들 수 없었다. 4단계 마이그레이션
+    (20260810_0013)이 category_id를 nullable로 완화하면서 이 제약이 완전히 사라졌다 -
+    이제 어떤 서브카테고리(신규로 만든 것이든 이관된 것이든) 아래에도 신규 용어를 자유롭게
+    추가할 수 있다. 더 이상 prompt_category_terms(구형 조인 테이블)에는 쓰지 않고,
+    prompt_subcategory_keywords 링크를 이 함수가 직접, 명시적으로 만든다.
     """
     code = _required_admin_string(payload, "code")
     subcategory_id = _optional_admin_int(payload.get("categoryId") or payload.get("subcategoryId"))
@@ -793,22 +737,17 @@ def upsert_prompt_keyword(session: Session, payload: dict, term_id: int | None =
     subcategory = session.get(PromptSubcategory, subcategory_id)
     if not subcategory or not subcategory.is_active:
         raise ValueError("Active prompt category not found")
-    legacy_category_id = subcategory.legacy_category_id
-    if not legacy_category_id:
-        raise ValueError(
-            "이 카테고리는 구형 카테고리와 연결되어 있지 않아 신규 용어를 추가할 수 없습니다 "
-            "(B-06 3단계의 알려진 제약 - 4단계 스키마 정리 전까지 이관된 카테고리에만 "
-            "신규 용어를 추가할 수 있습니다)."
-        )
     term = session.get(PromptTerm, term_id) if term_id else None
     existing = session.scalar(select(PromptTerm).where(PromptTerm.code == code))
     if existing and (not term or existing.id != term.id):
         raise ValueError(f"Prompt term code already exists: {code}")
     if not term:
-        term = PromptTerm(code=code, category_id=legacy_category_id)
+        # B-06 4단계: category_id는 더 이상 설정하지 않는다(nullable, 구형 카테고리와
+        # 무관하게 항상 None으로 생성) - 귀속은 아래 _link_keyword_from_admin이 만드는
+        # prompt_subcategory_keywords 링크가 전담한다.
+        term = PromptTerm(code=code)
         session.add(term)
     term.code = code
-    term.category_id = legacy_category_id
     term.canonical_key = _optional_admin_string(payload.get("canonicalKey")) or code
     term.label_ko = _required_admin_string(payload, "labelKo")
     term.label_en = _required_admin_string(payload, "labelEn")
@@ -935,16 +874,23 @@ def _subcategory_map_for_terms(session: Session, term_ids: list[int]) -> dict[in
     return mapping
 
 
+def _term_group_key(term: PromptTerm, subcategory: PromptSubcategory | None) -> str:
+    """B-06 4단계: 서브카테고리 링크가 있으면 그 code를 그룹 키로 쓴다. 링크가 없는
+    경우(관리자 생성/시드 경로 양쪽 다 항상 링크를 만들므로 정상 상태라면 발생하지
+    않음)는 term.category로 폴백할 수 없다 - category_id가 nullable로 바뀌어(4단계
+    마이그레이션) term.category가 None일 수 있기 때문이다. 대신 term 자신의 code로
+    만든 고유 키를 써서 크래시 없이 안전하게 처리한다."""
+    return subcategory.code if subcategory else f"_unlinked_{term.code}"
+
+
 def build_scene_json(session: Session, payload: dict) -> dict:
-    # B-06 2단계: 용어 조회 자체는 여전히 prompt_terms를 대상으로 하지만(용어 데이터의
-    # 출처는 바뀌지 않음), 아래에서 카테고리/서브카테고리 귀속 판단은 신형 계층
-    # (prompt_subcategories/prompt_subcategory_keywords)을 우선 사용한다.
-    # prompt_catalog()와 동일하게 호출 시점마다 신형 계층을 최신 상태로 맞춘다.
-    sync_prompt_catalog_hierarchy(session)
+    # B-06 4단계: 카테고리/서브카테고리 귀속 판단은 신형 계층
+    # (prompt_subcategories/prompt_subcategory_keywords)만 사용한다. 구형<->신형
+    # lazy 브릿지(sync_prompt_catalog_hierarchy)는 admin CRUD와 시드 함수 양쪽 다 신형
+    # 계층에 직접 쓰게 되면서 더 이상 필요 없어 제거했다.
     term_ids = [int(value) for value in payload.get("termIds") or [] if str(value).isdigit()]
     terms = session.scalars(
         select(PromptTerm)
-        .options(selectinload(PromptTerm.category))
         .where(PromptTerm.id.in_(term_ids), PromptTerm.is_active.is_(True))
         .order_by(PromptTerm.sort_order, PromptTerm.code)
     ).all() if term_ids else []
@@ -965,10 +911,7 @@ def build_scene_json(session: Session, payload: dict) -> dict:
     subcategory_by_term_id = _subcategory_map_for_terms(session, [term.id for term in terms])
     for term in terms:
         subcategory = subcategory_by_term_id.get(term.id)
-        # subcategory.code는 legacy_category_id로 이관된 category.code와 항상 동일한
-        # 값이므로(0012 마이그레이션/sync_prompt_catalog_hierarchy 둘 다 이 규칙을 지킨다),
-        # 신형 경로를 쓰더라도 scene JSON의 그룹 키는 이전과 동일하게 나온다.
-        group_key = (subcategory.code if subcategory else term.category.code).lower()
+        group_key = _term_group_key(term, subcategory).lower()
         grouped.setdefault(group_key, []).append(term.label_en)
         positive_text = _render_term_text(term, renderings, "POSITIVE")
         negative_text = _render_term_text(term, renderings, "NEGATIVE")
@@ -1040,16 +983,15 @@ def build_scene_json(session: Session, payload: dict) -> dict:
 
 
 def _validate_and_normalize_terms(session: Session, terms: list[PromptTerm]) -> tuple[list[PromptTerm], list[dict]]:
-    # B-06 2단계: 선택/필수 검증은 신형 PromptSubcategory 기준으로 한다. 서브카테고리가
-    # 아직 연결되지 않은 용어(정상 상태라면 발생하지 않음 - sync_prompt_catalog_hierarchy가
-    # 매 호출마다 채운다)만 구형 PromptCategory로 안전하게 폴백한다.
+    # B-06 4단계: 선택/필수 검증은 신형 PromptSubcategory만 기준으로 한다. 서브카테고리
+    # 링크가 없는 용어(정상 상태라면 발생하지 않음)는 _term_group_key로 안전하게
+    # 처리하고, 선택 제한은 두지 않는다(제한을 걸 근거가 되는 서브카테고리 자체가 없음).
     warnings = []
     subcategory_by_term_id = _subcategory_map_for_terms(session, [term.id for term in terms])
     grouped_terms: dict[str, list[PromptTerm]] = {}
     for term in terms:
         subcategory = subcategory_by_term_id.get(term.id)
-        group_key = subcategory.code if subcategory else term.category.code
-        grouped_terms.setdefault(group_key, []).append(term)
+        grouped_terms.setdefault(_term_group_key(term, subcategory), []).append(term)
 
     normalized_terms: list[PromptTerm] = []
     for group_key, group_terms in grouped_terms.items():
@@ -1058,9 +1000,8 @@ def _validate_and_normalize_terms(session: Session, terms: list[PromptTerm]) -> 
             selection_type = subcategory.selection_type
             max_select_count = subcategory.max_select_count
         else:
-            legacy_category = group_terms[0].category
-            selection_type = legacy_category.selection_type
-            max_select_count = legacy_category.max_select_count
+            selection_type = "MULTIPLE"
+            max_select_count = None
         limit = 1 if selection_type.upper() == "SINGLE" else max_select_count
         if limit and len(group_terms) > limit:
             warnings.append({
@@ -1072,7 +1013,7 @@ def _validate_and_normalize_terms(session: Session, terms: list[PromptTerm]) -> 
         normalized_terms.extend(group_terms)
 
     selected_group_keys = {
-        (subcategory_by_term_id[term.id].code if term.id in subcategory_by_term_id else term.category.code)
+        _term_group_key(term, subcategory_by_term_id.get(term.id))
         for term in normalized_terms
     }
     required_subcategories = session.scalars(
@@ -1100,8 +1041,8 @@ def _apply_term_relations(session: Session, terms: list[PromptTerm]) -> tuple[li
     relations = session.scalars(
         select(PromptTermRelation)
         .options(
-            selectinload(PromptTermRelation.source_term).selectinload(PromptTerm.category),
-            selectinload(PromptTermRelation.target_term).selectinload(PromptTerm.category),
+            selectinload(PromptTermRelation.source_term),
+            selectinload(PromptTermRelation.target_term),
         )
         .where(PromptTermRelation.source_term_id.in_(selected_by_id.keys()))
         .order_by(PromptTermRelation.weight.desc(), PromptTermRelation.relation_type)
@@ -1141,14 +1082,15 @@ def _apply_term_relations(session: Session, terms: list[PromptTerm]) -> tuple[li
                 "targetTermId": target.id,
                 "relationType": relation_type,
             })
-    # B-06 2단계: 최종 정렬 기준도 신형 서브카테고리의 sort_order를 우선 사용한다
-    # (subcategory.sort_order는 이관 시 category.sort_order를 그대로 복사하므로 값은
-    # 기존과 동일 - 폴백은 서브카테고리 연결이 없는 예외적인 경우에만 쓰인다).
+    # B-06 4단계: 최종 정렬 기준은 신형 서브카테고리의 sort_order만 사용한다. 서브카테고리
+    # 링크가 없는 예외적인 경우(정상 상태라면 발생하지 않음)는 term 자신의 sort_order를
+    # 그룹 정렬값으로도 재사용해 안전하게 처리한다(더 이상 term.category로 폴백할 수
+    # 없음 - category_id가 nullable이라 None일 수 있다).
     subcategory_by_term_id = _subcategory_map_for_terms(session, list(selected_by_id.keys()))
 
     def _term_sort_key(term: PromptTerm) -> tuple:
         subcategory = subcategory_by_term_id.get(term.id)
-        sort_order = subcategory.sort_order if subcategory else term.category.sort_order
+        sort_order = subcategory.sort_order if subcategory else term.sort_order
         return (sort_order, term.sort_order, term.code)
 
     return sorted(selected_by_id.values(), key=_term_sort_key), warnings
