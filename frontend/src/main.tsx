@@ -334,7 +334,7 @@ function TopBar({
         <span>DOBEDUB STUDIO</span>
       </div>
       <nav className="toolbar" aria-label="주요 메뉴">
-        <button className={route === "create.load" || route === "create.prompt" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
+        <button className={route === "create.load" || route === "create.prompt" || route === "create.segments" || route === "create.workspace" ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
         {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
         {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
         {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
@@ -957,6 +957,176 @@ function Create2bScreen({
           </div>
         </>
       )}
+    </AppShell>
+  );
+}
+
+// E-02 · 2e "S3 세그먼트 설정 · 노드 컨피그 & seed" — design_handoff_dobedub_v3/
+// 2 Create.dc.html의 세 번째 화면. Wan Node Config는 기존 StudioShell의
+// updateConfigValue/resetSegmentConfigsToDefaults를 그대로 재사용한다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - seed "직접 입력" — 코드베이스가 4314245("영상 생성 seed 서버측 자동화")
+//   커밋 이후로 seed를 항상 서버가 자동 생성하도록 확정했고, configControls에서도
+//   seed/Seed 키를 의도적으로 제외한다(구버전 화면도 동일). 없는 수동 입력 경로를
+//   화면에만 만들어 붙이지 않았다 - 자동 생성이라는 사실만 보여준다.
+// - "SEG 01 대비 변경분" diff 표 — 기본값과 현재값을 비교하는 로직이 없다. 대신
+//   현재 설정값을 그대로 나열한다.
+function Create2eScreen({
+  user,
+  health,
+  workflowName,
+  segments,
+  selectedSegmentIndex,
+  onSelectSegment,
+  keyframes,
+  onUpdateConfigValue,
+  onResetDefaults,
+  onCopyFirstSegmentConfig,
+  onEditPrompt,
+  onNext
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  workflowName: string;
+  segments: SegmentState[];
+  selectedSegmentIndex: number;
+  onSelectSegment: (index: number) => void;
+  keyframes: KeyframeState[];
+  onUpdateConfigValue: (key: string, value: string, control?: ConfigControl) => void;
+  onResetDefaults: () => void;
+  onCopyFirstSegmentConfig: (targetIndex: number) => void;
+  onEditPrompt: () => void;
+  onNext: () => void;
+}) {
+  const selectedSegment = segments.find((segment) => segment.index === selectedSegmentIndex) || segments[0];
+  const startKeyframe = keyframes.find((keyframe) => keyframe.index === selectedSegment?.startImageIndex);
+  const endKeyframe = keyframes.find((keyframe) => keyframe.index === selectedSegment?.endImageIndex);
+  const configControls = (selectedSegment?.configControls || []).filter((control) => control.key !== "seed" && control.key !== "Seed");
+  const configuredCount = segments.filter((segment) => segment.positivePrompt.trim()).length;
+  const allConfigured = configuredCount === segments.length && segments.length > 0;
+  const isFirstSegment = selectedSegment?.index === segments[0]?.index;
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="workspace"
+      onNavigate={() => {}}
+      headerEyebrow={`STEP 2 / 4 · SEG ${String(selectedSegmentIndex).padStart(2, "0")} · 노드 컨피그`}
+      headerTitle="세그먼트 설정"
+      headerActions={
+        <button className="v3-primary-button" type="button" disabled={!allConfigured} onClick={onNext}>
+          실행 전 확인으로 →
+        </button>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>SEGMENTS · {workflowName || "-"} → {segments.length}</div>
+          {segments.map((segment) => (
+            <button
+              key={segment.index}
+              type="button"
+              className={`v3-segment-nav-item ${segment.index === selectedSegmentIndex ? "is-active" : ""}`}
+              onClick={() => onSelectSegment(segment.index)}
+            >
+              <div className="v3-segment-nav-head">
+                <span>SEG {String(segment.index).padStart(2, "0")}</span>
+                <span>{segment.positivePrompt.trim() ? "세팅 완료" : "설정 필요"}</span>
+              </div>
+              <div className="v3-segment-nav-meta">KF {segment.startImageIndex} → KF {segment.endImageIndex}</div>
+            </button>
+          ))}
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title">설정 현황</div>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <span className="v3-label">세그먼트 설정</span>
+            </div>
+            {segments.map((segment) => (
+              <div className="v3-status-row" key={segment.index}>
+                <span>{String(segment.index).padStart(2, "0")}</span>
+                <span className={segment.positivePrompt.trim() ? "is-done" : "is-pending"}>
+                  {segment.positivePrompt.trim() ? "완료" : "프롬프트 필요"}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>제출 방식</span><strong>단일 작업 1건</strong></div>
+            <div className="v3-summary-row"><span>세그먼트</span><strong>{segments.length}</strong></div>
+            <div className="v3-summary-row"><span>Seed</span><strong>세그먼트별 자동</strong></div>
+          </div>
+          <div className="v3-summary-card">
+            <div className="v3-label">검증</div>
+            <div className={`v3-checklist-item ${configuredCount === segments.length ? "is-done" : "is-warning"}`}>
+              <span className="v3-checklist-dot">{configuredCount === segments.length ? "✓" : ""}</span>
+              프롬프트 {configuredCount} / {segments.length}
+            </div>
+            <div className="v3-checklist-item is-done">
+              <span className="v3-checklist-dot">✓</span>
+              노드 구성값 유효
+            </div>
+          </div>
+          <div className="v3-inline-actions">
+            <button className="v3-secondary-button v3-flex-button" type="button" onClick={onEditPrompt}>프롬프트 수정</button>
+          </div>
+          <p className="v3-muted-text">모든 세그먼트 설정이 끝나야 실행 전 확인이 열립니다 · 현재 {configuredCount}/{segments.length}</p>
+        </>
+      }
+    >
+      <div className="v3-card">
+        <div className="v3-card-header" style={{ gap: 14 }}>
+          <div className="v3-kf-pair">
+            <div className="v3-kf-thumb">{startKeyframe?.previewUrl ? <ProtectedImage src={startKeyframe.previewUrl} alt="시작 키프레임" /> : <span>KF {selectedSegment?.startImageIndex}</span>}</div>
+            <span className="v3-kf-arrow">→</span>
+            <div className="v3-kf-thumb">{endKeyframe?.previewUrl ? <ProtectedImage src={endKeyframe.previewUrl} alt="끝 키프레임" /> : <span>KF {selectedSegment?.endImageIndex}</span>}</div>
+          </div>
+          <div className="v3-kf-meta">
+            <div className="v3-card-header-title">이미지</div>
+            <span className="v3-card-header-meta">슬롯 순서 고정</span>
+          </div>
+          <div className="v3-kf-prompt-status">
+            <span className="v3-label">프롬프트</span>
+            <strong className={selectedSegment?.positivePrompt.trim() ? "is-done-text" : "is-pending-text"}>
+              {selectedSegment?.positivePrompt.trim() ? "적용됨" : "미적용"}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">
+            <span>Wan Node Config · SEG {String(selectedSegmentIndex).padStart(2, "0")}</span>
+            <span className="v3-card-header-meta">세그먼트별 개별 설정</span>
+          </div>
+          <div className="v3-inline-actions">
+            {!isFirstSegment ? (
+              <button className="v3-text-link-button" type="button" onClick={() => onCopyFirstSegmentConfig(selectedSegmentIndex)}>SEG 01 값 복사</button>
+            ) : null}
+            <button className="v3-text-link-button is-muted" type="button" onClick={onResetDefaults}>기본값 복원</button>
+          </div>
+        </div>
+        <div className="v3-config-grid">
+          {configControls.map((control) => (
+            <label className="v3-config-cell" key={control.key}>
+              <span className="v3-label">{control.label}</span>
+              <input
+                value={String(selectedSegment?.config[control.key] ?? control.default ?? "")}
+                onChange={(event) => onUpdateConfigValue(control.key, event.target.value, control)}
+              />
+            </label>
+          ))}
+        </div>
+        <div className="v3-seed-block">
+          <span className="v3-label">SEED</span>
+          <span>세그먼트별로 서버가 실행 시점에 자동 생성합니다.</span>
+        </div>
+      </div>
     </AppShell>
   );
 }
@@ -1730,6 +1900,26 @@ function StudioShell({
     }
   }
 
+  // E-02 · 2e: design_handoff의 "SEG 01 값 복사"에 대응하는 백엔드 API는 없다(그런
+  // 엔드포인트를 만든 적이 없음). seed를 제외한 config는 순수 클라이언트 상태이므로
+  // 새 API 없이 첫 세그먼트의 값을 현재 세그먼트로 복사하는 것으로 충분하다 - 서버에
+  // 저장되는 값이 아니라 제출 시점에 job payload에 실리는 값이기 때문.
+  function copyFirstSegmentConfig(targetIndex: number) {
+    const source = segments.find((segment) => segment.index === segments[0]?.index);
+    if (!source || source.index === targetIndex) {
+      return;
+    }
+    const { seed: _seed, Seed: _legacySeed, ...sourceConfig } = source.config;
+    updateSegment(targetIndex, (segment) => ({
+      ...segment,
+      config: {
+        ...segment.config,
+        ...sourceConfig
+      }
+    }));
+    setNotice(`SEG ${String(source.index).padStart(2, "0")} 설정값을 복사했습니다.`);
+  }
+
   async function applySelectedFiles(startIndex: number, files: FileList | null) {
     const selectedFiles = Array.from(files || []);
     if (!selectedFiles.length) {
@@ -2076,9 +2266,24 @@ function StudioShell({
         onGenerate={() => void generatePromptDraft()}
         onApply={applyPromptSceneToSegment}
         onOpenPromptReuse={() => void openPromptReuse()}
-        // E-02: 2e(세그먼트 설정 · 노드 컨피그)가 아직 없어 "노드 구성값 설정"은
-        // 구버전 통합 워크스페이스로 이동한다. 같은 StudioShell 상태를 공유하므로
-        // 여기서 적용한 프롬프트는 그대로 이어진다 - 데이터 유실 없음.
+        onNext={() => onNavigate("create.segments")}
+      />
+    ) : route === "create.segments" ? (
+      <Create2eScreen
+        user={user}
+        health={health}
+        workflowName={selected?.label || selected?.name || selectedWorkflow}
+        segments={segments}
+        selectedSegmentIndex={selectedSegmentIndex}
+        onSelectSegment={setSelectedSegmentIndex}
+        keyframes={keyframes}
+        onUpdateConfigValue={updateConfigValue}
+        onResetDefaults={() => void resetSegmentConfigsToDefaults()}
+        onCopyFirstSegmentConfig={copyFirstSegmentConfig}
+        onEditPrompt={() => onNavigate("create.prompt")}
+        // E-02: 2f(실행 전 확인)가 아직 없어 "실행 전 확인으로"는 구버전 통합
+        // 워크스페이스로 이동한다. 같은 StudioShell 상태를 공유하므로 여기서 설정한
+        // 노드 컨피그는 그대로 이어진다 - 데이터 유실 없음.
         onNext={() => onNavigate("create.workspace")}
       />
     ) : (

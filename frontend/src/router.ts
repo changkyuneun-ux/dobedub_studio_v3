@@ -12,9 +12,10 @@
 //   access.manual     — 6b 사용자 매뉴얼 ("1 Access.dc.html" 소속)
 //   create.load       — 2a · S1 이미지 로드 (신규 구현, E-02)
 //   create.prompt     — 2b · S2 세그먼트 설정 · 프롬프트 구성 (신규 구현, E-02)
-//   create.workspace  — 2e~2f를 아직 분리하지 않은 구버전 전체 워크스페이스(임시).
-//                       E-02가 진행되며 create.segments/create.confirm/
-//                       create.progress/create.result로 분할되고 이 값은 제거된다.
+//   create.segments   — 2e · S3 세그먼트 설정 · 노드 컨피그 & seed (신규 구현, E-02)
+//   create.workspace  — 2f를 아직 분리하지 않은 구버전 전체 워크스페이스(임시).
+//                       E-02가 진행되며 create.confirm/create.progress/create.result로
+//                       분할되고 이 값은 제거된다.
 //   review.history    — 3a 작업 이력 ("3 Review.dc.html" 소속)
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -24,6 +25,7 @@ export type StudioRoute =
   | "access.manual"
   | "create.load"
   | "create.prompt"
+  | "create.segments"
   | "create.workspace"
   | "review.history"
   | "admin.console"
@@ -48,6 +50,7 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "access.manual": "/studio/access/manual",
   "create.load": "/studio/create/load",
   "create.prompt": "/studio/create/prompt",
+  "create.segments": "/studio/create/segments",
   "create.workspace": "/studio/create/workspace",
   "review.history": "/studio/review/history",
   "admin.console": "/studio/admin/console",

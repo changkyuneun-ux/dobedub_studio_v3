@@ -4410,3 +4410,148 @@ textarea {
   font-size: 11px;
   margin: 0;
 }
+
+/* ==========================================================================
+   E-02: 2e "S3 세그먼트 설정 · 노드 컨피그 & seed" — 키프레임 쌍, 상태 목록,
+   config 그리드. v3 토큰만 사용.
+   ========================================================================== */
+
+.v3-status-row {
+  align-items: center;
+  border-bottom: 1px solid var(--v3-border-inner);
+  display: flex;
+  font-size: 11.5px;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 9px 12px;
+}
+
+.v3-status-row:last-child {
+  border-bottom: none;
+}
+
+.v3-status-row span:first-child {
+  font-family: var(--v3-font-mono);
+  font-weight: 600;
+}
+
+.v3-status-row .is-done {
+  color: var(--v3-accent-text);
+  font-weight: 600;
+}
+
+.v3-status-row .is-pending {
+  color: var(--v3-warning-text);
+}
+
+.v3-kf-pair {
+  align-items: center;
+  display: flex;
+  flex: none;
+  gap: 10px;
+}
+
+.v3-kf-thumb {
+  align-items: center;
+  background: repeating-linear-gradient(135deg, #fbfcfb 0 7px, #f2f4f3 7px 14px);
+  border-radius: 9px;
+  color: var(--v3-text-label);
+  display: grid;
+  font-family: var(--v3-font-mono);
+  font-size: 9.5px;
+  height: 82px;
+  justify-content: center;
+  overflow: hidden;
+  width: 132px;
+}
+
+.v3-kf-thumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.v3-kf-arrow {
+  color: var(--v3-accent);
+  font-size: 15px;
+}
+
+.v3-kf-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.v3-kf-prompt-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: auto;
+  text-align: right;
+}
+
+.is-done-text {
+  color: var(--v3-accent-text);
+}
+
+.is-pending-text {
+  color: var(--v3-text-label);
+}
+
+.v3-text-link-button {
+  background: none;
+  border: none;
+  color: var(--v3-accent-text);
+  cursor: pointer;
+  font: inherit;
+  font-family: var(--v3-font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.v3-text-link-button.is-muted {
+  color: var(--v3-text-label);
+}
+
+.v3-config-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 15px 16px 0;
+}
+
+.v3-config-cell {
+  border: 1px solid var(--v3-border);
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.v3-config-cell input {
+  background: none;
+  border: none;
+  color: var(--v3-text-body);
+  font: inherit;
+  font-weight: 600;
+  padding: 0;
+  width: 100%;
+}
+
+.v3-seed-block {
+  align-items: center;
+  background: var(--v3-bg-table);
+  border: 1px solid var(--v3-border);
+  border-radius: 10px;
+  display: flex;
+  font-size: 11.5px;
+  gap: 10px;
+  margin: 14px 16px 16px;
+  padding: 13px 14px;
+}
+
+.v3-seed-block span:last-child {
+  color: var(--v3-text-secondary);
+}
