@@ -585,6 +585,16 @@ def prompt_catalog(session: Session) -> dict:
             }
             for group in groups
         ],
+        # DEPRECATED (B-06 2단계) - 구형 categories 배열. 신형 "groups"가 이미 이
+        # 응답의 유일한 canonical 트리(prompt_scopes -> prompt_category_groups ->
+        # prompt_subcategories -> keywords)이고, 프론트(main.tsx의
+        # promptCatalogCategories())도 groups가 있으면 이쪽을 우선 사용하고
+        # categories는 폴백으로만 참조한다. 이 필드를 지금 지우면 scripts/
+        # prompt_db_smoke_check.py·admin_smoke_check.py의 관리자 카탈로그 CRUD
+        # 검증(약 30곳)이 즉시 깨진다 - 그 검증들은 3단계(쓰기 경로 전환)에서
+        # upsert_prompt_category 등이 신형 계층 기준으로 재작성될 때 함께 손볼
+        # 대상이라 3단계와 묶어 제거하는 편이 안전하다고 판단해 이번 커밋에서는
+        # 필드만 남기고 deprecated로 표시한다. 사용자에게 discrepancy로 보고함.
         "categories": [
             {
                 "id": category.id,
@@ -881,7 +891,35 @@ def scene_json_v1_schema_validation_available() -> bool:
     return scene_json_v1_validator() is not None
 
 
+def _subcategory_map_for_terms(session: Session, term_ids: list[int]) -> dict[int, PromptSubcategory]:
+    """B-06 2단계: term.id(=keyword_id)로 신형 계층의 PromptSubcategory를 찾는다.
+
+    PromptSubcategoryKeyword.keyword_id는 prompt_terms.id를 가리키는 FK이므로
+    (models.py 참조) "keyword id"와 "term id"는 동일한 값 공간이다. 즉
+    build_scene_json()/generate_prompt() 전 구간에서 다루는 termIds/usedTermIds는
+    전부 PromptTerm.id 값이며, 이 값을 그대로 keyword_id로 사용해 신형 계층을
+    조회할 수 있다.
+    """
+    if not term_ids:
+        return {}
+    links = session.scalars(
+        select(PromptSubcategoryKeyword)
+        .options(selectinload(PromptSubcategoryKeyword.subcategory))
+        .where(PromptSubcategoryKeyword.keyword_id.in_(term_ids), PromptSubcategoryKeyword.active_yn.is_(True))
+    ).all()
+    mapping: dict[int, PromptSubcategory] = {}
+    for link in links:
+        if link.subcategory and link.subcategory.is_active:
+            mapping.setdefault(link.keyword_id, link.subcategory)
+    return mapping
+
+
 def build_scene_json(session: Session, payload: dict) -> dict:
+    # B-06 2단계: 용어 조회 자체는 여전히 prompt_terms를 대상으로 하지만(용어 데이터의
+    # 출처는 바뀌지 않음), 아래에서 카테고리/서브카테고리 귀속 판단은 신형 계층
+    # (prompt_subcategories/prompt_subcategory_keywords)을 우선 사용한다.
+    # prompt_catalog()와 동일하게 호출 시점마다 신형 계층을 최신 상태로 맞춘다.
+    sync_prompt_catalog_hierarchy(session)
     term_ids = [int(value) for value in payload.get("termIds") or [] if str(value).isdigit()]
     terms = session.scalars(
         select(PromptTerm)
@@ -903,8 +941,14 @@ def build_scene_json(session: Session, payload: dict) -> dict:
     grouped: dict[str, list[str]] = {}
     positive_parts = []
     negative_parts = []
+    subcategory_by_term_id = _subcategory_map_for_terms(session, [term.id for term in terms])
     for term in terms:
-        grouped.setdefault(term.category.code.lower(), []).append(term.label_en)
+        subcategory = subcategory_by_term_id.get(term.id)
+        # subcategory.code는 legacy_category_id로 이관된 category.code와 항상 동일한
+        # 값이므로(0012 마이그레이션/sync_prompt_catalog_hierarchy 둘 다 이 규칙을 지킨다),
+        # 신형 경로를 쓰더라도 scene JSON의 그룹 키는 이전과 동일하게 나온다.
+        group_key = (subcategory.code if subcategory else term.category.code).lower()
+        grouped.setdefault(group_key, []).append(term.label_en)
         positive_text = _render_term_text(term, renderings, "POSITIVE")
         negative_text = _render_term_text(term, renderings, "NEGATIVE")
         if positive_text:
@@ -925,6 +969,12 @@ def build_scene_json(session: Session, payload: dict) -> dict:
     scene, scene_warnings = _build_scene_v1(payload, grouped, constraints)
     warnings.extend(scene_warnings)
     _raise_for_scene_schema_errors(scene)
+    # B-06 확정 사항: used_term_ids/selected_term_ids는 PromptTerm.id다. 신형 계층의
+    # PromptSubcategoryKeyword.keyword_id는 prompt_terms.id를 가리키는 FK라 별도
+    # entity가 아니며(models.py), 값 공간이 term id와 완전히 같다. 따라서 프론트가
+    # 카탈로그(구형 categories든 신형 groups[].subcategories[].terms든)에서 얻어
+    # 제출하는 termIds/usedTermIds를 그대로 keyword_id로 사용해 신형 계층을 조회해도
+    # 된다 — 실제로 _subcategory_map_for_terms()가 이렇게 한다.
     used_term_ids = [term.id for term in terms]
     request = PromptGenerationRequest(
         id=f"prompt_req_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}",
@@ -969,35 +1019,51 @@ def build_scene_json(session: Session, payload: dict) -> dict:
 
 
 def _validate_and_normalize_terms(session: Session, terms: list[PromptTerm]) -> tuple[list[PromptTerm], list[dict]]:
+    # B-06 2단계: 선택/필수 검증은 신형 PromptSubcategory 기준으로 한다. 서브카테고리가
+    # 아직 연결되지 않은 용어(정상 상태라면 발생하지 않음 - sync_prompt_catalog_hierarchy가
+    # 매 호출마다 채운다)만 구형 PromptCategory로 안전하게 폴백한다.
     warnings = []
+    subcategory_by_term_id = _subcategory_map_for_terms(session, [term.id for term in terms])
     grouped_terms: dict[str, list[PromptTerm]] = {}
     for term in terms:
-        grouped_terms.setdefault(term.category.code, []).append(term)
+        subcategory = subcategory_by_term_id.get(term.id)
+        group_key = subcategory.code if subcategory else term.category.code
+        grouped_terms.setdefault(group_key, []).append(term)
 
     normalized_terms: list[PromptTerm] = []
-    for category_code, category_terms in grouped_terms.items():
-        category = category_terms[0].category
-        limit = 1 if category.selection_type.upper() == "SINGLE" else category.max_select_count
-        if limit and len(category_terms) > limit:
+    for group_key, group_terms in grouped_terms.items():
+        subcategory = subcategory_by_term_id.get(group_terms[0].id)
+        if subcategory:
+            selection_type = subcategory.selection_type
+            max_select_count = subcategory.max_select_count
+        else:
+            legacy_category = group_terms[0].category
+            selection_type = legacy_category.selection_type
+            max_select_count = legacy_category.max_select_count
+        limit = 1 if selection_type.upper() == "SINGLE" else max_select_count
+        if limit and len(group_terms) > limit:
             warnings.append({
                 "code": "selection_limit_trimmed",
-                "message": f"{category.code} accepts up to {limit} term(s); extra terms were ignored.",
+                "message": f"{group_key} accepts up to {limit} term(s); extra terms were ignored.",
                 "severity": "warning",
             })
-            category_terms = category_terms[:limit]
-        normalized_terms.extend(category_terms)
+            group_terms = group_terms[:limit]
+        normalized_terms.extend(group_terms)
 
-    selected_category_codes = {term.category.code for term in normalized_terms}
-    required_categories = session.scalars(
-        select(PromptCategory)
-        .where(PromptCategory.is_active.is_(True), PromptCategory.required_yn.is_(True))
-        .order_by(PromptCategory.sort_order)
+    selected_group_keys = {
+        (subcategory_by_term_id[term.id].code if term.id in subcategory_by_term_id else term.category.code)
+        for term in normalized_terms
+    }
+    required_subcategories = session.scalars(
+        select(PromptSubcategory)
+        .where(PromptSubcategory.is_active.is_(True), PromptSubcategory.required_yn.is_(True))
+        .order_by(PromptSubcategory.sort_order)
     ).all()
-    for category in required_categories:
-        if category.code not in selected_category_codes:
+    for subcategory in required_subcategories:
+        if subcategory.code not in selected_group_keys:
             warnings.append({
                 "code": "required_category_missing",
-                "message": f"{category.code} is required for a complete prompt scene.",
+                "message": f"{subcategory.code} is required for a complete prompt scene.",
                 "severity": "warning",
             })
 
@@ -1054,7 +1120,17 @@ def _apply_term_relations(session: Session, terms: list[PromptTerm]) -> tuple[li
                 "targetTermId": target.id,
                 "relationType": relation_type,
             })
-    return sorted(selected_by_id.values(), key=lambda term: (term.category.sort_order, term.sort_order, term.code)), warnings
+    # B-06 2단계: 최종 정렬 기준도 신형 서브카테고리의 sort_order를 우선 사용한다
+    # (subcategory.sort_order는 이관 시 category.sort_order를 그대로 복사하므로 값은
+    # 기존과 동일 - 폴백은 서브카테고리 연결이 없는 예외적인 경우에만 쓰인다).
+    subcategory_by_term_id = _subcategory_map_for_terms(session, list(selected_by_id.keys()))
+
+    def _term_sort_key(term: PromptTerm) -> tuple:
+        subcategory = subcategory_by_term_id.get(term.id)
+        sort_order = subcategory.sort_order if subcategory else term.category.sort_order
+        return (sort_order, term.sort_order, term.code)
+
+    return sorted(selected_by_id.values(), key=_term_sort_key), warnings
 
 
 def _resolve_model_profile(session: Session, payload: dict) -> ModelProfile | None:
@@ -1383,6 +1459,11 @@ def generate_prompt(session: Session, payload: dict) -> dict:
     if _looks_like_scene_v1(scene):
         _raise_for_scene_schema_errors(scene)
     constraints = payload.get("constraints") if isinstance(payload.get("constraints"), dict) else {}
+    # B-06 확정 사항: 이 함수는 신형/구형 어느 계층도 직접 조회하지 않는다 - 프론트가
+    # scene JSON을 만들 때(build_scene_json) 이미 확정한 termIds/usedTermIds를 그대로
+    # 감사 기록용으로 저장할 뿐이다. 그 값은 PromptTerm.id이며(위 build_scene_json의
+    # used_term_ids 주석 참조), keyword_id와 동일한 값 공간이라 신형 계층에도 그대로
+    # 대응된다.
     selected_term_ids = [int(value) for value in payload.get("termIds") or payload.get("usedTermIds") or [] if str(value).isdigit()]
     language = payload.get("language") or "ko"
 
