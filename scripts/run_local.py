@@ -40,7 +40,11 @@ def prepare_local_database() -> None:
 
     with SessionLocal() as db:
         catalog = prompt_catalog(db)
-        if not catalog.get("categories"):
+        # B-06 3단계에서 prompt_catalog() 응답의 구형 "categories" 배열이 제거되어
+        # 이 가드가 항상 참으로 평가되고 있었다(수정 전) - 로컬 재시작마다 관리자가
+        # 편집한 카테고리/용어가 EXAMPLE_PROMPT_CATALOG 예시 데이터로 덮어써지는
+        # 버그였다. "groups"가 유일한 canonical 응답이므로 이를 기준으로 판단한다.
+        if not catalog.get("groups"):
             apply_example_prompt_catalog(db, force=False)
 
 
