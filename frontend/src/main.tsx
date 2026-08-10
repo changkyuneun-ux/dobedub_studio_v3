@@ -122,6 +122,8 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.assets": "history:read",
   "admin.systemPrompt": "prompts:build",
   "admin.sandbox": "sandbox:read",
+  "admin.roles": "roles:read",
+  "admin.resourceMap": "roles:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -167,6 +169,8 @@ function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
     onGoTo("admin.metadata");
   } else if (key === "adminSandbox") {
     onGoTo("admin.sandbox");
+  } else if (key === "adminRoles") {
+    onGoTo("admin.roles");
   } else {
     onGoTo("admin.console");
   }
@@ -177,6 +181,8 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.assets": "Assets",
   "admin.systemPrompt": "System Prompt",
   "admin.sandbox": "Sandbox Pod",
+  "admin.roles": "역할 & 권한",
+  "admin.resourceMap": "기능 리소스 매핑",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -2922,6 +2928,183 @@ function Create5bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRo
   );
 }
 
+// E-04 · 3b/7b — 구버전 AdminConsoleModal의 Permissions 탭 하나가 역할×권한
+// 매트릭스(3b)와 기능 리소스 매핑 표(7b)를 함께 그리고 있었다. design_handoff는
+// 이 둘을 별도 화면 id로 나누므로(3b/7b) 화면도 둘로 쪼갰다 - 둘 다 같은
+// PermissionGovernance 데이터(GET /api/admin/permissions)를 각자 독립적으로
+// 불러온다(작은 데이터라 화면당 한 번씩 다시 부르는 비용이 적고, 두 화면이 서로
+// 상태를 공유할 이유도 없다).
+function useAdminPermissionGovernance() {
+  const [governance, setGovernance] = useState<PermissionGovernance | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState("");
+
+  async function load() {
+    setLoading(true);
+    setNotice("");
+    try {
+      setGovernance(await apiClient.adminPermissions());
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "권한 정보를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  return { governance, setGovernance, loading, notice, setNotice, reload: load };
+}
+
+function Create3bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRoute) => void }) {
+  const { governance, setGovernance, loading, notice, setNotice } = useAdminPermissionGovernance();
+  const [selectedRoleCode, setSelectedRoleCode] = useState("");
+  const [rolePermissionDraft, setRolePermissionDraft] = useState<string[]>([]);
+  const roles = adminRoleOptions(governance);
+  const selectedRole = roles.find((item) => item.code === selectedRoleCode) || roles[0] || null;
+  const canEdit = canUse(user, "roles:write");
+
+  useEffect(() => {
+    if (!roles.length) {
+      return;
+    }
+    const nextRole = roles.find((item) => item.code === selectedRoleCode) || roles[0];
+    if (nextRole.code !== selectedRoleCode) {
+      setSelectedRoleCode(nextRole.code);
+    }
+    setRolePermissionDraft([...(nextRole.permissionCodes || [])]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [governance]);
+
+  function toggleRolePermission(permission: string) {
+    if (selectedRole?.code === "SUPER_ADMIN" && permission === "admin:*") {
+      return;
+    }
+    setRolePermissionDraft((current) => current.includes(permission)
+      ? current.filter((item) => item !== permission)
+      : [...current, permission]);
+  }
+
+  async function saveRolePermissions() {
+    if (!selectedRole) {
+      return;
+    }
+    setNotice("");
+    try {
+      const response = await apiClient.saveAdminRolePermissions(selectedRole.code, rolePermissionDraft);
+      setGovernance(response);
+      setNotice(`${selectedRole.code} 권한 구성을 저장했습니다.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Role permission save failed");
+    }
+  }
+
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminRoles"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 역할 & 권한"
+      headerTitle="역할×권한 매트릭스"
+      headerActions={
+        <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.resourceMap")}>기능 리소스 매핑 보기</button>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>ROLES · {roles.length}</div>
+          {roles.map((role) => (
+            <button
+              key={role.code}
+              type="button"
+              className={`v3-segment-nav-item ${selectedRole?.code === role.code ? "is-active" : ""}`}
+              onClick={() => {
+                setSelectedRoleCode(role.code);
+                setRolePermissionDraft([...(role.permissionCodes || [])]);
+              }}
+            >
+              <div className="v3-segment-nav-head"><span>{role.code}</span><span className={`v3-status-badge ${role.isActive ? "is-ready" : "is-pending"}`}>{role.isActive ? "ACTIVE" : "INACTIVE"}</span></div>
+            </button>
+          ))}
+        </div>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {selectedRole ? (
+        <>
+          <div className="v3-card">
+            <div className="v3-card-header">
+              <div className="v3-card-header-title">{selectedRole.code}</div>
+              <span className="v3-card-header-meta">{rolePermissionDraft.length} permission(s) · {canEdit ? "Editable" : "Read only"}</span>
+            </div>
+            <div style={{ padding: "0 16px 16px" }}>
+              <p className="v3-muted-text">{selectedRole.description || selectedRole.name}</p>
+              <div className="v3-term-chip-row">
+                {adminPermissionOptions(governance).map((item) => {
+                  const selected = rolePermissionDraft.includes(item.value);
+                  const locked = selectedRole.code === "SUPER_ADMIN" && item.value === "admin:*";
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      className={`v3-term-chip ${selected ? "is-selected" : ""}`}
+                      disabled={!canEdit || locked}
+                      onClick={() => toggleRolePermission(item.value)}
+                      title={item.description}
+                    >
+                      {item.value}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="v3-muted-text" style={{ marginTop: 10 }}>Role 권한은 해당 Role 사용자 전체에 적용됩니다. 사용자별 예외 권한은 3e/7c(사용자 상세)에서 관리합니다.</p>
+            </div>
+            <div className="v3-inline-actions" style={{ padding: "0 16px 16px" }}>
+              <button className="v3-primary-button" type="button" disabled={loading || !canEdit} onClick={() => void saveRolePermissions()}>Save Role Permissions</button>
+            </div>
+          </div>
+        </>
+      ) : <p className="v3-muted-text">Role 정보가 없습니다.</p>}
+    </AppShell>
+  );
+}
+
+function Create7bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRoute) => void }) {
+  const { governance, loading, notice } = useAdminPermissionGovernance();
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminRoles"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 역할 & 권한"
+      headerTitle="기능 리소스 매핑"
+      headerActions={
+        <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.roles")}>역할×권한 매트릭스로</button>
+      }
+      sidebarFooter={<p className="v3-muted-text">D-01: 미연결 API(reports/configs)는 여기 표시되지 않습니다 - SCREEN 행을 만들지 않기로 결정됨.</p>}
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {loading && !governance ? <p className="v3-muted-text">불러오는 중입니다...</p> : null}
+      <div className="v3-card">
+        <div className="v3-review-table-head" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <span>RESOURCE TYPE</span><span>RESOURCE KEY</span><span>REQUIRED PERMISSION</span>
+        </div>
+        {(governance?.resources || []).map((resource) => (
+          <div className="v3-review-table-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }} key={resource.resourceKey}>
+            <span>{resource.resourceType}</span>
+            <span className="v3-review-config">{resource.resourceKey}</span>
+            <span>{resource.requiredPermissionCode}</span>
+          </div>
+        ))}
+        {!loading && !(governance?.resources || []).length ? <p className="v3-muted-text" style={{ padding: 16 }}>등록된 리소스 매핑이 없습니다.</p> : null}
+      </div>
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -4359,6 +4542,10 @@ function StudioShell({
       />
     ) : route === "admin.sandbox" ? (
       <Create5bScreen user={user} onGoTo={onNavigate} />
+    ) : route === "admin.roles" ? (
+      <Create3bScreen user={user} onGoTo={onNavigate} />
+    ) : route === "admin.resourceMap" ? (
+      <Create7bScreen user={user} onGoTo={onNavigate} />
     ) : (
     <main className="studio-grid">
       <aside className="sidebar">

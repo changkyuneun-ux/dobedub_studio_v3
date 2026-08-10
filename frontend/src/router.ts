@@ -34,6 +34,11 @@
 //                       AdminConsoleModal)로 보낸다(shellNavigateAdmin 참조).
 //   admin.sandbox      — 5b Sandbox Pod (신규 구현, E-04). "Sandbox Pod" Admin
 //                       사이드바 그룹 소속.
+//   admin.roles        — 3b 역할×권한 매트릭스 (신규 구현, E-04). "역할 & 권한"
+//                       Admin 사이드바 그룹 소속.
+//   admin.resourceMap  — 7b 기능 리소스 매핑 (신규 구현, E-04). 3b와 같은
+//                       PermissionGovernance 데이터를 공유하지만, 원본 구버전
+//                       탭 안에 같이 있던 것을 설계 문서 화면 구분대로 분리했다.
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -53,6 +58,8 @@ export type StudioRoute =
   | "review.assets"
   | "admin.systemPrompt"
   | "admin.sandbox"
+  | "admin.roles"
+  | "admin.resourceMap"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -86,6 +93,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "review.assets": "/studio/review/assets",
   "admin.systemPrompt": "/studio/admin/system-prompt",
   "admin.sandbox": "/studio/admin/sandbox",
+  "admin.roles": "/studio/admin/roles",
+  "admin.resourceMap": "/studio/admin/resource-map",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"
