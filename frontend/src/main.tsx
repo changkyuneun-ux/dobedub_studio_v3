@@ -2891,12 +2891,18 @@ function PromptBuilderModal({
   const negativePromptAddition = generated?.negativePrompt || negativeKeywordDraft;
   const negativePrompt = combinePromptText(baseNegativePrompt, negativePromptAddition);
   const warnings = generated?.warnings || [];
+  // C-01: 화면 `2b` 설계대로 "용어 규칙 위반"(error) 심각도가 있으면 적용을 막는다 -
+  // BLOCK 배지만 그리고 실제로는 막지 않으면 라벨과 동작이 어긋난다.
+  const warningGroups = groupPromptWarningsBySeverity(warnings);
+  const hasBlockingWarning = warningGroups.some((group) => group.severity === "error");
   const sceneStructure = toPromptSceneStructure(scene?.scene);
   const applyLabel = generated ? "Apply Generated Prompt" : "Apply Keyword / Scene Draft";
   const [expandedCatalogKeys, setExpandedCatalogKeys] = useState<Set<string>>(new Set());
-  const applyDescription = generated
-    ? "Generate Prompt 결과가 현재 segment에 적용됩니다."
-    : "선택한 key word draft가 현재 segment에 바로 적용됩니다.";
+  const applyDescription = hasBlockingWarning
+    ? "용어 규칙 위반(BLOCK)이 있어 적용할 수 없습니다 · 위 경고를 해결하세요."
+    : generated
+      ? "Generate Prompt 결과가 현재 segment에 적용됩니다."
+      : "선택한 key word draft가 현재 segment에 바로 적용됩니다.";
 
   useEffect(() => {
     setExpandedCatalogKeys(promptAccordionDefaultKeys());
@@ -3108,10 +3114,22 @@ function PromptBuilderModal({
                 tone="negative"
                 onCopy={() => void copyPromptText(negativePrompt)}
               />
-              {warnings.length ? (
+              {warningGroups.length ? (
                 <div className="prompt-warning-list">
                   <h3>Warnings</h3>
-                  <ul>{warnings.map((warning, index) => <li key={`${warning.code || "warning"}-${index}`}>{warning.message || warning.code}</li>)}</ul>
+                  {warningGroups.map((group) => (
+                    <div className={`prompt-warning-group severity-${group.severity}`} key={group.severity}>
+                      {group.items.map((warning, index) => (
+                        <div className="prompt-warning-item" key={`${warning.code || group.severity}-${index}`}>
+                          <span className="prompt-warning-dot" aria-hidden="true" />
+                          <span className="prompt-warning-message">{warning.message || warning.code}</span>
+                          <span className="prompt-warning-badge">
+                            {group.severity === "error" ? "BLOCK · 적용 비활성" : group.severity === "warning" ? "WARN · 진행 가능" : "INFO"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               ) : null}
             </div>
@@ -3124,7 +3142,7 @@ function PromptBuilderModal({
             <button
               className="primary-button"
               type="button"
-              disabled={!hasPositiveInput && !generated}
+              disabled={(!hasPositiveInput && !generated) || hasBlockingWarning}
               onClick={() => onApply({
                 positivePrompt,
                 negativePrompt,
@@ -5436,6 +5454,29 @@ function combinePromptText(...parts: Array<string | undefined | null>) {
       return true;
     });
   return tokens.join(", ");
+}
+
+// C-01: generate_prompt가 반환하는 {code, message, severity} 경고를 화면 2b
+// 설계대로 심각도별로 묶는다. 백엔드는 severity로 "info"/"warning"/"error"만
+// 사용하므로(prompt_builder_service.py), 알 수 없는 값은 "warning"으로 취급한다.
+type PromptWarningSeverity = "error" | "warning" | "info";
+
+function normalizePromptWarningSeverity(severity?: string): PromptWarningSeverity {
+  if (severity === "error") return "error";
+  if (severity === "info") return "info";
+  return "warning";
+}
+
+function groupPromptWarningsBySeverity(
+  warnings: Array<{ code?: string; message?: string; severity?: string }>,
+) {
+  const order: PromptWarningSeverity[] = ["error", "warning", "info"];
+  return order
+    .map((severity) => ({
+      severity,
+      items: warnings.filter((warning) => normalizePromptWarningSeverity(warning.severity) === severity),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 function formatPromptList(prompts: PromptEntry[] | undefined) {

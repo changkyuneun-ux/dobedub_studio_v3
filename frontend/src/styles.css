@@ -2808,11 +2808,86 @@ textarea {
   color: #fecaca;
 }
 
-.prompt-warning-list ul {
-  color: var(--muted);
+/* C-01: 화면 2b 설계의 "용어 규칙 위반"(BLOCK) / "필수 값 누락"(WARN) 그룹을
+   심각도별로 나눠 그린다. 기존 .status-pill 계열 색상 짝(fail=red, check=amber,
+   dry-run=blue)을 그대로 재사용해 새 색상을 만들지 않는다. */
+.prompt-warning-group {
+  border-radius: 8px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.prompt-warning-item {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  padding: 7px 10px;
+}
+
+.prompt-warning-item + .prompt-warning-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.prompt-warning-dot {
+  border-radius: 50%;
+  flex: none;
+  height: 6px;
+  width: 6px;
+}
+
+.prompt-warning-message {
+  color: var(--text);
+  font-size: 12px;
   line-height: 1.35;
-  margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.prompt-warning-badge {
+  flex: none;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.prompt-warning-group.severity-error {
+  background: #341719;
+  border: 1px solid #7f1d1d;
+}
+
+.prompt-warning-group.severity-error .prompt-warning-dot {
+  background: var(--red);
+}
+
+.prompt-warning-group.severity-error .prompt-warning-badge {
+  color: var(--red);
+}
+
+.prompt-warning-group.severity-warning {
+  background: #33260b;
+  border: 1px solid #854d0e;
+}
+
+.prompt-warning-group.severity-warning .prompt-warning-dot {
+  background: #fbbf24;
+}
+
+.prompt-warning-group.severity-warning .prompt-warning-badge {
+  color: #fbbf24;
+}
+
+.prompt-warning-group.severity-info {
+  background: #172033;
+  border: 1px solid #315187;
+}
+
+.prompt-warning-group.severity-info .prompt-warning-dot {
+  background: var(--blue-2);
+}
+
+.prompt-warning-group.severity-info .prompt-warning-badge {
+  color: var(--blue-2);
 }
 
 .prompt-draft-card small,
