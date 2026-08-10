@@ -13,7 +13,7 @@
 
 ## 화면 구현 중
 
-**E-00~E-04 완료(`5c`만 A-02 대기로 제외).** `frontend/src/components/AppShell.tsx`가 공통 골격을 담당하고, `frontend/src/main.tsx`에 `Create2aScreen`~`Create2dScreen`(2a~2d), `Create3aScreen`, `Create3RunDetailScreen`(3f/3c 통합), `Create4cScreen`, `Create5aScreen`, `Create7aScreen`, `Create6cScreen`, `Create6dScreen`, `Create5bScreen`, `Create3bScreen`, `Create7bScreen`, `Create4aScreen`, `Create4dScreen`, `PromptCatalogAdminPanelV3`(4e/3d/4b 통합, `focus` prop으로 구분), `Create3eScreen`(사용자 목록)·`Create7cScreen`(사용자 상세, `resetAdminUserPassword`/`deactivateAdminUser` 최초 연결)가 구현됨. `5c`(컬렉션)는 A-02(컬렉션 테이블·API)가 저장소에 전혀 없어 가짜 데이터 없이는 만들 수 없다는 판단으로 보류. `main.tsx`는 아직 하나의 파일에 신규 화면이 계속 추가되는 구조라 E-06(구버전 제거·파일 분리)은 미착수 — 다음 단계. B-01·B-02·B-03·B-04·C-01의 로직은 신규 화면에서 재사용됨.
+**E-00~E-04 완료(`5c`만 A-02 대기로 제외).** `frontend/src/components/AppShell.tsx`가 공통 골격을 담당하고, `frontend/src/main.tsx`에 `Create2aScreen`~`Create2dScreen`(2a~2d), `Create3aScreen`, `Create3RunDetailScreen`(3f/3c 통합), `Create4cScreen`, `Create5aScreen`, `Create7aScreen`, `Create6cScreen`, `Create6dScreen`, `Create5bScreen`, `Create3bScreen`, `Create7bScreen`, `Create4aScreen`, `Create4dScreen`, `PromptCatalogAdminPanelV3`(4e/3d/4b 통합, `focus` prop으로 구분), `Create3eScreen`(사용자 목록)·`Create7cScreen`(사용자 상세, `resetAdminUserPassword`/`deactivateAdminUser` 최초 연결)가 구현됨. `5c`(컬렉션)는 A-02(컬렉션 테이블·API)가 저장소에 전혀 없어 가짜 데이터 없이는 만들 수 없다는 판단으로 보류. E-06 완료(구버전 컴포넌트·모달 삭제 + 파일 분리). `main.tsx`는 9804줄 → 260줄(App/TopBar/LoginView/entry만)까지 줄었고, 나머지는 `StudioShell.tsx`·`screens/*.tsx`(create/review/admin/카탈로그 관리)·`components/*.tsx`·`helpers/*.ts`·`auth-session.ts`로 분리됨. `AdminConsoleModal`/`StatusModal`/`MetadataModal`/`HistoryModal`/`PromptBuilderModal`/`PromptReuseModal`/`PromptCatalogAdminModal`/구버전 `create.workspace` 폴백 등은 삭제됨. B-01·B-02·B-03·B-04·C-01의 로직은 신규 화면에서 재사용됨.
 
 - [x] 이 작업이 전면 재구축임을 이해했다 — 기존 화면을 고쳐 설계에 맞추는 방식으로 진행하지 않았다 — *2a~2d, 3a, 3f/3c, 4c 모두 신규 컴포넌트로 새로 작성. 구버전 `create.workspace`(옛 인라인 워크스페이스)는 아직 코드에 남아 있으나 더 이상 랜딩 지점이 아니며 E-06 제거 대상.*
 - [x] 공통 골격(사이드바·헤더·본문 그리드·우측 패널)을 레이아웃 컴포넌트 하나로 만들어 전 화면이 공유한다 — *`AppShell`. 사이드바 1차 메뉴 클릭은 `shellNavigate()`가 실제 라우트로 매핑.*
@@ -60,6 +60,6 @@
 - [ ] `npm audit --omit=dev` 취약점 0개 (기존 체크리스트 기준 유지)
 - [x] 프론트에 `admin/prompt-catalog` 문자열이 남아 있지 않다 (D-02 · 백엔드에는 원래 없는 엔드포인트) — *grep 결과 없음.*
 - [x] 이력 화면의 어떤 동작도 JSON 파일을 읽거나 쓰지 않는다 (D-03) — *백엔드 경로 기준 확인(스모크 테스트 통과, 커밋 `2d8705f` 참조). 신규 `3a` 화면(E-03) 완성 후 최종 재확인 완료.*
-- [ ] 대체된 구버전 화면·컴포넌트를 실제로 제거했다 (죽은 코드로 남기지 않았다) — *아직 신규 화면 자체가 없어 제거 대상도 없음. E-06에서 진행.*
+- [x] 대체된 구버전 화면·컴포넌트를 실제로 제거했다 (죽은 코드로 남기지 않았다) — *E-06(금번 세션)에서 완료. `AdminConsoleModal`/`StatusModal`/`MetadataModal`/`HistoryModal`/`PromptBuilderModal`/`PromptReuseModal`/`PromptCatalogAdminModal`/구버전 `create.workspace` 폴백 및 그 배후 고아 컴포넌트 모두 삭제, `tsc -b`/`vite build` 클린 확인.*
 - [ ] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격이 일관된다
 - [ ] 설계와 달라진 부분이 있으면 이 번들이 아니라 저장소 문서에 기록했다

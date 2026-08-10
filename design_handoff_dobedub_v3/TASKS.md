@@ -275,10 +275,10 @@ E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`admin
 - [ ] `6b` 사용자 매뉴얼
 - [ ] `6e` 알림 — **A-03 방식 결정 전 착수 금지**
 
-### E-06 · 구버전 제거 — 각 흐름 이관 완료마다 즉시
-- [ ] 대체된 구버전 컴포넌트·모달을 `main.tsx`에서 실제로 삭제(죽은 코드로 남기지 않음)
-- [ ] `main.tsx`가 계속 단일 거대 파일로 남지 않도록 신규 컴포넌트를 파일 단위로 분리
-- [ ] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격 일관성 확인
+### E-06 · 구버전 제거 — 각 흐름 이관 완료마다 즉시 — **구버전 삭제·파일 분리 완료**
+- [x] 대체된 구버전 컴포넌트·모달을 `main.tsx`에서 실제로 삭제(죽은 코드로 남기지 않음) — *`main.tsx` 9804줄 → 6814줄(파일 분리 전 기준, 약 2990줄 삭제). 제거한 것: `AdminConsoleModal`(+`AdminTab` 타입), `PromptCatalogAdminModal`/`PromptCatalogAdminContent`(구버전, `PromptCatalogAdminPanelV3`와는 별개), `StatusModal`/`StatusCard`, `MetadataModal`/`renderMetadataTab`/`ConfigRow`, `HistoryModal`/`HistoryDetail`/`PromptCell`, `PromptBuilderModal`/`SystemPromptEditor`/`SelectedKeywordBox`, `PromptReuseModal`, 구버전 `create.workspace` 폴백 JSX(`<main className="studio-grid">`), `SandboxPodConfirmModal`, 그리고 위 항목들이 사라지며 완전히 고아가 된 `PromptReviewPanel`/`PromptReviewCard`/`PromptFeedbackCard`/`AssetThumbs`/`PromptTextBox`/`PromptSceneStructurePreview`/`PromptTagRow`/`toPromptSceneStructure`/`PromptTermButton` 등. 각 항목은 삭제 전 실사용 호출부가 정말 없는지 grep으로 확인 후 제거했다(`goToPromptReuseScreen`/`searchPromptReuse`/`promptReuse*` 상태, `findPromptTermCategory`처럼 신규 화면과 공유하는 로직은 보존). `router.ts`도 함께 정리 - `admin.console`/`create.workspace` 라우트를 제거하고, 옛 북마크(`/studio/studio`, `/studio/admin`)는 각각 `create.load`/`admin.roles`로 보내도록 `LEGACY_LAST_SEGMENT_ROUTE`와 catch-all을 갱신. `TopBar`(로그아웃·ComfyUI/Qwen 상태 표시 등 `AppShell`에는 없는 전역 기능을 담당하므로 구버전이지만 살아있는 코드)는 삭제하지 않고 "Admin" 버튼 목적지만 `admin.roles`로 변경.*
+- [x] `main.tsx`가 계속 단일 거대 파일로 남지 않도록 신규 컴포넌트를 파일 단위로 분리 — *`main.tsx` 6814줄 → 260줄(App/TopBar/LoginView/entry만 유지). 분리한 파일: `StudioShell.tsx`(1919줄, 전역 상태+라우트 렌더 스위치), `screens/createScreens.tsx`(1239줄, 2a~2d), `screens/reviewScreens.tsx`(796줄, 3a/3f·3c/4c/5a), `screens/adminScreens.tsx`(1106줄, 7a/6c/6d/5b/3b/7b/3e/7c/4a/4d), `screens/PromptCatalogAdminPanelV3.tsx`(413줄), `components/Modals.tsx`(224줄, ConfirmDeleteModal/AccessDeniedModal/ManualModal), `components/ProtectedAssets.tsx`(55줄), `helpers/format.ts`·`helpers/prompts.ts`·`helpers/promptCatalog.ts`·`helpers/adminForms.ts`·`helpers/promptCatalogAdminForms.ts`·`helpers/workflow.ts`·`helpers/navigation.ts`(순수 헬퍼 함수), `auth-session.ts`(세션 스토리지 I/O, `auth.ts`와 분리 - `auth.ts`는 `AppShell.tsx`가 임포트하는 타입/권한 체크 전용으로 유지). `screens/*`는 `helpers/`·`components/`·`api/client.ts`·`router.ts`·`auth.ts`만 참조하고 `StudioShell.tsx`를 참조하지 않도록(역방향만 성립) 확인 완료 - 순환 참조 없음. `index.html`이 `/src/main.tsx`를 하드코딩하므로 진입점 파일명은 그대로 유지. `tsc -b`/`vite build` 클린, JS 번들 크기 536KB(분리 전과 거의 동일, 코드 이동만 있었고 추가/삭제 없음) 확인.*
+- [ ] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격 일관성 확인 — *미착수.*
 
 ---
 

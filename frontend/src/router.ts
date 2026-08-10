@@ -16,10 +16,12 @@
 //   create.confirm    — 2f · S4 실행 전 전체 구성 확인 & Run (신규 구현, E-02)
 //   create.progress   — 2c · S4 진행 상태 · 취소 요청 (신규 구현, E-02)
 //   create.result     — 2d · S5 결과 · Final 병합본과 구간 검수본 (신규 구현, E-02)
-//   create.workspace  — E-02 완료 후 제거 예정이던 임시 다리였으나, 2a~2d가 모두
-//                       구현되며 더 이상 랜딩 지점으로 쓰이지 않는다. 다른 화면에서
-//                       참조하던 구버전 인라인 워크스페이스 자체는 아직 코드에 남아
-//                       있어(E-06 정리 대상) 경로는 유지한다.
+//   create.workspace  — E-02 완료 후 제거 예정이던 임시 다리였다. 2a~2d가 모두
+//                       구현되며 더 이상 랜딩 지점으로 쓰이지 않게 됐고, 다른
+//                       화면에서 참조하던 구버전 인라인 워크스페이스 JSX도
+//                       E-06에서 삭제됐다 - 이 라우트 자체가 도달 불가능해져
+//                       StudioRoute에서 제거했다(옛 /studio/studio 북마크는
+//                       LEGACY_LAST_SEGMENT_ROUTE로 create.load로 보낸다).
 //   review.history    — 3a 작업 이력 ("3 Review.dc.html" 소속)
 //   review.runDetail  — 3f(완료)·3c(실패) Run 상세. 상태로 분기하므로 화면 하나가
 //                       두 id를 함께 담당한다(신규 구현, E-03)
@@ -29,9 +31,7 @@
 //                       가짜 데이터로 채우지 않는다는 원칙에 따라 백엔드가 생기기
 //                       전까지 별도 라우트를 만들지 않는다.
 //   admin.systemPrompt — 7a 시스템 프롬프트 (신규 구현, E-04). "프롬프트 카탈로그"
-//                       Admin 사이드바 그룹 소속. 같은 그룹의 4e/3d/4b는 아직
-//                       이관 전이라, 그 메뉴를 누르면 당분간 admin.console(구버전
-//                       AdminConsoleModal)로 보낸다(shellNavigateAdmin 참조).
+//                       Admin 사이드바 그룹 소속.
 //   admin.sandbox      — 5b Sandbox Pod (신규 구현, E-04). "Sandbox Pod" Admin
 //                       사이드바 그룹 소속.
 //   admin.roles        — 3b 역할×권한 매트릭스 (신규 구현, E-04). "역할 & 권한"
@@ -62,7 +62,13 @@
 //                       (design_handoff 4b 원본: 모든 Run에 적용되는 네거티브는
 //                       워크플로 JSON에 내장돼 읽기 전용이고, 이 화면은 그 위에
 //                       "추가"할 선택 용어만 다룸).
-//   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
+//   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔이던
+//                       구버전 AdminConsoleModal 라우트. E-04에서 그 탭들이 모두
+//                       3b/3e/7c/4a/4d/admin.catalog*/5b 같은 신규 화면으로 이관됐고,
+//                       사이드바 어디에서도 이 라우트로 보내지 않게 되며 도달
+//                       불가능해졌다 - E-06에서 AdminConsoleModal과 함께 제거했다
+//                       (옛 /studio/admin 북마크는 LEGACY_LAST_SEGMENT_ROUTE로
+//                       admin.roles로 보낸다).
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 export type StudioRoute =
@@ -74,7 +80,6 @@ export type StudioRoute =
   | "create.confirm"
   | "create.progress"
   | "create.result"
-  | "create.workspace"
   | "review.history"
   | "review.runDetail"
   | "review.reuse"
@@ -90,7 +95,6 @@ export type StudioRoute =
   | "admin.catalogHierarchy"
   | "admin.catalogTerms"
   | "admin.negativeDefaults"
-  | "admin.console"
   | "admin.status"
   | "admin.metadata";
 
@@ -100,9 +104,11 @@ export type StudioRoute =
 const LEGACY_LAST_SEGMENT_ROUTE: Record<string, StudioRoute> = {
   login: "access.login",
   manual: "access.manual",
-  studio: "create.workspace",
+  // E-06: create.workspace/admin.console 둘 다 라우트 자체가 제거됐으므로, 옛
+  // 북마크는 각 흐름의 실제 첫 화면(2a/3b)으로 보낸다.
+  studio: "create.load",
   history: "review.history",
-  admin: "admin.console",
+  admin: "admin.roles",
   status: "admin.status",
   metadata: "admin.metadata"
 };
@@ -116,7 +122,6 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "create.confirm": "/studio/create/confirm",
   "create.progress": "/studio/create/progress",
   "create.result": "/studio/create/result",
-  "create.workspace": "/studio/create/workspace",
   "review.history": "/studio/review/history",
   "review.runDetail": "/studio/review/run",
   "review.reuse": "/studio/review/reuse",
@@ -132,7 +137,6 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.catalogHierarchy": "/studio/admin/catalog/hierarchy",
   "admin.catalogTerms": "/studio/admin/catalog/terms",
   "admin.negativeDefaults": "/studio/admin/catalog/negative-defaults",
-  "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"
 };
@@ -154,7 +158,9 @@ export function routeFromLocation(pathname: string, hasUser: boolean): StudioRou
   if (legacy) {
     return legacy;
   }
-  return "create.workspace";
+  // E-06: create.workspace(옛 catch-all 타깃)가 라우트에서 제거됐으므로, 알 수
+  // 없는 경로는 create 흐름의 실제 첫 화면(2a)으로 보낸다.
+  return "create.load";
 }
 
 export function routePath(route: StudioRoute): string {
