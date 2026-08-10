@@ -130,6 +130,13 @@ class WorkflowTask(Base):
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     runpod_job_id: Mapped[str | None] = mapped_column(String(191), nullable=True, index=True)
     workflow_id: Mapped[str] = mapped_column(String(191), nullable=False, index=True)
+    # B-04: 이 작업이 실제로 생성될 당시 RunPod에 실제 제출됐는지("runpod") 아니면
+    # 로컬 시뮬레이션이었는지("dry-run")를 기록하는 감사용 값이다. 사용자가 화면에서
+    # 고르는 실행 옵션이 아니라, 서버의 RUNPOD_DRY_RUN 설정(job_service.create_job)이
+    # 작업 생성 시점에 그대로 찍히는 스냅샷이다. 컬럼 기본값은 의도적으로 안전한 쪽
+    # ("dry-run")을 유지한다 - executionMode 없이 생성되는 레거시/마이그레이션 경로의
+    # 레코드를 실제 실행이었다고 잘못 단정하지 않기 위함이며, 서버의 실제 운영
+    # 기본값(dry_run=False, get_settings 참조)과는 별개다.
     execution_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="dry-run")
     status: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

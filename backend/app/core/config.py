@@ -24,7 +24,11 @@ class Settings:
     storage_backend: str = "local"
     s3_bucket: str = ""
     s3_prefix: str = "dobedub-studio"
-    dry_run: bool = True
+    # B-04: 운영 배포 문서(ecs-express-deployment-runbook.md 외 3곳)가 모두
+    # RUNPOD_DRY_RUN=0(실제 실행)을 운영 환경 필수값으로 명시하므로, 코드 기본값도
+    # 실제 운영 기본값에 맞춘다. 로컬 개발은 .env.example의 명시적
+    # RUNPOD_DRY_RUN=1로 안전하게 유지된다.
+    dry_run: bool = False
     runpod_api_key: str = ""
     runpod_endpoint_id: str = ""
     runpod_base_url: str = "https://api.runpod.ai/v2"
@@ -53,7 +57,13 @@ class Settings:
 
 
 def get_settings() -> Settings:
-    dry_run = os.environ.get("RUNPOD_DRY_RUN", "1") != "0"
+    # B-04: 환경변수가 아예 없을 때의 폴백을 실제 실행("0")으로 통일한다 - 운영
+    # 배포는 항상 RUNPOD_DRY_RUN=0을 명시하므로 이것이 실제 운영 기본값이다.
+    # RUNPOD_API_KEY/RUNPOD_ENDPOINT_ID가 없는 미설정 환경에서는 dry-run으로
+    # 조용히 넘어가는 대신 runpod_client.runpod_headers()가 ValueError로 즉시
+    # 실패해 잘못된 설정을 드러낸다. 로컬 개발에서 안전한 시뮬레이션이 필요하면
+    # .env.example처럼 RUNPOD_DRY_RUN=1을 명시적으로 설정한다.
+    dry_run = os.environ.get("RUNPOD_DRY_RUN", "0") != "0"
     try:
         runpod_timeout = int(os.environ.get("RUNPOD_TIMEOUT", "30"))
     except ValueError:

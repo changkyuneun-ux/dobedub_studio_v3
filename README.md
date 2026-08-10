@@ -175,6 +175,8 @@ PORT=8787
 
 실제 RunPod Serverless에 제출하려면 `RUNPOD_DRY_RUN=0`으로 실행하고 `RUNPOD_API_KEY`, `RUNPOD_ENDPOINT_ID`를 설정합니다. 이때 서버는 프로젝트 내부 workflow JSON을 패치하고 업로드 이미지를 RunPod `images` payload로 변환한 뒤 `/run`과 `/status/{jobId}`를 사용합니다.
 
+> **B-04·실행 모드 기본값**: 서버 코드의 실제 기본값은 `RUNPOD_DRY_RUN=0`(실제 실행)입니다. 운영 배포 문서(`docs/ecs-express-deployment-runbook.md` 외)가 모두 이 값을 운영 환경 필수값으로 명시하고 있어 코드 기본값을 여기에 맞췄습니다. 로컬에서 안전하게 시뮬레이션하려면 위 `.env.example`처럼 `RUNPOD_DRY_RUN=1`을 **명시적으로** 설정하세요 - 이 값을 생략하면 `RUNPOD_API_KEY`/`RUNPOD_ENDPOINT_ID`가 없는 환경에서는 조용히 dry-run으로 넘어가는 대신 설정 누락 오류로 즉시 실패합니다.
+
 실행 후 상단 `Check Status` 모달에서 `Test RunPod`를 누르면 실제 작업을 생성하지 않고 RunPod `/health`만 호출해 endpoint 접근, worker 상태, queue 상태를 확인합니다.
 
 ### Prompt LLM RunPod vLLM 연결
