@@ -259,12 +259,12 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [ ] `4b` Negative 기본값 — *기존 admin UI 자체가 없음(신규 설계 필요). 4e/3d 완료 후 그 용어 선택 컴포넌트를 재사용해 진행 예정.*
 - [x] `7a` 시스템 프롬프트 (C-06) — *`Create7aScreen` 구현. `SystemPromptEditor`/2b의 systemPrompt 패널과 완전히 같은 상태(`promptSystemPrompt`/`promptSystemPromptText`)를 공유 — 어느 화면에서 고쳐도 같은 전역 레코드(`prompt_system_prompts`)에 반영됨(B-08 미착수라 버전 이력은 없음).*
 - [ ] `4d`/`4a` 워크플로 정의 — 기존 `AdminConsoleModal` Workflows 탭 로직(등록/활성화/비활성화) 재사용 예정.
-- [ ] `6d` 메타데이터 (C-12) — 기존 `MetadataModal` 로직 재사용 예정.
+- [x] `6d` 메타데이터 (C-12) — *`Create6dScreen` + `renderMetadataTabV3` 구현. 구버전 `renderMetadataTab`과 데이터 로직은 동일하고 마크업만 v3 카드로 새로 짬. 구버전 `metadataModalOpen` 오픈 로직은 이제 항상 false로 죽은 코드(E-06 정리 대상, `MetadataModal`/`renderMetadataTab`/`ConfigRow` 포함).*
 - [ ] `3b` 역할×권한 매트릭스 — 기존 `AdminConsoleModal` Permissions 탭(역할 목록 + 권한 토글 그리드) 재사용 예정.
 - [ ] `7b` 기능 리소스 매핑 (C-07) — D-01의 "SCREEN 행 만들지 않음" 반영. 현재 3b와 같은 탭 안에 표만 있음 — 별도 화면으로 분리 예정.
 - [ ] `3e` 사용자 목록, `7c` 사용자 상세 (C-08) — 기존 Users 탭 로직 재사용하되, `client.ts`에 이미 있는 `resetAdminUserPassword`/`deactivateAdminUser`가 지금까지 어디서도 호출되지 않고 있어(미사용) 이번에 처음 UI에 연결해야 함.
 - [x] `6c` 시스템 상태 (C-11) — *`Create6cScreen` 구현. `StatusModal`/`StatusCard`와 동일한 판정식(dry-run/ok 계산) 그대로 이관, 카드 7장 전부 실제 헬스체크 응답 필드. 구버전 `StatusModal` 오픈 로직(`statusModalOpen`)은 이제 항상 false로 죽은 코드(E-06 정리 대상).*
-- [ ] `5b` Sandbox Pod (C-11) — 기존 Sandbox 탭 로직(status/start/stop, `SandboxPodConfirmModal`) 재사용 예정.
+- [x] `5b` Sandbox Pod (C-11) — *`Create5bScreen` 구현. 구버전 `AdminConsoleModal`의 Sandbox 탭은 users/roles/workflows 등 다른 탭 상태와 한 컴포넌트에 얽혀 있어 재사용이 불가능했다 — `sandboxPod`/`sandboxPodLoading`/`sandboxPodPendingAction` 상태와 `loadSandboxPod`/`controlSandboxPod` 로직만 화면 자체의 독립 상태로 옮겨왔다(계산식·API 호출은 그대로).*
 - [ ] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음 — *각 화면 이관 시점마다 확인, 아직 전 화면 완료 전이라 최종 확인은 E-04 종료 시.*
 
 E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`adminMetadata`(6d) 두 항목을 추가했다 — design_handoff 원본은 이 둘을 6항목 Admin 사이드바가 아닌 별도 상단 nav로 그리지만, AppShell이 area를 `generate`/`admin` 두 가지만 지원하는 현재 구조에서는 관리 기능에 가까운 이 둘을 ADMIN 영역에 편입하는 편이 화면 골격 중복을 피할 수 있다고 판단했다. 화면 내용·API·권한은 design_handoff 그대로다.

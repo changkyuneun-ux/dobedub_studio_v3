@@ -121,6 +121,7 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.history": "history:read",
   "review.assets": "history:read",
   "admin.systemPrompt": "prompts:build",
+  "admin.sandbox": "sandbox:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -164,6 +165,8 @@ function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
     onGoTo("admin.status");
   } else if (key === "adminMetadata") {
     onGoTo("admin.metadata");
+  } else if (key === "adminSandbox") {
+    onGoTo("admin.sandbox");
   } else {
     onGoTo("admin.console");
   }
@@ -173,6 +176,7 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.history": "Task History",
   "review.assets": "Assets",
   "admin.systemPrompt": "System Prompt",
+  "admin.sandbox": "Sandbox Pod",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -2597,6 +2601,327 @@ function Create6cScreen({
   );
 }
 
+const METADATA_TABS: Array<["summary" | "subgraphs" | "parameters" | "models" | "nodes", string]> = [
+  ["summary", "Summary"],
+  ["subgraphs", "Subgraphs"],
+  ["parameters", "Parameters"],
+  ["models", "Models"],
+  ["nodes", "Nodes"]
+];
+
+// E-04 · 6d "메타데이터" 화면의 탭별 본문. 구버전 renderMetadataTab()과 데이터
+// 로직(어떤 필드를 어떤 탭에서 보여줄지)은 완전히 동일하고, 마크업만 구버전
+// dark-theme 클래스(metadata-card/metadata-node 등) 대신 v3-* 카드로 새로 짰다.
+function renderMetadataTabV3(
+  activeTab: "summary" | "subgraphs" | "parameters" | "models" | "nodes",
+  status: MetadataStatusResponse | null,
+  metadata: WorkflowWidgetMetadata | null,
+  modelMetadata: ModelMetadataResponse | null
+) {
+  if (!metadata && activeTab !== "models") {
+    return <p className="v3-muted-text">Metadata가 없습니다.</p>;
+  }
+  if (activeTab === "summary") {
+    const manifest = status?.manifest || {};
+    return (
+      <div className="v3-card">
+        <div className="v3-summary-card" style={{ padding: 16 }}>
+          <div className="v3-summary-row"><span>Workflow ID</span><strong>{metadata?.workflowId || "-"}</strong></div>
+          <div className="v3-summary-row"><span>Node Count</span><strong>{metadata?.nodeCount ?? "-"}</strong></div>
+          <div className="v3-summary-row"><span>Subgraphs</span><strong>{metadata?.segments?.length || 0}</strong></div>
+          <div className="v3-summary-row"><span>Generated At</span><strong>{String(manifest.generatedAt || "-")}</strong></div>
+          <div className="v3-summary-row"><span>Object Info Snapshot</span><strong>{manifest.hasObjectInfoSnapshot ? "YES" : "NO"}</strong></div>
+          <div className="v3-summary-row"><span>Fingerprint</span><strong>{String(manifest.fingerprint || "-").slice(0, 32)}</strong></div>
+        </div>
+      </div>
+    );
+  }
+  if (activeTab === "subgraphs") {
+    const segments = metadata?.segments || [];
+    return segments.length ? (
+      <div className="v3-reuse-grid">
+        {segments.map((segment, index) => (
+          <div className="v3-card" key={`${recordText(segment, "nodeId")}-${index}`}>
+            <div className="v3-card-header">
+              <div className="v3-card-header-title">{recordText(segment, "displayName") || `Subgraph_${index + 1}`}</div>
+            </div>
+            <div className="v3-summary-card" style={{ padding: 16 }}>
+              <div className="v3-summary-row"><span>Node ID</span><strong>{recordText(segment, "nodeId") || "-"}</strong></div>
+              <div className="v3-summary-row"><span>Class Type</span><strong>{recordText(segment, "classType") || "-"}</strong></div>
+              <div className="v3-summary-row"><span>Positive Node</span><strong>{recordText(segment, "positiveNode") || "-"}</strong></div>
+              <div className="v3-summary-row"><span>Negative Node</span><strong>{recordText(segment, "negativeNode") || "-"}</strong></div>
+              <div className="v3-summary-row"><span>Start Image</span><strong>{recordText(segment, "startImageNode") || "-"}</strong></div>
+              <div className="v3-summary-row"><span>End Image</span><strong>{recordText(segment, "endImageNode") || "-"}</strong></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : <p className="v3-muted-text">Subgraph metadata가 없습니다.</p>;
+  }
+  if (activeTab === "parameters") {
+    const segments = metadata?.segments || [];
+    return segments.length ? (
+      <>
+        {segments.map((segment, index) => {
+          const params = Array.isArray(segment.params) ? segment.params as Record<string, unknown>[] : [];
+          return (
+            <div className="v3-card" key={`${recordText(segment, "nodeId")}-${index}`} style={{ marginBottom: 14 }}>
+              <div className="v3-card-header">
+                <div className="v3-card-header-title">{recordText(segment, "displayName") || `Subgraph_${index + 1}`}</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 16 }}>
+                {params.length ? params.map((param, paramIndex) => (
+                  <div key={`${recordText(param, "param")}-${paramIndex}`}>
+                    <div style={{ fontWeight: 600, fontSize: 12.5 }}>{recordText(param, "label") || recordText(param, "param") || "-"}</div>
+                    <div className="v3-muted-text">{recordText(param, "param") || "-"} · default {recordText(param, "default") || "-"}</div>
+                    <pre className="v3-payload-json">{JSON.stringify(param.targets || [], null, 2)}</pre>
+                  </div>
+                )) : <p className="v3-muted-text">No parameters.</p>}
+              </div>
+            </div>
+          );
+        })}
+      </>
+    ) : <p className="v3-muted-text">Parameter metadata가 없습니다.</p>;
+  }
+  if (activeTab === "models") {
+    const modelGroups = metadata?.models || modelMetadata?.models || {};
+    const entries = Object.entries(modelGroups);
+    return entries.length ? (
+      <div className="v3-reuse-grid">
+        {entries.map(([group, values]) => (
+          <div className="v3-card" key={group}>
+            <div className="v3-card-header">
+              <div className="v3-card-header-title">{group}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: 16 }}>
+              {(values || []).map((value) => <div className="v3-muted-text" key={value}>{value}</div>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : <p className="v3-muted-text">Model metadata가 없습니다.</p>;
+  }
+  const nodes = metadata?.nodes || [];
+  return nodes.length ? (
+    <div className="v3-card">
+      {nodes.map((node, index) => (
+        <details className="v3-checklist-item" style={{ display: "block", padding: 12 }} key={`${recordText(node, "nodeId")}-${index}`}>
+          <summary style={{ cursor: "pointer" }}><strong>{recordText(node, "nodeId") || "-"}</strong> {recordText(node, "title") || recordText(node, "classType")}</summary>
+          <p className="v3-muted-text">Class: {recordText(node, "classType") || "-"}</p>
+          <pre className="v3-payload-json">{JSON.stringify({ inputs: node.inputs || [], links: node.links || [] }, null, 2)}</pre>
+        </details>
+      ))}
+    </div>
+  ) : <p className="v3-muted-text">Node metadata가 없습니다.</p>;
+}
+
+// E-04 · 6d "메타데이터" — 구버전 MetadataModal과 동일한 상태/핸들러
+// (metadataStatus/workflowMetadata/modelMetadata, loadMetadata)를 재사용한다.
+function Create6dScreen({
+  user,
+  onGoTo,
+  workflows,
+  workflowId,
+  activeTab,
+  status,
+  metadata,
+  models,
+  loading,
+  notice,
+  onWorkflowChange,
+  onTabChange,
+  onRebuild
+}: {
+  user: User | null;
+  onGoTo: (route: StudioRoute) => void;
+  workflows: WorkflowItem[];
+  workflowId: string;
+  activeTab: "summary" | "subgraphs" | "parameters" | "models" | "nodes";
+  status: MetadataStatusResponse | null;
+  metadata: WorkflowWidgetMetadata | null;
+  models: ModelMetadataResponse | null;
+  loading: boolean;
+  notice: string;
+  onWorkflowChange: (workflowId: string) => void;
+  onTabChange: (tab: "summary" | "subgraphs" | "parameters" | "models" | "nodes") => void;
+  onRebuild: () => void;
+}) {
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminMetadata"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · METADATA"
+      headerTitle="Workflow Metadata"
+      headerActions={
+        <>
+          <select className="v3-page-size-select" value={workflowId} onChange={(event) => onWorkflowChange(event.target.value)}>
+            {workflows.map((workflow) => (
+              <option key={workflow.id} value={workflow.id}>{workflow.name || workflow.label || workflow.id}</option>
+            ))}
+          </select>
+          <button className="v3-primary-button" type="button" disabled={loading} onClick={onRebuild}>
+            {loading ? "Rebuilding..." : "Rebuild Metadata"}
+          </button>
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          {METADATA_TABS.map(([tab, label]) => (
+            <button
+              key={tab}
+              type="button"
+              className={`v3-segment-nav-item ${activeTab === tab ? "is-active" : ""}`}
+              onClick={() => onTabChange(tab)}
+            >
+              <div className="v3-segment-nav-head"><span>{label}</span></div>
+            </button>
+          ))}
+        </div>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {loading && !metadata ? <p className="v3-muted-text">Metadata를 불러오는 중입니다.</p> : renderMetadataTabV3(activeTab, status, metadata, models)}
+    </AppShell>
+  );
+}
+
+// E-04 · 5b "Sandbox Pod" — 구버전 AdminConsoleModal의 Sandbox 탭은 관리자
+// 전용 상태(users/roles/workflows 등)를 전부 한 컴포넌트 안에 갖고 있어 그대로
+// 재사용할 수 없다. 그 탭이 쓰던 sandboxPod/sandboxPodLoading/
+// sandboxPodPendingAction 상태와 loadSandboxPod/controlSandboxPod 로직만 이
+// 화면 자체의 상태로 옮겨 왔다 - 계산식·API 호출은 한 글자도 바꾸지 않았다.
+function Create5bScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRoute) => void }) {
+  const canControl = canUse(user, "sandbox:control");
+  const [sandboxPod, setSandboxPod] = useState<SandboxPodStatus | null>(null);
+  const [sandboxPodLoading, setSandboxPodLoading] = useState(false);
+  const [sandboxPodPendingAction, setSandboxPodPendingAction] = useState<"start" | "stop" | null>(null);
+  const [notice, setNotice] = useState("");
+  const autoLoadAttempted = useRef(false);
+
+  async function loadSandboxPod() {
+    setSandboxPodLoading(true);
+    setNotice("");
+    try {
+      setSandboxPod(await apiClient.sandboxPodStatus());
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sandbox Pod status load failed");
+    } finally {
+      setSandboxPodLoading(false);
+    }
+  }
+
+  async function controlSandboxPod(action: "start" | "stop") {
+    setSandboxPodLoading(true);
+    setNotice("");
+    try {
+      const response = action === "start" ? await apiClient.startSandboxPod() : await apiClient.stopSandboxPod();
+      setSandboxPod(response);
+      setNotice(response.message || (action === "start" ? "Sandbox Pod 시작을 요청했습니다." : "Sandbox Pod 중지를 요청했습니다."));
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sandbox Pod control failed");
+    } finally {
+      setSandboxPodLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!autoLoadAttempted.current) {
+      autoLoadAttempted.current = true;
+      void loadSandboxPod();
+    }
+  }, []);
+
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminSandbox"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · SANDBOX POD"
+      headerTitle="Sandbox Pod"
+      headerActions={
+        <>
+          <button className="v3-secondary-button" type="button" disabled={sandboxPodLoading} onClick={() => void loadSandboxPod()}>Refresh Status</button>
+          {canControl && ["EXITED", "TERMINATED"].includes(sandboxPod?.desiredStatus || "") ? (
+            <button className="v3-primary-button" type="button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false} onClick={() => setSandboxPodPendingAction("start")}>Deploy Sandbox Pod</button>
+          ) : null}
+          {canControl ? (
+            <button className="v3-danger-button" style={{ background: "var(--v3-danger)", color: "#fff", borderColor: "var(--v3-danger)" }} type="button" disabled={sandboxPodLoading || !sandboxPod || sandboxPod.configured === false || sandboxPod.desiredStatus === "EXITED" || sandboxPod.desiredStatus === "TERMINATED"} onClick={() => setSandboxPodPendingAction("stop")}>Stop Pod</button>
+          ) : null}
+        </>
+      }
+      sidebarFooter={<p className="v3-muted-text">일상적인 영상 생성용 Serverless와 분리된 전용 Pod입니다. 여기서는 Pod 상태와 노출된 HTTP 서비스만 관리합니다.</p>}
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">Pod 상태</div>
+          <span className="v3-status-badge is-ready">{sandboxPod?.runtimeStatus || sandboxPod?.desiredStatus || "NOT CHECKED"}</span>
+        </div>
+        {!sandboxPod && sandboxPodLoading ? <p className="v3-muted-text" style={{ padding: 16 }}>Sandbox Pod 상태를 확인 중입니다.</p> : null}
+        {sandboxPod ? (
+          <div className="v3-summary-card" style={{ padding: 16 }}>
+            <div className="v3-summary-row"><span>Pod ID</span><strong>{sandboxPod.podId || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Pod Name</span><strong>{sandboxPod.podName || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Resolved By</span><strong>{sandboxPod.resolvedBy || "Pod ID (legacy)"}</strong></div>
+            <div className="v3-summary-row"><span>Status</span><strong>{sandboxPod.desiredStatus || "UNKNOWN"}</strong></div>
+            <div className="v3-summary-row"><span>Service Status</span><strong>{sandboxPod.runtimeStatus || "NOT CHECKED"}</strong></div>
+            <div className="v3-summary-row"><span>Last Started</span><strong>{sandboxPod.lastStartedAt || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Last Status Change</span><strong>{sandboxPod.lastStatusChange || "-"}</strong></div>
+          </div>
+        ) : null}
+      </div>
+      {sandboxPod ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">HTTP Services</div>
+            <span className="v3-card-header-meta">{sandboxPod.httpServices.length}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 16 }}>
+            {sandboxPod.httpServices.length ? sandboxPod.httpServices.map((service) => (
+              <a className="v3-text-link-button" style={{ padding: 0 }} href={service.url} key={service.url} rel="noreferrer" target="_blank">
+                {service.label || `HTTP ${service.internalPort}`} · {service.url}
+              </a>
+            )) : <p className="v3-muted-text">{sandboxPod.message || "노출된 HTTP 서비스가 없습니다."}</p>}
+          </div>
+        </div>
+      ) : null}
+
+      {sandboxPodPendingAction ? (
+        <div className="v3-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="v3SandboxConfirmTitle">
+          <div className="v3-modal-panel">
+            <div className="v3-label" style={{ color: sandboxPodPendingAction === "stop" ? "var(--v3-danger)" : undefined }}>SANDBOX:{sandboxPodPendingAction.toUpperCase()}</div>
+            <h2 id="v3SandboxConfirmTitle" className="v3-modal-title">{sandboxPodPendingAction === "stop" ? "Sandbox Pod 중지" : "Sandbox Pod 배포"}</h2>
+            <p className="v3-modal-body-text">
+              {sandboxPodPendingAction === "stop"
+                ? "Sandbox Pod를 중지하시겠습니까? HTTP 서비스가 즉시 사용할 수 없게 됩니다."
+                : "새 Sandbox Pod를 배포하시겠습니까? GPU 할당이 시작되며 비용이 발생할 수 있습니다."}
+            </p>
+            <div className="v3-inline-actions">
+              <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => setSandboxPodPendingAction(null)}>취소</button>
+              <button
+                className="v3-danger-button v3-flex-button"
+                style={{ background: "var(--v3-danger)", color: "#fff", borderColor: "var(--v3-danger)" }}
+                type="button"
+                onClick={() => {
+                  const action = sandboxPodPendingAction;
+                  setSandboxPodPendingAction(null);
+                  void controlSandboxPod(action);
+                }}
+              >
+                {sandboxPodPendingAction === "stop" ? "중지" : "배포"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </AppShell>
+  );
+}
+
 function StudioShell({
   user,
   health,
@@ -3305,11 +3630,11 @@ function StudioShell({
     // E-03: 3a(review.history)는 이제 전체 화면(Create3aScreen)이라 더 이상
     // historyModalOpen을 라우트로 자동 여닫지 않는다. historyModalOpen은 "Run
     // 상세 열기" 클릭 시(openLegacyHistoryDetail)에만 켜지는, 3f/3c가 생기기 전의
-    // 임시 다리다. E-04: admin.status(6c)도 이제 전체 화면(Create6cScreen)이라
-    // 더 이상 모달을 자동으로 여닫지 않는다.
+    // 임시 다리다. E-04: admin.status(6c)·admin.metadata(6d)도 이제 전체 화면
+    // (Create6cScreen/Create6dScreen)이라 더 이상 모달을 자동으로 여닫지 않는다.
     setStatusModalOpen(false);
     setManualModalOpen(route === "access.manual" && granted);
-    setMetadataModalOpen(route === "admin.metadata" && granted);
+    setMetadataModalOpen(false);
     setAdminModalOpen(route === "admin.console" && granted);
     setAccessDeniedRoute(
       !granted && route !== "create.workspace" && route !== "create.load" && route !== "access.login"
@@ -4016,6 +4341,24 @@ function StudioShell({
         onRefresh={() => void loadSystemStatus()}
         onTestRunpod={() => void testRunpodConnection()}
       />
+    ) : route === "admin.metadata" ? (
+      <Create6dScreen
+        user={user}
+        onGoTo={onNavigate}
+        workflows={workflows}
+        workflowId={metadataWorkflowId}
+        activeTab={metadataTab}
+        status={metadataStatus}
+        metadata={workflowMetadata}
+        models={modelMetadata}
+        loading={metadataLoading}
+        notice={metadataNotice}
+        onWorkflowChange={(workflowId) => void loadMetadata(workflowId)}
+        onTabChange={setMetadataTab}
+        onRebuild={() => void rebuildMetadata()}
+      />
+    ) : route === "admin.sandbox" ? (
+      <Create5bScreen user={user} onGoTo={onNavigate} />
     ) : (
     <main className="studio-grid">
       <aside className="sidebar">
@@ -4281,6 +4624,9 @@ function StudioShell({
         onClose={() => onNavigate("create.workspace")}
       />
     ) : null}
+    {/* E-04: admin.metadata(6d)는 이제 Create6dScreen 전체 화면이라
+        metadataModalOpen이 항상 false다 - 이 블록은 죽은 코드다(E-06 정리 대상,
+        MetadataModal/renderMetadataTab/ConfigRow도 함께 제거). */}
     {metadataModalOpen ? (
       <MetadataModal
         workflows={workflows}
