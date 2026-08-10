@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { HistoryItem } from "../api/client";
+import { isTerminalHistoryStatus } from "../helpers/format";
 
 export function ConfirmDeleteModal({
   item,
@@ -10,6 +11,11 @@ export function ConfirmDeleteModal({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  // 2026-08-10: reviewScreens.tsx의 3a 삭제 버튼이 이제 isTerminalHistoryStatus로
+  // 걸러져 있어 이 모달은 정상 흐름에서 진행 중 작업에 대해 열릴 일이 없지만,
+  // deleteTarget을 공유하는 다른 진입점(StudioShell.tsx:1896)에서도 동일하게
+  // 막히도록 방어적으로 한 번 더 확인한다.
+  const deletable = isTerminalHistoryStatus(item.status);
   return (
     <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="deleteHistoryTitle">
       <section className="confirm-modal">
@@ -18,9 +24,10 @@ export function ConfirmDeleteModal({
         </div>
         <p>삭제한 모든 자료(이미지, 영상 등)가 모두 삭제 됩니다. 삭제후 복구되지 않습니다. 삭제하시겠습니까?</p>
         <small>{item.taskId}</small>
+        {!deletable ? <p>진행 중인 작업은 삭제할 수 없습니다.</p> : null}
         <div className="confirm-actions">
           <button className="secondary-button" type="button" onClick={onCancel}>취소</button>
-          <button className="danger-button" type="button" onClick={onConfirm}>삭제</button>
+          <button className="danger-button" type="button" disabled={!deletable} onClick={onConfirm}>삭제</button>
         </div>
       </section>
     </div>

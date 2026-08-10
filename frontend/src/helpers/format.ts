@@ -54,6 +54,16 @@ export function isSuccessStatus(status?: string) {
   return ["completed", "success"].includes(String(status || "").toLowerCase());
 }
 
+// 2026-08-10: 3a(작업 이력) 삭제 버튼이 진행 중 작업을 막지 못하던 버그 수정용 헬퍼.
+// 백엔드 task_tracking_service.TERMINAL_STATES(완료/실패/취소/타임아웃)와 값을
+// 맞췄다 - 여기 없는 값(queued/running/IN_QUEUE/IN_PROGRESS 등)은 전부 "진행 중"으로
+// 취급해 삭제를 막는다.
+const HISTORY_TERMINAL_STATUSES = ["completed", "success", "failed", "cancelled", "timed_out"];
+
+export function isTerminalHistoryStatus(status?: string) {
+  return HISTORY_TERMINAL_STATUSES.includes(String(status || "").toLowerCase());
+}
+
 export function fileUrlWithMode(url: string, mode: "download" | "inline") {
   if (!url || !url.startsWith("/api/files/")) {
     return url;

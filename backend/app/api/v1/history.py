@@ -23,3 +23,9 @@ def delete_history_item(task_id: str, _: CurrentUser = Depends(require_permissio
         return studio_api_service.delete_history_item(task_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"History item not found: {task_id}") from exc
+    # 2026-08-10: 진행 중(터미널 상태가 아닌) 작업의 삭제 요청 - db_adapter.delete_history_item이
+    # 이 경우 ValueError를 던진다. 3a 화면의 삭제 확인 모달이 "진행 중인 작업은 삭제할 수
+    # 없습니다"라고 안내하지만 실제로 막는 코드가 없던 버그를 수정 - 프론트 버튼 비활성화와
+    # 별개로 API 직접 호출도 여기서 막는다(방어적 이중 확인).
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc

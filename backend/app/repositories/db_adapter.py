@@ -16,6 +16,7 @@ from backend.app.services.json_repository import (
     hydrate_input_images,
     hydrate_output_asset,
 )
+from backend.app.services.task_tracking_service import TERMINAL_STATES
 
 
 class DbStudioRepository:
@@ -104,6 +105,13 @@ class DbStudioRepository:
         task = self.session.get(WorkflowTask, task_id)
         if not task:
             raise KeyError(task_id)
+        # 2026-08-10: 진행 중 작업 삭제 방지 - 3a 화면의 삭제 확인 모달이 항상
+        # "진행 중인 작업은 삭제할 수 없습니다"라고 안내했지만 이 함수는 실제로
+        # task.status를 확인하지 않고 무조건 삭제해 문구와 동작이 어긋나 있었다.
+        # task_tracking_service.TERMINAL_STATES(완료/실패/취소/타임아웃)에 속하지
+        # 않으면(즉 대기·진행 중이면) 삭제를 거부한다.
+        if str(task.status or "").upper() not in TERMINAL_STATES:
+            raise ValueError(f"진행 중인 작업은 삭제할 수 없습니다: {task_id} (status={task.status})")
         asset_ids = []
         for link in list(task.input_assets) + list(task.output_assets):
             if link.asset_id not in asset_ids:

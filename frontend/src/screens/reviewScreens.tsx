@@ -11,7 +11,8 @@ import { User } from "../auth";
 import { AppShell } from "../components/AppShell";
 import {
   formatTimestamp,
-  isSuccessStatus
+  isSuccessStatus,
+  isTerminalHistoryStatus
 } from "../helpers/format";
 import { positivePromptEntries } from "../helpers/prompts";
 import {
@@ -178,7 +179,7 @@ export function Create3aScreen({
                 <span className={`v3-status-badge ${isSuccessStatus(item.status) ? "is-ready" : "is-pending"}`}>{item.status || "-"}</span>
               </span>
               <span style={{ textAlign: "right" }}>
-                {canDelete ? (
+                {canDelete && isTerminalHistoryStatus(item.status) ? (
                   <button
                     className="v3-text-link-button"
                     style={{ color: "var(--v3-danger)" }}
@@ -226,7 +227,15 @@ export function Create3aScreen({
             </div>
             <div className="v3-inline-actions">
               <button className="v3-secondary-button v3-flex-button" type="button" onClick={onCancelDelete}>취소</button>
-              <button className="v3-danger-button v3-flex-button" style={{ background: "var(--v3-danger)", color: "#fff", borderColor: "var(--v3-danger)" }} type="button" onClick={onConfirmDelete}>삭제</button>
+              <button
+                className="v3-danger-button v3-flex-button"
+                style={{ background: "var(--v3-danger)", color: "#fff", borderColor: "var(--v3-danger)" }}
+                type="button"
+                disabled={!isTerminalHistoryStatus(deleteTarget.status)}
+                onClick={onConfirmDelete}
+              >
+                삭제
+              </button>
             </div>
             <p className="v3-muted-text">진행 중인 작업은 삭제할 수 없습니다 · 권한이 없으면 버튼이 보이지 않습니다</p>
           </div>
