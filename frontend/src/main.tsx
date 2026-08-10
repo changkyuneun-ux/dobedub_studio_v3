@@ -126,6 +126,8 @@ const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "admin.resourceMap": "roles:read",
   "admin.workflows": "workflows:read",
   "admin.workflowRegister": "workflows:write",
+  "admin.catalogHierarchy": "prompt-catalog:read",
+  "admin.catalogTerms": "prompt-catalog:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
   "access.manual": "manual:read"
@@ -164,7 +166,7 @@ function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
 // 그 메뉴들을 누르면 이관 전까지 admin.console(구버전 모달)로 보낸다.
 function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
   if (key === "adminCatalog") {
-    onGoTo("admin.systemPrompt");
+    onGoTo("admin.catalogHierarchy");
   } else if (key === "adminStatus") {
     onGoTo("admin.status");
   } else if (key === "adminMetadata") {
@@ -189,6 +191,8 @@ const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "admin.resourceMap": "기능 리소스 매핑",
   "admin.workflows": "워크플로 정의",
   "admin.workflowRegister": "워크플로 등록",
+  "admin.catalogHierarchy": "카탈로그 계층",
+  "admin.catalogTerms": "용어 관리",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
   "access.manual": "User Manual",
@@ -2477,7 +2481,8 @@ function Create7aScreen({
       onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
       headerEyebrow="ADMIN · 프롬프트 카탈로그"
       headerTitle="시스템 프롬프트"
-      sidebarFooter={<p className="v3-muted-text">4e 카탈로그 계층 · 3d 용어 관리 · 4b Negative 기본값은 이관 예정입니다.</p>}
+      headerActions={<button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogHierarchy")}>카탈로그 계층 보기</button>}
+      sidebarFooter={<p className="v3-muted-text">4b Negative 기본값은 이관 예정입니다.</p>}
     >
       <div className="v3-card">
         <div className="v3-card-header">
@@ -3278,6 +3283,380 @@ function Create4dScreen({
           </div>
         </div>
       </div>
+    </AppShell>
+  );
+}
+
+// E-04 · 4e "카탈로그 계층" + 3d "용어 관리" — 구버전 PromptCatalogAdminContent를
+// v3 토큰으로 다시 그렸다. 로직(스코프→그룹→서브카테고리→용어 트리 탐색, 각 단계
+// 폼 상태, 저장/삭제 payload 구성)은 한 글자도 바꾸지 않았고 마크업만 새로 짰다.
+// 4e/3d 두 라우트가 이 컴포넌트 하나를 함께 쓰는 이유는 router.ts 주석 참고.
+function PromptCatalogAdminPanelV3({
+  user,
+  onGoTo,
+  focus,
+  catalog,
+  loading,
+  notice,
+  onSaveCategoryGroup,
+  onDeactivateCategoryGroup,
+  onSaveCategory,
+  onDeactivateCategory,
+  onSaveTerm,
+  onDeactivateTerm
+}: {
+  user: User;
+  onGoTo: (route: StudioRoute) => void;
+  focus: "hierarchy" | "terms";
+} & PromptCatalogAdminContentProps) {
+  const groups = catalog?.groups || [];
+  const scopes = promptCatalogAdminScopes(groups);
+  const [selectedScopeKey, setSelectedScopeKey] = useState<"positive" | "negative">("positive");
+  const [activeCatalogAdminLevel, setActiveCatalogAdminLevel] = useState<"none" | "category" | "subcategory" | "keyword">("none");
+  const [selectedGroupId, setSelectedGroupId] = useState<number | "new">("new");
+  const selectedGroup = selectedGroupId === "new" ? null : groups.find((group) => group.id === selectedGroupId) || null;
+  const [groupForm, setGroupForm] = useState<Record<string, string>>(categoryGroupFormFrom(selectedGroup, selectedScopeKey));
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "new">("new");
+  const selectedCategory = selectedCategoryId === "new"
+    ? null
+    : selectedGroup?.subcategories.find((category) => category.id === selectedCategoryId) || null;
+  const [categoryForm, setCategoryForm] = useState<Record<string, string | boolean>>(categoryFormFrom(selectedCategory, selectedGroup?.code || "", undefined, selectedGroup?.id));
+  const [selectedTermId, setSelectedTermId] = useState<number | "new">("new");
+  const selectedTerm = selectedTermId === "new" ? null : selectedCategory?.terms.find((term) => term.id === selectedTermId) || null;
+  const [termForm, setTermForm] = useState<Record<string, string>>(termFormFrom(selectedTerm, selectedCategory));
+  const [expandedAdminTreeKeys, setExpandedAdminTreeKeys] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const nextScope = scopes.find((scope) => scope.key === selectedScopeKey) || scopes[0] || null;
+    if (nextScope && nextScope.key !== selectedScopeKey) {
+      setSelectedScopeKey(nextScope.key);
+      return;
+    }
+    const nextGroup = selectedGroupId === "new" ? null : nextScope?.groups.find((group) => group.id === selectedGroupId) || null;
+    if (selectedGroupId !== "new" && !nextGroup) {
+      setSelectedGroupId("new");
+      setSelectedCategoryId("new");
+      setSelectedTermId("new");
+      setActiveCatalogAdminLevel("none");
+      return;
+    }
+    const nextCategory = selectedCategoryId === "new" ? null : nextGroup?.subcategories.find((category) => category.id === selectedCategoryId) || null;
+    if (selectedCategoryId !== "new" && !nextCategory) {
+      setSelectedCategoryId("new");
+      setSelectedTermId("new");
+      setActiveCatalogAdminLevel(nextGroup ? "category" : "none");
+      return;
+    }
+    const nextTerm = selectedTermId === "new" ? null : nextCategory?.terms.find((term) => term.id === selectedTermId) || null;
+    if (selectedTermId !== "new" && !nextTerm) {
+      setSelectedTermId("new");
+      setActiveCatalogAdminLevel(nextCategory ? "subcategory" : "none");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog]);
+
+  useEffect(() => {
+    setGroupForm(categoryGroupFormFrom(selectedGroup, selectedScopeKey));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGroupId, selectedScopeKey, catalog]);
+
+  useEffect(() => {
+    setCategoryForm(categoryFormFrom(selectedCategory, selectedGroup?.code || "", undefined, selectedGroup?.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategoryId, catalog, selectedGroup?.code, selectedGroup?.id]);
+
+  useEffect(() => {
+    setTermForm(termFormFrom(selectedTerm, selectedCategory));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTermId, selectedCategoryId, catalog]);
+
+  const groupCode = categoryGroupCodeFromForm(groupForm, selectedScopeKey, selectedGroup);
+  const subcategoryCode = subcategoryCodeFromForm(categoryForm, selectedCategory);
+  const categoryPayload = {
+    ...categoryForm,
+    code: subcategoryCode,
+    required: Boolean(categoryForm.required),
+    maxSelectCount: categoryForm.maxSelectCount ? Number(categoryForm.maxSelectCount) : null,
+    groupId: selectedGroup?.id || categoryForm.groupId || null,
+    groupCode: selectedGroup?.code || categoryForm.groupCode || "positive_work_style",
+    sortOrder: categoryForm.sortOrder ? Number(categoryForm.sortOrder) : 100
+  };
+  const groupPayload = {
+    ...groupForm,
+    code: groupCode,
+    scopeType: selectedScopeKey === "negative" ? "NEGATIVE" : "POSITIVE",
+    sortOrder: groupForm.sortOrder ? Number(groupForm.sortOrder) : 100
+  };
+  const termCode = promptTermCodeFromForm(termForm, selectedTerm, selectedCategory);
+  const termPayload = {
+    ...termForm,
+    code: termCode,
+    canonicalKey: termForm.canonicalKey || termCode,
+    categoryId: Number(termForm.categoryId || selectedCategory?.id || 0),
+    riskLevel: termForm.riskLevel || "NONE",
+    sortOrder: termForm.sortOrder ? Number(termForm.sortOrder) : 100
+  };
+  const canSaveGroup = Boolean(String(groupForm.nameKo || "").trim() && String(groupForm.nameEn || "").trim());
+  const canSaveCategory = Boolean(selectedGroup && String(categoryForm.nameKo || "").trim() && String(categoryForm.nameEn || "").trim());
+  const canSaveTerm = Boolean(selectedCategory && String(termForm.labelKo || "").trim() && String(termForm.labelEn || "").trim());
+
+  function toggleAdminTreeAccordion(key: string) {
+    setExpandedAdminTreeKeys((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminCatalog"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 프롬프트 카탈로그"
+      headerTitle={focus === "terms" ? "용어 관리" : "카탈로그 계층"}
+      headerActions={
+        focus === "terms" ? (
+          <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogHierarchy")}>카탈로그 계층으로</button>
+        ) : (
+          <button className="v3-secondary-button" type="button" onClick={() => onGoTo("admin.catalogTerms")}>용어 관리로</button>
+        )
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>CATALOG TREE · {groups.length}</div>
+          {scopes.map((scope) => {
+            const scopeKey = promptAdminScopeAccordionKey(scope.key);
+            const scopeExpanded = expandedAdminTreeKeys.has(scopeKey);
+            return (
+              <div key={scope.key}>
+                <button
+                  type="button"
+                  className={`v3-segment-nav-item ${selectedScopeKey === scope.key ? "is-active" : ""}`}
+                  onClick={() => {
+                    setSelectedScopeKey(scope.key);
+                    toggleAdminTreeAccordion(scopeKey);
+                  }}
+                >
+                  <div className="v3-segment-nav-head"><span>{scope.label} Prompt</span><span>{scope.groups.length} {scopeExpanded ? "-" : "+"}</span></div>
+                </button>
+                {scopeExpanded ? scope.groups.map((group) => {
+                  const groupKey = promptAdminGroupAccordionKey(scope.key, group.id);
+                  const groupExpanded = expandedAdminTreeKeys.has(groupKey);
+                  return (
+                    <div key={group.id} style={{ paddingLeft: 10 }}>
+                      <button
+                        type="button"
+                        className={`v3-segment-nav-item ${selectedScopeKey === scope.key && selectedGroupId === group.id ? "is-active" : ""}`}
+                        onClick={() => {
+                          setSelectedScopeKey(scope.key);
+                          setSelectedGroupId(group.id);
+                          setSelectedCategoryId("new");
+                          setSelectedTermId("new");
+                          setActiveCatalogAdminLevel("category");
+                          toggleAdminTreeAccordion(groupKey);
+                        }}
+                      >
+                        <div className="v3-segment-nav-head"><span>{group.nameKo || group.code}</span><span>{group.subcategories.length} {groupExpanded ? "-" : "+"}</span></div>
+                      </button>
+                      {groupExpanded ? group.subcategories.map((category) => {
+                        const categoryKey = promptAdminSubcategoryAccordionKey(category.id);
+                        const categoryExpanded = expandedAdminTreeKeys.has(categoryKey);
+                        return (
+                          <div key={category.id} style={{ paddingLeft: 10 }}>
+                            <button
+                              type="button"
+                              className={`v3-segment-nav-item ${selectedCategoryId === category.id ? "is-active" : ""}`}
+                              onClick={() => {
+                                setSelectedScopeKey(scope.key);
+                                setSelectedGroupId(group.id);
+                                setSelectedCategoryId(category.id);
+                                setSelectedTermId("new");
+                                setActiveCatalogAdminLevel("subcategory");
+                                toggleAdminTreeAccordion(categoryKey);
+                              }}
+                            >
+                              <div className="v3-segment-nav-head"><span>{category.nameKo || category.code}</span><span>{(category.terms || []).length} {categoryExpanded ? "-" : "+"}</span></div>
+                            </button>
+                            {categoryExpanded ? (category.terms || []).map((term) => (
+                              <button
+                                key={term.id}
+                                type="button"
+                                className={`v3-term-chip ${selectedTermId === term.id ? "is-selected" : ""}`}
+                                style={{ marginLeft: 10, marginTop: 4 }}
+                                onClick={() => {
+                                  setSelectedScopeKey(scope.key);
+                                  setSelectedGroupId(group.id);
+                                  setSelectedCategoryId(category.id);
+                                  setSelectedTermId(term.id);
+                                  setActiveCatalogAdminLevel("keyword");
+                                }}
+                              >
+                                {term.labelKo || term.code}
+                              </button>
+                            )) : null}
+                          </div>
+                        );
+                      }) : null}
+                    </div>
+                  );
+                }) : null}
+              </div>
+            );
+          })}
+        </div>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+
+      {activeCatalogAdminLevel === "none" ? (
+        <div className="v3-card">
+          <div style={{ padding: 16 }}>
+            <p style={{ fontWeight: 600 }}>관리할 항목을 선택하세요.</p>
+            <p className="v3-muted-text">왼쪽 트리에서 카테고리, 서브 카테고리 또는 key word를 선택하면 해당 정보만 표시됩니다.</p>
+            <button className="v3-secondary-button" type="button" onClick={() => {
+              setSelectedGroupId("new");
+              setSelectedCategoryId("new");
+              setSelectedTermId("new");
+              setActiveCatalogAdminLevel("category");
+            }}>New Category</button>
+          </div>
+        </div>
+      ) : null}
+
+      {activeCatalogAdminLevel === "category" ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">카테고리 관리</div>
+            <button className="v3-text-link-button" type="button" onClick={() => {
+              setSelectedGroupId("new");
+              setSelectedCategoryId("new");
+              setSelectedTermId("new");
+              setActiveCatalogAdminLevel("category");
+            }}>New Category</button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 16 }}>
+            <div className="v3-reuse-grid">
+              <label className="v3-checklist-item" style={{ display: "block" }}>Name KO
+                <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={String(groupForm.nameKo || "")} onChange={(event) => setGroupForm({ ...groupForm, nameKo: event.target.value })} />
+              </label>
+              <label className="v3-checklist-item" style={{ display: "block" }}>Name EN
+                <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={String(groupForm.nameEn || "")} onChange={(event) => setGroupForm({ ...groupForm, nameEn: event.target.value })} />
+              </label>
+            </div>
+            <label className="v3-checklist-item" style={{ display: "block" }}>Description
+              <textarea className="v3-scene-textarea" style={{ width: "100%", marginTop: 6 }} rows={2} value={String(groupForm.description || "")} onChange={(event) => setGroupForm({ ...groupForm, description: event.target.value })} />
+            </label>
+            <div className="v3-inline-actions">
+              <button className="v3-primary-button" type="button" disabled={loading || !canSaveGroup} onClick={() => onSaveCategoryGroup(groupPayload, selectedGroup?.id)}>Save Category</button>
+              {selectedGroup ? <button className="v3-secondary-button" type="button" onClick={() => {
+                setSelectedCategoryId("new");
+                setSelectedTermId("new");
+                setActiveCatalogAdminLevel("subcategory");
+              }}>New Sub Category</button> : null}
+              {selectedGroup ? <button className="v3-secondary-button" type="button" disabled={loading} onClick={() => onDeactivateCategoryGroup(selectedGroup.id)}>Delete Category</button> : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {activeCatalogAdminLevel === "subcategory" || activeCatalogAdminLevel === "keyword" ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">{selectedCategory?.nameKo || "새 서브 카테고리"}</div>
+            <span className="v3-card-header-meta">{selectedGroup?.nameKo || "상위 카테고리 없음"}</span>
+          </div>
+          {activeCatalogAdminLevel === "subcategory" ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 16 }}>
+              <div className="v3-inline-actions" style={{ justifyContent: "flex-end" }}>
+                <button className="v3-text-link-button" type="button" disabled={!selectedGroup} onClick={() => {
+                  setSelectedCategoryId("new");
+                  setSelectedTermId("new");
+                  setActiveCatalogAdminLevel("subcategory");
+                }}>New Sub Category</button>
+              </div>
+              <div className="v3-reuse-grid">
+                <label className="v3-checklist-item" style={{ display: "block" }}>Name KO
+                  <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={String(categoryForm.nameKo || "")} onChange={(event) => setCategoryForm({ ...categoryForm, nameKo: event.target.value })} />
+                </label>
+                <label className="v3-checklist-item" style={{ display: "block" }}>Name EN
+                  <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={String(categoryForm.nameEn || "")} onChange={(event) => setCategoryForm({ ...categoryForm, nameEn: event.target.value })} />
+                </label>
+              </div>
+              <label className="v3-checklist-item" style={{ display: "block" }}>Description
+                <textarea className="v3-scene-textarea" style={{ width: "100%", marginTop: 6 }} rows={2} value={String(categoryForm.description || "")} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} />
+              </label>
+              <div className="v3-inline-actions">
+                <button className="v3-primary-button" type="button" disabled={loading || !canSaveCategory} onClick={() => onSaveCategory(categoryPayload, selectedCategory?.id)}>Save Sub Category</button>
+                {selectedCategory ? <button className="v3-secondary-button" type="button" onClick={() => {
+                  setSelectedTermId("new");
+                  setActiveCatalogAdminLevel("keyword");
+                }}>New Key Word</button> : null}
+                {selectedCategory ? <button className="v3-secondary-button" type="button" disabled={loading} onClick={() => onDeactivateCategory(selectedCategory.id)}>Delete Sub Category</button> : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeCatalogAdminLevel === "keyword" ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">키워드 관리</div>
+            <button className="v3-text-link-button" type="button" disabled={!selectedCategory} onClick={() => {
+              setSelectedTermId("new");
+              setActiveCatalogAdminLevel("keyword");
+            }}>New Key Word</button>
+          </div>
+          {selectedCategory ? (
+            <div style={{ display: "flex", gap: 14, padding: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 160 }}>
+                {selectedCategory.terms.map((term) => (
+                  <button
+                    key={term.id}
+                    type="button"
+                    className={`v3-term-chip ${selectedTermId === term.id ? "is-selected" : ""}`}
+                    onClick={() => {
+                      setSelectedTermId(term.id);
+                      setActiveCatalogAdminLevel("keyword");
+                    }}
+                  >
+                    {term.labelKo || term.code}
+                  </button>
+                ))}
+              </div>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                <div className="v3-reuse-grid">
+                  <label className="v3-checklist-item" style={{ display: "block" }}>Label KO
+                    <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={termForm.labelKo || ""} onChange={(event) => setTermForm({ ...termForm, labelKo: event.target.value })} />
+                  </label>
+                  <label className="v3-checklist-item" style={{ display: "block" }}>Label EN
+                    <input className="v3-search-input" style={{ width: "100%", marginTop: 6 }} value={termForm.labelEn || ""} onChange={(event) => setTermForm({ ...termForm, labelEn: event.target.value })} />
+                  </label>
+                </div>
+                <label className="v3-checklist-item" style={{ display: "block" }}>Prompt Text
+                  <textarea className="v3-scene-textarea" style={{ width: "100%", marginTop: 6 }} rows={2} value={termForm.promptText || ""} onChange={(event) => setTermForm({ ...termForm, promptText: event.target.value })} />
+                </label>
+                <label className="v3-checklist-item" style={{ display: "block" }}>Negative Text
+                  <textarea className="v3-scene-textarea" style={{ width: "100%", marginTop: 6 }} rows={2} value={termForm.negativeText || ""} onChange={(event) => setTermForm({ ...termForm, negativeText: event.target.value })} />
+                </label>
+                <label className="v3-checklist-item" style={{ display: "block" }}>Description
+                  <textarea className="v3-scene-textarea" style={{ width: "100%", marginTop: 6 }} rows={2} value={termForm.description || ""} onChange={(event) => setTermForm({ ...termForm, description: event.target.value })} />
+                </label>
+                <div className="v3-inline-actions">
+                  <button className="v3-primary-button" type="button" disabled={loading || !canSaveTerm} onClick={() => onSaveTerm(termPayload, selectedTerm?.id)}>Save Key Word</button>
+                  {selectedTerm ? <button className="v3-secondary-button" type="button" disabled={loading} onClick={() => onDeactivateTerm(selectedTerm.id)}>Delete Key Word</button> : null}
+                </div>
+              </div>
+            </div>
+          ) : <p className="v3-muted-text" style={{ padding: 16 }}>서브 카테고리를 선택하거나 먼저 저장한 후 key word를 추가하세요.</p>}
+        </div>
+      ) : null}
     </AppShell>
   );
 }
@@ -4128,6 +4507,9 @@ function StudioShell({
     if (route === "admin.workflows" && !adminWorkflowItems.length) {
       void loadAdminWorkflows();
     }
+    if ((route === "admin.catalogHierarchy" || route === "admin.catalogTerms") && !promptCatalog && !promptBuilderLoading) {
+      void loadPromptCatalog();
+    }
     if (route === "admin.status") {
       void loadSystemStatus();
     }
@@ -4142,7 +4524,7 @@ function StudioShell({
       setMetadataWorkflowId(workflowId);
       void loadMetadata(workflowId);
     }
-  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt, adminWorkflowItems.length]);
+  }, [route, selectedWorkflow, workflows.length, user, promptSystemPrompt, adminWorkflowItems.length, promptCatalog, promptBuilderLoading]);
 
   // E-02 · 2c → 2d: generateVideo()는 create.confirm(2f)의 onRun에서 호출되고
   // 완료(성공/실패/취소)까지 내부적으로 기다린다(pollJob). running이 false로
@@ -4859,6 +5241,21 @@ function StudioShell({
         onFieldChange={(field, value) => setAdminWorkflowForm((current) => ({ ...current, [field]: value }))}
         onLoadFile={(event, target) => void loadAdminWorkflowFile(event, target)}
         onSave={() => void saveAdminWorkflow()}
+      />
+    ) : route === "admin.catalogHierarchy" || route === "admin.catalogTerms" ? (
+      <PromptCatalogAdminPanelV3
+        user={user}
+        onGoTo={onNavigate}
+        focus={route === "admin.catalogTerms" ? "terms" : "hierarchy"}
+        catalog={promptCatalog}
+        loading={promptBuilderLoading}
+        notice={promptBuilderNotice}
+        onSaveCategoryGroup={(payload, groupId) => void savePromptCategoryGroup(payload, groupId)}
+        onDeactivateCategoryGroup={(groupId) => void deactivatePromptCategoryGroup(groupId)}
+        onSaveCategory={(payload, categoryId) => void savePromptCategory(payload, categoryId)}
+        onDeactivateCategory={(categoryId) => void deactivatePromptCategory(categoryId)}
+        onSaveTerm={(payload, termId) => void savePromptTerm(payload, termId)}
+        onDeactivateTerm={(termId) => void deactivatePromptTerm(termId)}
       />
     ) : (
     <main className="studio-grid">

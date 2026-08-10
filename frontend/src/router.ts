@@ -42,6 +42,13 @@
 //   admin.workflows      — 4a 워크플로 정의 목록/조회/활성화 (신규 구현, E-04).
 //   admin.workflowRegister — 4d 워크플로 등록/갱신 단일 저장 폼 (신규 구현, E-04).
 //                       "워크플로 정의" Admin 사이드바 그룹 소속.
+//   admin.catalogHierarchy — 4e 카탈로그 계층 (신규 구현, E-04).
+//   admin.catalogTerms     — 3d 용어 관리 (신규 구현, E-04). 4e와 완전히 같은
+//                       트리+상세 패널 컴포넌트를 함께 쓴다 - 구버전부터 스코프→
+//                       그룹→서브카테고리→용어가 하나의 연결된 트리 탐색으로
+//                       설계돼 있어(PromptCatalogAdminContent), 화면을 억지로
+//                       둘로 쪼개면 같은 트리를 두 번 그리게 된다. 3f/3c를 하나의
+//                       컴포넌트로 합친 것과 같은 이유(E-03 참조).
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -65,6 +72,8 @@ export type StudioRoute =
   | "admin.resourceMap"
   | "admin.workflows"
   | "admin.workflowRegister"
+  | "admin.catalogHierarchy"
+  | "admin.catalogTerms"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -102,6 +111,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.resourceMap": "/studio/admin/resource-map",
   "admin.workflows": "/studio/admin/workflows",
   "admin.workflowRegister": "/studio/admin/workflows/register",
+  "admin.catalogHierarchy": "/studio/admin/catalog/hierarchy",
+  "admin.catalogTerms": "/studio/admin/catalog/terms",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"
