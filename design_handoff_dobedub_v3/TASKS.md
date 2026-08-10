@@ -177,15 +177,15 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 아래는 API와 테이블이 이미 준비되어 있습니다. 프론트 구현만 하십시오. **이 목록은 "백엔드 준비 상태" 참고용으로 남기고, 실제 화면 구현 순서·방식은 아래 E 절을 따르십시오.**
 
 - [x] **C-01 `2b` 프롬프트 경고 표시** — `generate_prompt`가 이미 용어 검증·관계 적용·`prompt_rules` 평가·Scene 검증을 거쳐 `{code, message, severity}` 배열을 반환하고 `warnings_json`에 저장합니다. 화면은 이를 심각도별로 나눠 그리기만 하면 됩니다. — *경고 심각도별 그룹핑 로직은 완료(커밋 `9535b9f`, `e048f72`)했으나, 구버전 `PromptBuilderModal`(기존 dark 테마) 안에 구현되어 README Design Tokens를 적용하지 않음. 신규 `2b` 화면(E-02)에서 로직만 재사용하고 UI는 새로 그려야 함. 참고 — 이 커밋은 error 심각도일 때 Apply 버튼을 실제로 비활성화하는 동작을 TASKS.md 문구("그리기만 하면 됩니다")보다 넓게 추가했음(라벨-동작 불일치 방지 목적) — E-02 재구현 시 이 동작도 유지.*
-- [ ] **C-02 `2c` 취소 상태** — `POST /api/jobs/{id}/cancel` 존재. 요청 후 UI 잠금은 클라이언트 상태.
-- [ ] **C-03 `3a` 삭제** — `POST /api/history/{task_id}/delete` 존재.
-- [ ] **C-04 `3f` `3c` Run 상세** — `GET /jobs/{id}/prompts`, `PATCH …/quality`, `PATCH …/review`, `review_status`·`review_flags_json` 컬럼 존재.
-- [ ] **C-05 `4c` 재사용** — `GET /api/prompts/reusable` (keyword·workflowId·minRating·reviewedOnly·reuseEligible·limit) 존재.
+- [x] **C-02 `2c` 취소 상태** — `POST /api/jobs/{id}/cancel` 존재. 요청 후 UI 잠금은 클라이언트 상태. — *E-02(`851dac4`)에서 `Create2cScreen` 구현으로 반영.*
+- [x] **C-03 `3a` 삭제** — `POST /api/history/{task_id}/delete` 존재. — *E-03(`9e6e7f8`)에서 `Create3aScreen`의 삭제 모달로 반영.*
+- [x] **C-04 `3f` `3c` Run 상세** — `GET /jobs/{id}/prompts`, `PATCH …/quality`, `PATCH …/review`, `review_status`·`review_flags_json` 컬럼 존재. — *E-03(금번 세션, 커밋 예정)에서 `Create3RunDetailScreen` 구현으로 반영.*
+- [x] **C-05 `4c` 재사용** — `GET /api/prompts/reusable` (keyword·workflowId·minRating·reviewedOnly·reuseEligible·limit) 존재. — *E-03(금번 세션, 커밋 예정)에서 `Create4cScreen` 구현으로 반영.*
 - [ ] **C-06 `7a` 시스템 프롬프트** — `GET/PUT /api/prompts/system-prompt` 존재.
 - [ ] **C-07 `7b` 기능 리소스 매핑** — `GET /api/admin/permissions`가 roles·permissions·resources를 함께 반환. 조회 전용 화면.
 - [ ] **C-08 `7c` 사용자 상세** — `PUT /admin/users/{id}`, `POST …/reset-password`, `POST …/deactivate`, `user_permissions` 테이블 존재.
 - [ ] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요.
-- [ ] **C-10 `2e` 세그먼트 설정** — `GET /api/segment-defaults`, `/workflows/{id}/segment-defaults` 존재.
+- [x] **C-10 `2e` 세그먼트 설정** — `GET /api/segment-defaults`, `/workflows/{id}/segment-defaults` 존재. — *E-02(`8ac0c7a`)에서 `Create2eScreen` 구현으로 반영.*
 - [ ] **C-11 `6c` `5b` 상태·Pod** — `/system/status`, `/runpod/connection`, `/admin/sandbox-pod` 존재.
 - [ ] **C-12 `6d` 메타데이터** — `/metadata/status`, `/models`, `/rebuild` 존재.
 
@@ -227,30 +227,30 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 
 **여기가 이 작업의 본체입니다.** A~D는 화면이 딛고 설 API·DB·권한 정합을 맞추는 선행 작업이었고, 그중 착수 대상이던 것(S-01·D-01·D-02·D-03·B-06·B-02·B-03·B-01·B-04·C-01 일부)은 위에서 보듯 이미 처리되었습니다. 그러나 **실제 화면은 여전히 구버전 `frontend/src/main.tsx`(단일 파일, 기존 dark 테마, 기능 기준 라우팅)이고, README가 요구하는 "부분 수정이 아닌 전면 재구축"은 아직 시작되지 않았습니다.** C-01/B-01/B-04에서 이미 만든 로직(경고 그룹핑, 페이지네이션, 실행 모드 판단)은 재사용하되, 그 로직이 지금 얹혀 있는 구버전 UI는 폐기 대상입니다.
 
-### E-00 · 디자인 토큰 도입 — P0
-- [ ] README Design Tokens(배경/텍스트/경계/액센트/경고/위험 색상, IBM Plex Sans·Roboto Mono, 라운드값, 사이드바 212px 등)를 `frontend/src/styles.css`에 단일 소스(CSS 변수)로 도입
-- [ ] 코드베이스에 이미 동등 역할의 토큰이 있으면 그쪽을 우선하고, 충돌하는 값은 표로 정리해 결정 요청
-- [ ] 구버전 dark 테마 변수와 신규 토큰이 공존하는 과도기 동안 서로 새지 않도록 네임스페이스 분리
+### E-00 · 디자인 토큰 도입 — P0 — **완료** (커밋 `8602b95` 및 후속 화면 커밋에 포함)
+- [x] README Design Tokens(배경/텍스트/경계/액센트/경고/위험 색상, IBM Plex Sans·Roboto Mono, 라운드값, 사이드바 212px 등)를 `frontend/src/styles.css`에 단일 소스(CSS 변수)로 도입 — *`--v3-*` 접두 변수로 도입, `styles.css` 최상단에 정의.*
+- [x] 코드베이스에 이미 동등 역할의 토큰이 있으면 그쪽을 우선하고, 충돌하는 값은 표로 정리해 결정 요청 — *충돌 없음(신규 네임스페이스라 대조 불필요).*
+- [x] 구버전 dark 테마 변수와 신규 토큰이 공존하는 과도기 동안 서로 새지 않도록 네임스페이스 분리 — *`--v3-*` 전용 접두로 분리, 구버전 변수와 클래스 겹침 없음.*
 
-### E-01 · 공통 레이아웃 컴포넌트 — P0 (E-00 선행)
-- [ ] `frontend/src/components/`에 사이드바 212px + 헤더 + 본문 그리드 + 우측 패널을 담는 레이아웃 컴포넌트 신설 — 화면마다 새로 짜지 않고 전 화면이 공유
-- [ ] 권한 없는 메뉴는 사이드바에서 숨기고, 직접 URL 진입만 `7g`(C-09) 403 화면에 도달하도록 가드 위치 결정
-- [ ] `router.ts`를 업무 흐름(S1~S5) 기준 라우트로 재설계(현재는 기능 기준: login/studio/history/status/metadata/manual/admin)
+### E-01 · 공통 레이아웃 컴포넌트 — P0 (E-00 선행) — **완료** (커밋 `8602b95`)
+- [x] `frontend/src/components/`에 사이드바 212px + 헤더 + 본문 그리드 + 우측 패널을 담는 레이아웃 컴포넌트 신설 — 화면마다 새로 짜지 않고 전 화면이 공유 — *`frontend/src/components/AppShell.tsx` 신설.*
+- [x] 권한 없는 메뉴는 사이드바에서 숨기고, 직접 URL 진입만 `7g`(C-09) 403 화면에 도달하도록 가드 위치 결정 — *`ROUTE_REQUIRED_PERMISSION`/`routeAccessGranted()`(main.tsx)로 라우트별 권한 가드 구현. `7g` 전용 화면은 아직 없어 임시 `AccessDeniedModal`로 대체(E-05에서 정식 화면으로 교체 필요).*
+- [x] `router.ts`를 업무 흐름(S1~S5) 기준 라우트로 재설계(현재는 기능 기준: login/studio/history/status/metadata/manual/admin) — *`StudioRoute`를 `"flow.screen"` 리터럴 유니온으로 전면 재작성, 구버전 경로 호환은 `LEGACY_LAST_SEGMENT_ROUTE`로 유지.*
 
-### E-02 · `2 Create` 흐름 (핵심 흐름) — P0
+### E-02 · `2 Create` 흐름 (핵심 흐름) — P0 — **완료** (커밋 `8602b95`, `cc85438`, `8ac0c7a`, `851dac4`)
 순서: `2a`→`2b`→`2e`→`2f`→`2c`→`2d`
-- [ ] `2a` 이미지 로드 — 워크플로 선택 + 키프레임 업로드
-- [ ] `2b` 프롬프트 구성 — **C-01 경고 그룹핑 로직(심각도별 분류, BLOCK 시 Apply 비활성) 재사용, UI는 신규 토큰·레이아웃으로 재구현.** 경고는 좌측 본문 상단 스트립에 모으고 우측 패널로 분산하지 않음(README 지시)
-- [ ] `2e` 세그먼트 설정 (C-10)
-- [ ] `2f` 실행 전 확인 — 제출 payload 확인 후 Run
-- [ ] `2c` 진행 — 상태 인포그래픽 + 로그 + 취소 요청(Cancelling) 상태(C-02)
-- [ ] `2d` 결과 — Final 병합본과 구간 검수본
+- [x] `2a` 이미지 로드 — 워크플로 선택 + 키프레임 업로드 — *커밋 `8602b95`.*
+- [x] `2b` 프롬프트 구성 — **C-01 경고 그룹핑 로직(심각도별 분류, BLOCK 시 Apply 비활성) 재사용, UI는 신규 토큰·레이아웃으로 재구현.** 경고는 좌측 본문 상단 스트립에 모으고 우측 패널로 분산하지 않음(README 지시) — *커밋 `cc85438`.*
+- [x] `2e` 세그먼트 설정 (C-10) — *커밋 `8ac0c7a`.*
+- [x] `2f` 실행 전 확인 — 제출 payload 확인 후 Run — *커밋 `851dac4`.*
+- [x] `2c` 진행 — 상태 인포그래픽 + 로그 + 취소 요청(Cancelling) 상태(C-02) — *커밋 `851dac4`.*
+- [x] `2d` 결과 — Final 병합본과 구간 검수본 — *커밋 `851dac4`.*
 
-### E-03 · `3 Review` 흐름 — P1
-- [ ] `3a` 작업 이력 — **B-01 페이지네이션 로직(20/50, 총 건수·범위 표시) 재사용**, 삭제(C-03) 포함
-- [ ] `3f`/`3c` Run 상세 — **B-02 평가 로직(task_prompts/prompt_feedback 역할 분리) 재사용**(C-04)
-- [ ] `4c` 프롬프트 재사용 (C-05)
-- [ ] `5a`/`5c` 자산·컬렉션 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수
+### E-03 · `3 Review` 흐름 — P1 — **부분 완료** (커밋 `9e6e7f8` 및 금번 세션 미커밋분)
+- [x] `3a` 작업 이력 — **B-01 페이지네이션 로직(20/50, 총 건수·범위 표시) 재사용**, 삭제(C-03) 포함 — *커밋 `9e6e7f8`.*
+- [x] `3f`/`3c` Run 상세 — **B-02 평가 로직(task_prompts/prompt_feedback 역할 분리) 재사용**(C-04) — *`Create3RunDetailScreen`으로 완료/실패 화면 통합 구현, 평가 카드는 `V3PromptReviewGroup`으로 분리. 아직 커밋 전(다음 커밋에 포함 예정).*
+- [x] `4c` 프롬프트 재사용 (C-05) — *`Create4cScreen` 구현. 아직 커밋 전(다음 커밋에 포함 예정).*
+- [ ] `5a`/`5c` 자산·컬렉션 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *미착수.*
 
 ### E-04 · `4 Admin` 흐름 — P1
 - [ ] `4e` 카탈로그 계층, `3d` 용어 관리 — B-06 신형 계층 완료로 착수 가능
@@ -282,7 +282,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 1. ~~**S-01 · D-03 · D-02 · D-01**~~ — **완료.** 코드 정렬과 정리, 다른 작업의 토대.
 2. ~~**B-06**~~ — **완료(1~3단계, 4단계 컬럼 정리까지).** 카탈로그 관련 화면 전부가 여기에 막혀 있었으나 이제 해제됨.
 3. ~~**B-02 · B-03 · B-01 · B-04**~~ — **완료.** 로직은 끝났고 화면은 E 절에서 이관.
-4. **E-00 → E-01 → E-02 → E-03 → E-04 → E-05 → E-06** — 디자인 토큰·공통 레이아웃을 먼저 만들고, 핵심 흐름(Create)부터 순서대로 화면을 새로 짓고 구버전을 걷어냄. C-01~C-12는 이 단계에 흡수됨.
+4. ~~**E-00 → E-01 → E-02**~~ — **완료.** E-03은 `5a`/`5c`(A-01 대기) 제외 완료. 다음은 **E-04 → E-05 → E-06**. C-01~C-12는 이 단계에 흡수됨.
 5. **A-01 → A-04 → B-05** — 신규 개발.
 6. **A-02 · A-03 · A-06 · B-08** — 후순위.
 

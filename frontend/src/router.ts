@@ -21,6 +21,9 @@
 //                       참조하던 구버전 인라인 워크스페이스 자체는 아직 코드에 남아
 //                       있어(E-06 정리 대상) 경로는 유지한다.
 //   review.history    — 3a 작업 이력 ("3 Review.dc.html" 소속)
+//   review.runDetail  — 3f(완료)·3c(실패) Run 상세. 상태로 분기하므로 화면 하나가
+//                       두 id를 함께 담당한다(신규 구현, E-03)
+//   review.reuse      — 4c 프롬프트 재사용 (신규 구현, E-03)
 //   admin.console      — 4 Admin의 users/roles/catalog/workflows/sandbox 통합 콘솔
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
@@ -35,6 +38,8 @@ export type StudioRoute =
   | "create.result"
   | "create.workspace"
   | "review.history"
+  | "review.runDetail"
+  | "review.reuse"
   | "admin.console"
   | "admin.status"
   | "admin.metadata";
@@ -63,6 +68,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "create.result": "/studio/create/result",
   "create.workspace": "/studio/create/workspace",
   "review.history": "/studio/review/history",
+  "review.runDetail": "/studio/review/run",
+  "review.reuse": "/studio/review/reuse",
   "admin.console": "/studio/admin/console",
   "admin.status": "/studio/admin/status",
   "admin.metadata": "/studio/admin/metadata"

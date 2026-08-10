@@ -5010,6 +5010,87 @@ textarea {
   margin: 0;
 }
 
+/* E-03 · 3f/3c Run 상세의 프롬프트 평가 카드(V3PromptReviewGroup). B-02 두 평가
+   시스템(task_prompts 품질 평가 / prompt_feedback 생성 품질)을 시각적으로 구분하기
+   위해 .v3-feedback-block을 카드 안 별도 구획으로 둔다. */
+.v3-review-card {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.v3-rating-row {
+  display: flex;
+  gap: 6px;
+}
+
+.v3-rating-pill {
+  background: var(--v3-bg-canvas);
+  border: 1px solid var(--v3-border);
+  border-radius: 7px;
+  color: var(--v3-text-secondary);
+  cursor: pointer;
+  flex: 1;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 0;
+  text-align: center;
+}
+
+.v3-rating-pill.is-selected {
+  background: var(--v3-accent);
+  border-color: var(--v3-accent);
+  color: #fff;
+}
+
+.v3-rating-pill:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.v3-feedback-block {
+  border-top: 1px solid var(--v3-border-inner);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+/* E-03 · 4c 프롬프트 재사용 화면 */
+.v3-search-input {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 8px;
+  color: var(--v3-text-body);
+  font: inherit;
+  font-size: 12.5px;
+  min-width: 260px;
+  padding: 7px 12px;
+}
+
+.v3-reuse-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.v3-reuse-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.v3-reuse-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
 .v3-modal-body-text {
   color: var(--v3-text-secondary);
   font-size: 12.5px;

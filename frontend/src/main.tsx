@@ -134,6 +134,20 @@ function routeAccessGranted(user: User | null, route: StudioRoute): boolean {
   return canUse(user, requiredPermission);
 }
 
+// E-02/E-03: AppShell(E-01)의 사이드바 1차 메뉴(workspace/promptLibrary/taskHistory/
+// assets)는 화면마다 반복되는 공통 골격이라 각 Create*Screen이 받는 onGoTo(실제
+// StudioRoute 이동)를 통해 여기서 한 곳에서만 매핑한다. assets는 A-01 미착수라
+// 이동할 곳이 없어 무시한다(README: 미구현 영역을 임의로 채우지 않는다).
+function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void) {
+  if (key === "workspace") {
+    onGoTo("create.load");
+  } else if (key === "taskHistory") {
+    onGoTo("review.history");
+  } else if (key === "promptLibrary") {
+    onGoTo("review.reuse");
+  }
+}
+
 const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.history": "Task History",
   "admin.status": "Check Status",
@@ -437,6 +451,7 @@ function loginErrorMessage(error: unknown) {
 function Create2aScreen({
   user,
   health,
+  onGoTo,
   workflows,
   selectedWorkflow,
   workflowSelectionLocked,
@@ -450,6 +465,7 @@ function Create2aScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   workflows: WorkflowItem[];
   selectedWorkflow: string;
   workflowSelectionLocked: boolean;
@@ -476,7 +492,7 @@ function Create2aScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow="STEP 1 / 4 · 워크플로 선택 포함"
       headerTitle="이미지 로드"
       headerActions={
@@ -647,11 +663,12 @@ function Create2aScreen({
 //   기능이 백엔드/기존 로직 어디에도 없다. 임의로 만들지 않았다.
 // - 카탈로그 트리의 scope→group→category 3단 아코디언 — scope 탭 + category 목록
 //   2단으로 단순화했다. 그룹 단위 접고 펼치기는 이후 다듬을 항목.
-// - "라이브러리 재사용" — 4c(E-03) 전용 화면이 아직 없어 기존 PromptReuseModal을
-//   임시로 그대로 띄운다(구버전 테마 팝업이 잠깐 겹쳐 보이는 것은 알고 있음).
+// - "라이브러리 재사용" — E-03에서 4c 화면이 생겨 review.reuse로 이동한다(과거엔
+//   구버전 PromptReuseModal을 임시로 띄웠음).
 function Create2bScreen({
   user,
   health,
+  onGoTo,
   workflowName,
   segments,
   selectedSegmentIndex,
@@ -681,6 +698,7 @@ function Create2bScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   workflowName: string;
   segments: SegmentState[];
   selectedSegmentIndex: number;
@@ -738,7 +756,7 @@ function Create2bScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow={`STEP 2 / 4 · SEG ${String(selectedSegmentIndex).padStart(2, "0")} · 프롬프트`}
       headerTitle="세그먼트 설정"
       headerActions={
@@ -975,6 +993,7 @@ function Create2bScreen({
 function Create2eScreen({
   user,
   health,
+  onGoTo,
   workflowName,
   segments,
   selectedSegmentIndex,
@@ -988,6 +1007,7 @@ function Create2eScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   workflowName: string;
   segments: SegmentState[];
   selectedSegmentIndex: number;
@@ -1012,7 +1032,7 @@ function Create2eScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow={`STEP 2 / 4 · SEG ${String(selectedSegmentIndex).padStart(2, "0")} · 노드 컨피그`}
       headerTitle="세그먼트 설정"
       headerActions={
@@ -1143,6 +1163,7 @@ function Create2eScreen({
 function Create2fScreen({
   user,
   health,
+  onGoTo,
   selected,
   selectedWorkflow,
   keyframes,
@@ -1154,6 +1175,7 @@ function Create2fScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   selected: WorkflowItem | null;
   selectedWorkflow: string;
   keyframes: KeyframeState[];
@@ -1185,7 +1207,7 @@ function Create2fScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow={`STEP 3 / 4 · ${selected?.label || selected?.name || selectedWorkflow} · 세그먼트 ${segments.length}`}
       headerTitle="실행 전 전체 구성 확인"
       headerActions={
@@ -1293,6 +1315,7 @@ function Create2fScreen({
 function Create2cScreen({
   user,
   health,
+  onGoTo,
   selected,
   selectedWorkflow,
   keyframes,
@@ -1308,6 +1331,7 @@ function Create2cScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   selected: WorkflowItem | null;
   selectedWorkflow: string;
   keyframes: KeyframeState[];
@@ -1333,7 +1357,7 @@ function Create2cScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow={`STEP 4 / 4 · RUN ${currentTaskId ? `#${currentTaskId.slice(0, 8)}` : "-"} · 단일 작업`}
       headerTitle="영상 생성 중"
       headerActions={
@@ -1457,6 +1481,7 @@ function Create2cScreen({
 function Create2dScreen({
   user,
   health,
+  onGoTo,
   selected,
   selectedWorkflow,
   keyframes,
@@ -1476,6 +1501,7 @@ function Create2dScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   selected: WorkflowItem | null;
   selectedWorkflow: string;
   keyframes: KeyframeState[];
@@ -1500,7 +1526,7 @@ function Create2dScreen({
       user={user}
       area="generate"
       activeItem="workspace"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow={`RUN · ${selected?.label || selected?.name || selectedWorkflow} · 세그먼트 ${segments.length}`}
       headerTitle={hasFailedJob ? "생성 실패" : "생성 완료"}
       headerActions={
@@ -1628,6 +1654,7 @@ function Create2dScreen({
 function Create3aScreen({
   user,
   health,
+  onGoTo,
   history,
   page,
   pageCount,
@@ -1650,6 +1677,7 @@ function Create3aScreen({
 }: {
   user: User | null;
   health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
   history: HistoryItem[];
   page: number;
   pageCount: number;
@@ -1688,7 +1716,7 @@ function Create3aScreen({
       user={user}
       area="generate"
       activeItem="taskHistory"
-      onNavigate={() => {}}
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
       headerEyebrow="TASK HISTORY"
       headerTitle="작업 이력"
       sidebarExtra={
@@ -1817,6 +1845,395 @@ function Create3aScreen({
           </div>
         </div>
       ) : null}
+    </AppShell>
+  );
+}
+
+// E-03 · 3f(완료)/3c(실패) "Run 상세" — design_handoff_dobedub_v3/3 Review.dc.html의
+// 두 화면을 하나의 컴포넌트로 합쳤다. 완료/실패는 API가 이미 같은 HistoryItem.status로
+// 구분해 주므로 화면을 둘로 쪼개지 않고 내부에서 분기한다. 평가 저장은 B-02 로직
+// (savePromptReview → task_prompts, savePromptFeedback → prompt_feedback)을 그대로
+// 재사용한다.
+//
+// 설계 원본과 다르게 뺀 것:
+// - 3c의 "SEG 02 frames 81로 낮추고 재실행" · "80GB GPU로 재시도" — 오류를
+//   segment/node 단위로 구조화해 돌려주는 API가 없고, GPU 프로필을 선택해 재시도하는
+//   기능도 없다. 실제로 가능한 것은 "전체 재실행"(applyHistoryRework + 재제출)뿐이라
+//   그것만 남겼다.
+// - 3c의 ERROR TRACE(payload snapshot, node #, notification sent 로그) — HistoryItem에
+//   없는 정보다. latestJob이 아닌 과거 항목이라 상세 로그 자체가 서버에 없다. 있는
+//   값(item.status, 실패 시점 메시지가 있으면 그것)만 보여준다.
+// - Final 파일 크기(MB)·해상도 — OutputAsset에 없는 필드다.
+// - "관리자에게 보고" · "전체 로그 다운로드" — 대응하는 기능이 없다.
+function Create3RunDetailScreen({
+  user,
+  health,
+  item,
+  history,
+  promptReviewItems,
+  promptReviewLoading,
+  promptReviewNotice,
+  onSelectRun,
+  onSavePromptReview,
+  onSavePromptFeedback,
+  onDownload,
+  onRework,
+  onBackToList,
+  onGoTo,
+  canRework,
+  canReview,
+  canGiveFeedback
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  item: HistoryItem | null;
+  history: HistoryItem[];
+  promptReviewItems: TaskPromptItem[];
+  promptReviewLoading: boolean;
+  promptReviewNotice: string;
+  onSelectRun: (item: HistoryItem) => void;
+  onSavePromptReview: (segmentIndex: number, payload: Record<string, unknown>) => void;
+  onSavePromptFeedback: (outputId: string, payload: { rating?: number; notes?: string }) => void;
+  onDownload: (item: HistoryItem) => void;
+  onRework: (item: HistoryItem) => void;
+  onBackToList: () => void;
+  onGoTo: (route: StudioRoute) => void;
+  canRework: boolean;
+  canReview: boolean;
+  canGiveFeedback: boolean;
+}) {
+  if (!item) {
+    return (
+      <AppShell user={user} area="generate" activeItem="taskHistory" onNavigate={(key) => shellNavigate(key, onGoTo)} headerTitle="Run 상세">
+        <p className="v3-muted-text">선택된 작업이 없습니다. <button className="v3-text-link-button" type="button" onClick={onBackToList}>작업 이력으로</button></p>
+      </AppShell>
+    );
+  }
+  const isFailed = !isSuccessStatus(item.status) && Boolean(item.status);
+  const output = historyOutputAsset(item);
+  const outputMediaUrl = useProtectedAssetUrl(output?.downloadUrl || output?.url || item.outputUrl || "");
+  const inputImages = historyInputImages(item);
+  const otherRuns = history.filter((run) => run.taskId !== item.taskId).slice(0, 6);
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="taskHistory"
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
+      headerEyebrow={<><a className="v3-text-link-button" style={{ padding: 0 }} onClick={onBackToList}>← Task History</a> · RUN #{item.taskId.slice(0, 8)} · {item.workflowName || item.workflow || item.workflowId}</>}
+      headerTitle="Run 상세"
+      headerActions={
+        <>
+          <span className={`v3-run-status-chip ${isFailed ? "is-failed" : ""}`}>
+            <span className="v3-run-status-dot" />
+            {isFailed ? "FAILED" : (item.status || "COMPLETED").toUpperCase()}
+          </span>
+          {isFailed ? (
+            <button className="v3-primary-button" type="button" disabled={!canRework} onClick={() => onRework(item)}>전체 재실행</button>
+          ) : (
+            <button className="v3-primary-button" type="button" onClick={() => onDownload(item)}>Final 다운로드</button>
+          )}
+        </>
+      }
+      sidebarExtra={
+        <div className="v3-step-tracker">
+          <div className="v3-label" style={{ padding: "0 10px 4px" }}>{isFailed ? "실패 목록에서 이동" : "완료 목록에서 이동"}</div>
+          {otherRuns.map((run) => (
+            <button key={run.taskId} type="button" className="v3-segment-nav-item" onClick={() => onSelectRun(run)}>
+              <div className="v3-segment-nav-head">
+                <span>#{run.taskId.slice(0, 8)}</span>
+                <span>{formatTimestamp(run.timestamp).split("\n")[0]}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      }
+      rightPanel={
+        <>
+          <div className="v3-panel-title">Run 정보</div>
+          <div className="v3-summary-card">
+            <div className="v3-summary-row"><span>Workflow</span><strong>{item.workflowName || item.workflow || item.workflowId || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Segments</span><strong>{item.segmentCount || item.segments?.length || 1}</strong></div>
+            <div className="v3-summary-row"><span>실행자</span><strong>{item.workerName || item.user?.name || "-"}</strong></div>
+            <div className="v3-summary-row"><span>Seed</span><strong>{item.generationSeed || item.seed || "-"}</strong></div>
+          </div>
+          {isFailed ? (
+            <div className="v3-summary-card">
+              <div className="v3-label">평가 &amp; 재사용 등록</div>
+              <p className="v3-muted-text">완료된 Run에서만 가능합니다. 이 작업은 결과물이 없어 평가 대상이 아닙니다.</p>
+            </div>
+          ) : null}
+          <div className="v3-inline-actions">
+            {canRework ? <button className="v3-secondary-button v3-flex-button" type="button" onClick={() => onRework(item)}>{isFailed ? "설정만 불러와 수정" : "이 설정으로 새 Run"}</button> : null}
+          </div>
+        </>
+      }
+    >
+      {isFailed ? (
+        <div className="v3-card v3-failure-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">오류</div>
+          </div>
+          <p className="v3-failure-message">이 작업은 COMPLETED에 도달하지 못했습니다. 결과물이 저장되지 않았고, 세그먼트 설정은 그대로 보존되어 있습니다. 부분 재실행은 지원하지 않으며, 재시도하려면 전체 세그먼트를 다시 제출해야 합니다.</p>
+        </div>
+      ) : (
+        <div className="v3-card v3-result-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">
+              <span>Final 병합본</span>
+              <span className="v3-status-badge is-ready">최종 출력</span>
+            </div>
+          </div>
+          {outputMediaUrl ? (
+            <video className="v3-result-video" src={outputMediaUrl} controls playsInline preload="metadata" />
+          ) : (
+            <p className="v3-muted-text" style={{ padding: 16 }}>생성된 MP4 파일이 없습니다.</p>
+          )}
+          <div className="v3-result-footer">
+            <span>File: {output?.fileName || item.outputFile || "-"}</span>
+            <button className="v3-primary-button" type="button" onClick={() => onDownload(item)}>Download MP4</button>
+          </div>
+        </div>
+      )}
+
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">Input Images</div>
+        </div>
+        <div className="v3-segment-output-grid" style={{ padding: "13px 16px" }}>
+          {inputImages.length ? inputImages.map((image) => (
+            <div className="v3-kf-thumb" key={`${image.index}-${image.assetId}`} style={{ width: "auto", height: 72 }}>
+              {image.assetId ? <ProtectedImage src={`/api/files/${image.assetId}`} alt={image.fileName || `Input ${image.index}`} /> : <span>KF {image.index}</span>}
+            </div>
+          )) : <p className="v3-muted-text">저장된 입력 이미지가 없습니다.</p>}
+        </div>
+      </div>
+
+      {!isFailed && canReview ? (
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <div className="v3-card-header-title">평가 &amp; 재사용 등록</div>
+            <span className="v3-card-header-meta">{promptReviewItems.length} segment(s)</span>
+          </div>
+          {promptReviewNotice ? <p className="v3-inline-notice" style={{ padding: "0 16px" }}>{promptReviewNotice}</p> : null}
+          {promptReviewLoading ? <p className="v3-muted-text" style={{ padding: 16 }}>불러오는 중입니다...</p> : null}
+          <div className="v3-review-grid">
+            {promptReviewItems.map((prompt) => (
+              <V3PromptReviewGroup
+                key={`${prompt.taskId}-${prompt.segmentIndex}`}
+                prompt={prompt}
+                loading={promptReviewLoading}
+                canReview={canReview}
+                canGiveFeedback={canGiveFeedback}
+                onSave={onSavePromptReview}
+                onSaveFeedback={onSavePromptFeedback}
+              />
+            ))}
+            {!promptReviewLoading && !promptReviewItems.length ? <p className="v3-muted-text" style={{ padding: 16 }}>저장된 작업 프롬프트가 없습니다.</p> : null}
+          </div>
+        </div>
+      ) : null}
+    </AppShell>
+  );
+}
+
+// 3f 전용 v3 평가 카드. 구버전 PromptReviewCard/PromptFeedbackCard와 저장 로직은
+// 동일(B-02: task_prompts ↔ prompt_feedback 역할 분리)하되 v3 토큰으로 다시 그렸다.
+function V3PromptReviewGroup({
+  prompt,
+  loading,
+  canReview,
+  canGiveFeedback,
+  onSave,
+  onSaveFeedback
+}: {
+  prompt: TaskPromptItem;
+  loading: boolean;
+  canReview: boolean;
+  canGiveFeedback: boolean;
+  onSave: (segmentIndex: number, payload: Record<string, unknown>) => void;
+  onSaveFeedback: (outputId: string, payload: { rating?: number; notes?: string }) => void;
+}) {
+  const [rating, setRating] = useState(String(prompt.qualityRating || ""));
+  const [reuseEligible, setReuseEligible] = useState(Boolean(prompt.reuseEligible));
+  const [flags, setFlags] = useState<TaskPromptReviewFlags>(prompt.reviewFlags || {});
+  const [comment, setComment] = useState(prompt.qualityComment || "");
+  const existingFeedback = prompt.promptFeedback || null;
+  const [feedbackRating, setFeedbackRating] = useState(String(existingFeedback?.rating || ""));
+  const [feedbackNotes, setFeedbackNotes] = useState(existingFeedback?.notes || "");
+
+  useEffect(() => {
+    setRating(String(prompt.qualityRating || ""));
+    setReuseEligible(Boolean(prompt.reuseEligible));
+    setFlags(prompt.reviewFlags || {});
+    setComment(prompt.qualityComment || "");
+    setFeedbackRating(String(existingFeedback?.rating || ""));
+    setFeedbackNotes(existingFeedback?.notes || "");
+  }, [prompt.id]);
+
+  const hasReuseReason = Object.values(flags).some(Boolean);
+  const saveDisabled = loading || !canReview || (reuseEligible && !hasReuseReason);
+
+  return (
+    <div className="v3-review-card">
+      <div className="v3-card-header">
+        <span className="v3-label">SEG {prompt.segmentIndex}</span>
+        <span className="v3-card-header-meta">{rating ? "reviewed" : "unreviewed"}</span>
+      </div>
+      <div className="v3-prompt-text-block">{prompt.positivePrompt || "-"}</div>
+      <div className="v3-rating-row">
+        {[1, 2, 3, 4, 5].map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={`v3-rating-pill ${String(value) === rating ? "is-selected" : ""}`}
+            onClick={() => setRating(String(value))}
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+      <div className="v3-term-chip-row">
+        {PROMPT_REVIEW_FLAGS.map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            className={`v3-term-chip ${flags[key] ? "is-selected" : ""}`}
+            onClick={() => setFlags((current) => ({ ...current, [key]: !current[key] }))}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <label className="v3-checklist-item is-done" style={{ cursor: "pointer" }}>
+        <input type="checkbox" checked={reuseEligible} onChange={(event) => setReuseEligible(event.target.checked)} style={{ marginRight: 4 }} />
+        재사용 가능 — Prompt Library에 등록
+      </label>
+      {reuseEligible && !hasReuseReason ? <p className="v3-inline-notice">재사용 가능으로 저장하려면 사유를 하나 이상 선택하세요.</p> : null}
+      <textarea className="v3-scene-textarea" rows={2} value={comment} onChange={(event) => setComment(event.target.value)} placeholder="품질 판단, 재사용 조건, 보완점" />
+      <button
+        className="v3-primary-button"
+        type="button"
+        disabled={saveDisabled}
+        onClick={() => onSave(prompt.segmentIndex, { qualityRating: rating, qualityComment: comment, reuseEligible, reviewFlags: flags })}
+      >
+        평가 저장 · 재사용 등록
+      </button>
+
+      {prompt.promptGenerationOutputId ? (
+        <div className="v3-feedback-block">
+          <div className="v3-label">프롬프트 생성 품질 · {prompt.modelName || "Qwen"}</div>
+          <div className="v3-rating-row">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={`v3-rating-pill ${String(value) === feedbackRating ? "is-selected" : ""}`}
+                disabled={!canGiveFeedback}
+                onClick={() => setFeedbackRating(String(value))}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+          <textarea className="v3-scene-textarea" rows={2} disabled={!canGiveFeedback} value={feedbackNotes} onChange={(event) => setFeedbackNotes(event.target.value)} placeholder="생성된 프롬프트 자체의 품질 메모" />
+          <button
+            className="v3-secondary-button"
+            type="button"
+            disabled={loading || !canGiveFeedback}
+            onClick={() => onSaveFeedback(prompt.promptGenerationOutputId as string, { rating: feedbackRating ? Number(feedbackRating) : undefined, notes: feedbackNotes.trim() || undefined })}
+          >
+            프롬프트 품질 평가 저장
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// E-03 · 4c "프롬프트 재사용" — design_handoff_dobedub_v3/3 Review.dc.html의
+// 세 번째 화면. 검색·목록·적용 로직은 기존 searchPromptReuse/applyReusablePrompt를
+// 그대로 재사용하고(`GET /api/prompts/reusable`), 화면만 새로 짰다.
+function Create4cScreen({
+  user,
+  health,
+  onGoTo,
+  keyword,
+  items,
+  loading,
+  notice,
+  workflowName,
+  onKeywordChange,
+  onSearch,
+  onApply
+}: {
+  user: User | null;
+  health: HealthResponse | null;
+  onGoTo: (route: StudioRoute) => void;
+  keyword: string;
+  items: TaskPromptItem[];
+  loading: boolean;
+  notice: string;
+  workflowName: string;
+  onKeywordChange: (value: string) => void;
+  onSearch: () => void;
+  onApply: (prompt: TaskPromptItem) => void;
+}) {
+  function reviewReasons(prompt: TaskPromptItem) {
+    const flags = prompt.reviewFlags || {};
+    return PROMPT_REVIEW_FLAGS.filter(([key]) => Boolean(flags[key])).map(([, label]) => label);
+  }
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem="promptLibrary"
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
+      headerEyebrow={`대상 워크플로 · ${workflowName || "-"}`}
+      headerTitle="프롬프트 재사용"
+      headerActions={
+        <>
+          <input
+            className="v3-search-input"
+            value={keyword}
+            onChange={(event) => onKeywordChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") onSearch();
+            }}
+            placeholder="프롬프트, 코멘트, 재사용 사유, task 검색"
+          />
+          <button className="v3-primary-button" type="button" disabled={loading} onClick={onSearch}>
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </>
+      }
+    >
+      {notice ? <p className="v3-inline-notice">{notice}</p> : null}
+      {!loading && !items.length ? <p className="v3-muted-text">재사용 가능으로 등록된 프롬프트가 없습니다. Task History의 Run 상세에서 평가·재사용 등록을 먼저 진행하세요.</p> : null}
+      <div className="v3-reuse-grid">
+        {items.map((prompt) => {
+          const reasons = reviewReasons(prompt);
+          return (
+            <div className="v3-card v3-reuse-card" key={prompt.id}>
+              <div className="v3-card-header">
+                <div className="v3-card-header-title">{prompt.workflowId} · Segment {prompt.segmentIndex}</div>
+                <span className="v3-status-badge is-ready">Rating {prompt.qualityRating || "-"}</span>
+              </div>
+              <div className="v3-reuse-body">
+                <div className="v3-prompt-text-block">{prompt.positivePrompt || "-"}</div>
+                <div className="v3-term-chip-row">
+                  {reasons.length ? reasons.map((reason) => <span key={reason} className="v3-term-chip is-selected">{reason}</span>) : <span className="v3-muted-text">사유 없음</span>}
+                </div>
+                <div className="v3-summary-row"><span>Task ID</span><strong>#{prompt.taskId.slice(0, 8)}</strong></div>
+                <div className="v3-summary-row"><span>Model</span><strong>{prompt.modelName || prompt.modelProfileId || "-"}</strong></div>
+                <button className="v3-primary-button" type="button" onClick={() => onApply(prompt)}>이 프롬프트 적용</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </AppShell>
   );
 }
@@ -2015,6 +2432,15 @@ function StudioShell({
     setPromptReuseOpen(true);
     setPromptReuseNotice("");
     await searchPromptReuse(promptReuseKeyword);
+  }
+
+  // E-03: 4c가 생긴 뒤로 새 화면(2b, 3a)에서는 모달(promptReuseOpen) 대신 전체
+  // 화면(review.reuse)으로 이동한다. 구버전 create.workspace 안의 "Prompt Reuse"
+  // 버튼은 아직 openPromptReuse()의 모달 방식을 그대로 쓴다(E-06에서 정리).
+  async function goToPromptReuseScreen() {
+    setPromptReuseNotice("");
+    await searchPromptReuse(promptReuseKeyword);
+    onNavigate("review.reuse");
   }
 
   async function searchPromptReuse(keyword = promptReuseKeyword) {
@@ -2529,6 +2955,13 @@ function StudioShell({
     }
   }, [historyModalOpen, historyTab, selectedHistoryTaskId]);
 
+  // E-03: 3f(Run 상세 · 완료)의 평가 패널은 세그먼트별 task_prompts를 보여준다.
+  useEffect(() => {
+    if (route === "review.runDetail" && selectedHistoryTaskId) {
+      void loadPromptReview(selectedHistoryTaskId);
+    }
+  }, [route, selectedHistoryTaskId]);
+
   useEffect(() => {
     return () => releaseKeyframePreviews(keyframes);
   }, []);
@@ -2930,6 +3363,7 @@ function StudioShell({
       <Create2aScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         workflows={workflows}
         selectedWorkflow={selectedWorkflow}
         workflowSelectionLocked={workflowSelectionLocked}
@@ -2951,6 +3385,7 @@ function StudioShell({
       <Create2bScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         workflowName={selected?.label || selected?.name || selectedWorkflow}
         segments={segments}
         selectedSegmentIndex={selectedSegmentIndex}
@@ -2979,13 +3414,14 @@ function StudioShell({
         onClearSelection={clearPromptBuilderSelection}
         onGenerate={() => void generatePromptDraft()}
         onApply={applyPromptSceneToSegment}
-        onOpenPromptReuse={() => void openPromptReuse()}
+        onOpenPromptReuse={() => void goToPromptReuseScreen()}
         onNext={() => onNavigate("create.segments")}
       />
     ) : route === "create.segments" ? (
       <Create2eScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         workflowName={selected?.label || selected?.name || selectedWorkflow}
         segments={segments}
         selectedSegmentIndex={selectedSegmentIndex}
@@ -3001,6 +3437,7 @@ function StudioShell({
       <Create2fScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         selected={selected || null}
         selectedWorkflow={selectedWorkflow}
         keyframes={keyframes}
@@ -3017,6 +3454,7 @@ function StudioShell({
       <Create2cScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         selected={selected || null}
         selectedWorkflow={selectedWorkflow}
         keyframes={keyframes}
@@ -3034,6 +3472,7 @@ function StudioShell({
       <Create2dScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         selected={selected || null}
         selectedWorkflow={selectedWorkflow}
         keyframes={keyframes}
@@ -3058,6 +3497,7 @@ function StudioShell({
       <Create3aScreen
         user={user}
         health={health}
+        onGoTo={onNavigate}
         history={history}
         page={historyPage}
         pageCount={historyPageCount}
@@ -3071,12 +3511,52 @@ function StudioShell({
         onPageSizeChange={changeHistoryPageSize}
         onDownload={(item) => openOutputAsset(item)}
         onRework={(item) => void applyHistoryRework(item)}
-        onOpenDetail={(item) => openLegacyHistoryDetail(item)}
+        onOpenDetail={(item) => {
+          setSelectedHistoryTaskId(item.taskId);
+          onNavigate("review.runDetail");
+        }}
         onRequestDelete={setDeleteTarget}
         onCancelDelete={() => setDeleteTarget(null)}
         onConfirmDelete={() => void deleteHistoryItem()}
         canRework={canUse(user, "jobs:run")}
         canDelete={canUse(user, "history:delete")}
+      />
+    ) : route === "review.runDetail" ? (
+      <Create3RunDetailScreen
+        user={user}
+        health={health}
+        onGoTo={onNavigate}
+        item={history.find((run) => run.taskId === selectedHistoryTaskId) || null}
+        history={history}
+        promptReviewItems={promptReviewItems}
+        promptReviewLoading={promptReviewLoading}
+        promptReviewNotice={promptReviewNotice}
+        onSelectRun={(run) => setSelectedHistoryTaskId(run.taskId)}
+        onSavePromptReview={(segmentIndex, payload) => void savePromptReview(segmentIndex, payload)}
+        onSavePromptFeedback={(outputId, payload) => void savePromptFeedback(outputId, payload)}
+        onDownload={(item) => openOutputAsset(item)}
+        onRework={(item) => void applyHistoryRework(item)}
+        onBackToList={() => onNavigate("review.history")}
+        canRework={canUse(user, "jobs:run")}
+        canReview={canUse(user, "prompts:review")}
+        canGiveFeedback={canUse(user, "prompts:review")}
+      />
+    ) : route === "review.reuse" ? (
+      <Create4cScreen
+        user={user}
+        health={health}
+        onGoTo={onNavigate}
+        keyword={promptReuseKeyword}
+        items={promptReuseItems}
+        loading={promptReuseLoading}
+        notice={promptReuseNotice}
+        workflowName={selected?.label || selected?.name || selectedWorkflow}
+        onKeywordChange={setPromptReuseKeyword}
+        onSearch={() => void searchPromptReuse()}
+        onApply={(prompt) => {
+          applyReusablePrompt(prompt);
+          onNavigate("create.prompt");
+        }}
       />
     ) : (
     <main className="studio-grid">
