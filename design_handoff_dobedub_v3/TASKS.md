@@ -122,7 +122,7 @@
 
 - [ ] `deleted_at` 컬럼 추가, 조회에서 제외하는 방식으로 전환
 - [ ] A-04와 함께 처리 (삭제 행위를 감사 로그에 기록)
-- [ ] 화면 문구는 그대로 — 사용자에게는 복구 불가로 안내
+- [x] 화면 문구는 그대로 — 사용자에게는 복구 불가로 안내 — *`Create3aScreen`의 삭제 확인 모달(`reviewScreens.tsx:222-225`)이 "되돌릴 수 없습니다" 경고 스트립을 이미 표시함. B-05(soft delete) 백엔드 착수 전이라 현재는 실제로도 하드 삭제라 문구와 동작이 일치 - B-05 구현 시에도 이 문구는 그대로 유지하면 됨.*
 
 ### B-06 · 카탈로그를 신형 계층으로 일원화 — P0 · **결정됨** — **완료** (1~3단계, 4단계 중 컬럼 정리까지)
 계층이 두 벌입니다.
@@ -161,8 +161,8 @@
 ### B-07 · SYSTEM 그룹 표기 — P2
 DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지시문은 `prompt_system_prompts`라는 별도 테이블입니다.
 
-- [ ] 설계의 3그룹(POSITIVE·NEGATIVE·SYSTEM)은 **화면 묶음일 뿐 DB 그룹이 아님**을 코드 주석과 문서에 명시
-- [ ] SYSTEM 탭은 카테고리 계층 없이 지시문 1건만 다룰 것
+- [ ] 설계의 3그룹(POSITIVE·NEGATIVE·SYSTEM)은 **화면 묶음일 뿐 DB 그룹이 아님**을 코드 주석과 문서에 명시 — *2026-08-10 점검: `screens/adminScreens.tsx`의 `Create7aScreen`(7a)이나 `screens/PromptCatalogAdminPanelV3.tsx`(4e/3d/4b) 어디에도 이 구분을 명시한 주석이 없음. 코드 주석 추가는 구현(코드 변경) 작업이라 이번 검토 범위 밖 - 미체크 유지, 사용자 확인 후 처리 권장.*
+- [x] SYSTEM 탭은 카테고리 계층 없이 지시문 1건만 다룰 것 — *`Create7aScreen`(`screens/adminScreens.tsx:43-99`) 확인 - 스코프/그룹/서브카테고리 트리 없이 `promptSystemPrompt` 레코드 1건(코드·모델·본문 텍스트)만 다루는 단일 textarea 편집기임을 재확인. `PromptCatalogAdminPanelV3`(4e/3d/4b, POSITIVE/NEGATIVE 트리)와 완전히 분리된 별도 컴포넌트.*
 
 ### B-08 · 시스템 지시문 버전 보관 — P2
 `prompt_system_prompts`는 `code` 단위로 1건만 저장하고 이전 버전을 남기지 않습니다. 되돌리기가 성립하지 않아 화면에서도 버튼을 비활성 처리했습니다.
@@ -181,13 +181,13 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] **C-03 `3a` 삭제** — `POST /api/history/{task_id}/delete` 존재. — *E-03(`9e6e7f8`)에서 `Create3aScreen`의 삭제 모달로 반영.*
 - [x] **C-04 `3f` `3c` Run 상세** — `GET /jobs/{id}/prompts`, `PATCH …/quality`, `PATCH …/review`, `review_status`·`review_flags_json` 컬럼 존재. — *E-03(금번 세션, 커밋 예정)에서 `Create3RunDetailScreen` 구현으로 반영.*
 - [x] **C-05 `4c` 재사용** — `GET /api/prompts/reusable` (keyword·workflowId·minRating·reviewedOnly·reuseEligible·limit) 존재. — *E-03(금번 세션, 커밋 예정)에서 `Create4cScreen` 구현으로 반영.*
-- [ ] **C-06 `7a` 시스템 프롬프트** — `GET/PUT /api/prompts/system-prompt` 존재.
-- [ ] **C-07 `7b` 기능 리소스 매핑** — `GET /api/admin/permissions`가 roles·permissions·resources를 함께 반환. 조회 전용 화면.
+- [x] **C-06 `7a` 시스템 프롬프트** — `GET/PUT /api/prompts/system-prompt` 존재. — *2026-08-10 점검: E-04에서 `Create7aScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
+- [x] **C-07 `7b` 기능 리소스 매핑** — `GET /api/admin/permissions`가 roles·permissions·resources를 함께 반환. 조회 전용 화면. — *2026-08-10 점검: E-04에서 `Create7bScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
 - [x] **C-08 `7c` 사용자 상세** — `PUT /admin/users/{id}`, `POST …/reset-password`, `POST …/deactivate`, `user_permissions` 테이블 존재. — *E-04(금번 세션)에서 `Create3eScreen`/`Create7cScreen` 구현으로 반영, `resetAdminUserPassword`/`deactivateAdminUser`를 처음으로 UI에 연결.*
-- [ ] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요.
+- [ ] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요. — *미착수(E-05 대상). 현재는 임시 `AccessDeniedModal`로 대체 중.*
 - [x] **C-10 `2e` 세그먼트 설정** — `GET /api/segment-defaults`, `/workflows/{id}/segment-defaults` 존재. — *E-02(`8ac0c7a`)에서 `Create2eScreen` 구현으로 반영.*
-- [ ] **C-11 `6c` `5b` 상태·Pod** — `/system/status`, `/runpod/connection`, `/admin/sandbox-pod` 존재.
-- [ ] **C-12 `6d` 메타데이터** — `/metadata/status`, `/models`, `/rebuild` 존재.
+- [x] **C-11 `6c` `5b` 상태·Pod** — `/system/status`, `/runpod/connection`, `/admin/sandbox-pod` 존재. — *2026-08-10 점검: E-04에서 `Create6cScreen`(6c)·`Create5bScreen`(5b) 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
+- [x] **C-12 `6d` 메타데이터** — `/metadata/status`, `/models`, `/rebuild` 존재. — *2026-08-10 점검: E-04에서 `Create6dScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
 
 ---
 
@@ -201,7 +201,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] 엔드포인트·테이블·서비스 코드를 **삭제하지 마십시오**
 - [x] 프론트에서 이 API를 호출하는 코드가 있으면 제거 (`client.ts` 포함) — *`client.ts`에 reports/configs 호출 코드 없음을 grep으로 확인(원래도 없었음).*
 - [x] 라우터 상단에 미연결 상태임을 주석으로 남길 것 — 예: `# UI 미연결 · 외부 연동 및 향후 화면용으로 유지 (2026-08 결정)`
-- [ ] 화면 `7b` 리소스 매핑에서는 API로만 표시하고 SCREEN 행을 만들지 않음 — *`7b` 화면 자체가 아직 미착수(C-07/E-04)라 확인 불가. 해당 화면 구현 시점에 재확인.*
+- [x] 화면 `7b` 리소스 매핑에서는 API로만 표시하고 SCREEN 행을 만들지 않음 — *E-04에서 `Create7bScreen` 구현 완료 후 재확인. `permission_service.py`의 `RESOURCE_CATALOG`에는 애초에 `"SCREEN"` 타입 자체가 존재하지 않고(`"MENU"`/`"ACTION"`/`"API"` 세 종류만 사용), reports/configs 엔드포인트도 카탈로그에 없어 `Create7bScreen`(`governance.resources`를 그대로 표로 그림)에는 구조적으로 SCREEN 행이 나타날 수 없다.*
 
 ### D-02 · 카탈로그 조회 엔드포인트 — **재점검 결과 조치 불필요**
 결정 당시 `GET /api/admin/prompt-catalog`가 중복 존재한다고 보았으나, **2026-08-10 재점검 결과 그 엔드포인트는 저장소에 없습니다.** `backend/app/api/v1/admin.py`에는 users·permissions·roles·workflows만 있습니다.
@@ -265,7 +265,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `3e` 사용자 목록, `7c` 사용자 상세 (C-08) — *`Create3eScreen`(목록)·`Create7cScreen`(상세/등록)으로 분리 구현, 4a/4d와 같은 이유로 상태(`adminUsers`/`selectedAdminUserId`/`adminUserForm` 등)를 `StudioShell`에 두었다. 구버전 `AdminConsoleModal` Users 탭의 폼 로직(`adminUserFormFrom`/`adminRoleOptions`/`adminRolePermissionCodes`/`adminPermissionOptions`/`adminPermissionLabel`)을 그대로 재사용했다. 두 가지를 새로 연결했다 - `client.ts`에 정의만 있고 어디서도 호출되지 않던 `resetAdminUserPassword`(전용 "비밀번호 재설정" 카드)와 `deactivateAdminUser`(전용 "사용자 비활성화" 버튼). 구버전은 비밀번호 변경을 일반 Save User payload에 얹어 보냈지만, 신규 화면은 기존 사용자의 비밀번호 변경을 전용 엔드포인트로만 받도록 분리했다(두 경로가 같은 값을 다르게 덮어쓰는 경합 방지) - 신규 사용자 생성 시 초기 비밀번호만 예외적으로 Save User와 함께 보낸다. 재활성화(INACTIVE→ACTIVE)는 전용 활성화 엔드포인트가 없어 기존처럼 State를 바꾸고 Save User로 처리한다.*
 - [x] `6c` 시스템 상태 (C-11) — *`Create6cScreen` 구현. `StatusModal`/`StatusCard`와 동일한 판정식(dry-run/ok 계산) 그대로 이관, 카드 7장 전부 실제 헬스체크 응답 필드. 구버전 `StatusModal` 오픈 로직(`statusModalOpen`)은 이제 항상 false로 죽은 코드(E-06 정리 대상).*
 - [x] `5b` Sandbox Pod (C-11) — *`Create5bScreen` 구현. 구버전 `AdminConsoleModal`의 Sandbox 탭은 users/roles/workflows 등 다른 탭 상태와 한 컴포넌트에 얽혀 있어 재사용이 불가능했다 — `sandboxPod`/`sandboxPodLoading`/`sandboxPodPendingAction` 상태와 `loadSandboxPod`/`controlSandboxPod` 로직만 화면 자체의 독립 상태로 옮겨왔다(계산식·API 호출은 그대로).*
-- [ ] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음 — *각 화면 이관 시점마다 확인, 아직 전 화면 완료 전이라 최종 확인은 E-04 종료 시.*
+- [x] `미구현` 배지 영역(감사 로그, 변경 이력, 접근 이력, Pod 제어 이력)은 A-04 전까지 임의 데이터로 채우지 않음 — *E-04 종료 시점 최종 확인(2026-08-10, `grep -n "미구현" screens/*.tsx components/*.tsx`). 배지로 표시된 것: `AppShell`의 "감사 로그"(adminAuditLog) 메뉴 항목, `PromptCatalogAdminPanelV3`의 "변경 이력 · 미구현"(4b). 배지 없이 화면 자체에서 통째로 뺀 것(코드 주석으로 사유 명시): 4a의 "백업 이력"(`adminScreens.tsx:942`), 7c의 "접근 이력", 5b의 "Pod 제어 이력" - 어디에도 임의/가짜 데이터로 채운 흔적 없음.*
 
 E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`adminMetadata`(6d) 두 항목을 추가했다 — design_handoff 원본은 이 둘을 6항목 Admin 사이드바가 아닌 별도 상단 nav로 그리지만, AppShell이 area를 `generate`/`admin` 두 가지만 지원하는 현재 구조에서는 관리 기능에 가까운 이 둘을 ADMIN 영역에 편입하는 편이 화면 골격 중복을 피할 수 있다고 판단했다. 화면 내용·API·권한은 design_handoff 그대로다.
 
@@ -278,7 +278,7 @@ E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`admin
 ### E-06 · 구버전 제거 — 각 흐름 이관 완료마다 즉시 — **구버전 삭제·파일 분리 완료**
 - [x] 대체된 구버전 컴포넌트·모달을 `main.tsx`에서 실제로 삭제(죽은 코드로 남기지 않음) — *`main.tsx` 9804줄 → 6814줄(파일 분리 전 기준, 약 2990줄 삭제). 제거한 것: `AdminConsoleModal`(+`AdminTab` 타입), `PromptCatalogAdminModal`/`PromptCatalogAdminContent`(구버전, `PromptCatalogAdminPanelV3`와는 별개), `StatusModal`/`StatusCard`, `MetadataModal`/`renderMetadataTab`/`ConfigRow`, `HistoryModal`/`HistoryDetail`/`PromptCell`, `PromptBuilderModal`/`SystemPromptEditor`/`SelectedKeywordBox`, `PromptReuseModal`, 구버전 `create.workspace` 폴백 JSX(`<main className="studio-grid">`), `SandboxPodConfirmModal`, 그리고 위 항목들이 사라지며 완전히 고아가 된 `PromptReviewPanel`/`PromptReviewCard`/`PromptFeedbackCard`/`AssetThumbs`/`PromptTextBox`/`PromptSceneStructurePreview`/`PromptTagRow`/`toPromptSceneStructure`/`PromptTermButton` 등. 각 항목은 삭제 전 실사용 호출부가 정말 없는지 grep으로 확인 후 제거했다(`goToPromptReuseScreen`/`searchPromptReuse`/`promptReuse*` 상태, `findPromptTermCategory`처럼 신규 화면과 공유하는 로직은 보존). `router.ts`도 함께 정리 - `admin.console`/`create.workspace` 라우트를 제거하고, 옛 북마크(`/studio/studio`, `/studio/admin`)는 각각 `create.load`/`admin.roles`로 보내도록 `LEGACY_LAST_SEGMENT_ROUTE`와 catch-all을 갱신. `TopBar`(로그아웃·ComfyUI/Qwen 상태 표시 등 `AppShell`에는 없는 전역 기능을 담당하므로 구버전이지만 살아있는 코드)는 삭제하지 않고 "Admin" 버튼 목적지만 `admin.roles`로 변경.*
 - [x] `main.tsx`가 계속 단일 거대 파일로 남지 않도록 신규 컴포넌트를 파일 단위로 분리 — *`main.tsx` 6814줄 → 260줄(App/TopBar/LoginView/entry만 유지). 분리한 파일: `StudioShell.tsx`(1919줄, 전역 상태+라우트 렌더 스위치), `screens/createScreens.tsx`(1239줄, 2a~2d), `screens/reviewScreens.tsx`(796줄, 3a/3f·3c/4c/5a), `screens/adminScreens.tsx`(1106줄, 7a/6c/6d/5b/3b/7b/3e/7c/4a/4d), `screens/PromptCatalogAdminPanelV3.tsx`(413줄), `components/Modals.tsx`(224줄, ConfirmDeleteModal/AccessDeniedModal/ManualModal), `components/ProtectedAssets.tsx`(55줄), `helpers/format.ts`·`helpers/prompts.ts`·`helpers/promptCatalog.ts`·`helpers/adminForms.ts`·`helpers/promptCatalogAdminForms.ts`·`helpers/workflow.ts`·`helpers/navigation.ts`(순수 헬퍼 함수), `auth-session.ts`(세션 스토리지 I/O, `auth.ts`와 분리 - `auth.ts`는 `AppShell.tsx`가 임포트하는 타입/권한 체크 전용으로 유지). `screens/*`는 `helpers/`·`components/`·`api/client.ts`·`router.ts`·`auth.ts`만 참조하고 `StudioShell.tsx`를 참조하지 않도록(역방향만 성립) 확인 완료 - 순환 참조 없음. `index.html`이 `/src/main.tsx`를 하드코딩하므로 진입점 파일명은 그대로 유지. `tsc -b`/`vite build` 클린, JS 번들 크기 536KB(분리 전과 거의 동일, 코드 이동만 있었고 추가/삭제 없음) 확인.*
-- [ ] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격 일관성 확인 — *미착수.*
+- [x] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격 일관성 확인 — *2026-08-10 코드 레벨 확인(시각적 스크린샷 대조는 아님, CHECKLIST.md "종료 전" 절 참조): `<AppShell` 사용처 22곳 전부 style override 없이 호출, `.v3-sidebar`/`.v3-header`는 `styles.css`에 단일 정의(`--v3-sidebar-width: 212px` 변수 하나로 통일)라 구조상 일관성이 보장됨.*
 
 ---
 

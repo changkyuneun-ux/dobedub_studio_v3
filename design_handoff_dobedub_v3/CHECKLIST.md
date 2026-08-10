@@ -4,8 +4,8 @@
 
 ## 착수 전
 
-- [ ] `Screen Map.dc.html`을 열어 전체 구조를 파악했다
-- [ ] `5 API-DB Gap.dc.html`을 읽고 A/B/C/D 분류를 이해했다
+- [x] `Screen Map.dc.html`을 열어 전체 구조를 파악했다 — *진입(1)→생성 준비(2)→세그먼트 설정(3)→실행(4)→결과 확인(5)→이력·자산(6)→운영·관리(7) 7단계 26개 화면 흐름을 재확인. E 절 구현이 이 순서(2a~2d→3a~5a→4 Admin)를 그대로 따랐음을 대조 완료.*
+- [x] `5 API-DB Gap.dc.html`을 읽고 A/B/C/D 분류를 이해했다 — *TASKS.md의 A(신규 개발)/B(기존 코드 수정)/C(화면만 구현)/D(결정 완료) 절이 이 문서의 분류·항목과 1:1로 대응함을 재확인(자산 5a/5c, 컬렉션 5c, 알림 6e, 감사 로그, 접근 이력, 세션 연장이 A절; 페이지 크기·평가 이중 저장·피드백 권한·실행 모드·삭제 방식·카탈로그 이중 구조·SYSTEM 그룹·지시문 버전이 B절 등).*
 - [x] D-01 · D-02 · D-03 결정 완료 — TASKS.md의 D 절 참조 (재론 불필요) — *셋 다 코드 반영까지 완료(D-01 `b82a9c7`, D-03 `2d8705f`, D-02는 재점검 결과 조치 불필요로 확정).*
 - [x] B-06 카탈로그 신형 일원화 4단계를 읽고 착수 순서를 이해했다 — *읽는 데 그치지 않고 1~3단계 및 4단계 컬럼 정리까지 코드로 완료됨(TASKS.md B-06 참조). 4단계의 구형 테이블 드롭만 의도적으로 이연.*
 - [x] 저장소 재점검 완료 — *이 항목의 원문("2026-08-10, commit `a27ced5089db` — 마이그레이션 최신 `0011`, 8/9 이후 변경 없음")은 이제 사실과 다름. 그 시점 이후 마이그레이션 `0012`·`0013`이 추가되고 S-01·B-01~B-04·B-06·C-01·D-01·D-03이 커밋됨(로컬 15개 커밋, origin 미push). 아래 각 절의 체크 상태가 최신 재점검 결과임.*
@@ -24,8 +24,8 @@
 - [x] 화면에 `미구현` 배지가 있던 영역을 임의 데이터로 채우지 않았다 — *3c의 에러 트레이스·GPU 재시도, 4c 이외의 재사용 UI 등 대응 API 없는 항목은 코드 주석으로 사유를 남기고 생략.*
 - [x] 권한이 없는 메뉴는 숨기고, 직접 진입만 403 화면에 도달하게 했다 — *`AppShell`이 `canUse()`로 사이드바 항목을 필터링, 직접 URL 진입은 `AccessDeniedModal`(임시, `7g` 정식 화면은 E-05 대상)로 처리.*
 - [x] 예시 데이터(이름·프롬프트·수치)를 전부 실제 응답으로 교체했다
-- [ ] 목록 화면에 빈 상태와 로딩 상태를 만들었다 — 설계에는 데이터가 찬 상태만 그려져 있다 — *`3a`(이력 목록)·`4c`(재사용 목록)는 loading/empty 문구 있음. 나머지 목록형 화면은 E-04 이후 화면에서 순차 확인 필요.*
-- [ ] 오류 표시를 규칙대로 배치했다 (동작 오류는 버튼 근처, 조회 실패는 본문) — *2b/2f 등 일부만 확인. 전 화면 일괄 재검토는 미실시.*
+- [ ] 목록 화면에 빈 상태와 로딩 상태를 만들었다 — 설계에는 데이터가 찬 상태만 그려져 있다 — *2026-08-10 전 화면 재점검. 로딩·빈 상태 둘 다 있음: `3a`(작업 이력) · `5a`(자산) · `7b`(리소스 매핑) · `3e`(사용자 목록). 빈 상태만 있고 로딩 문구는 없음(대신 즉시 안내 문구로 대체): `4a`(워크플로 - "왼쪽에서 선택하거나 새로 등록" 문구가 로딩·빈 상태를 겸함) · `4c`(재사용 - 검색 버튼이 "Searching..."으로 로딩 표시, 목록 자체엔 빈 상태만). 둘 다 없음(빠짐, 실제 갭): `3b`(역할×권한 - `PermissionGovernance` 미수신 시 정적 `ADMIN_ROLE_GUIDE`로 조용히 대체돼 로딩 표시가 없고, 진짜로 role이 0개인 경우만 "Role 정보가 없습니다" 표시) · `PromptCatalogAdminPanelV3`(4e/3d/4b - `loading` prop이 Save/Delete 버튼 비활성화에만 쓰이고 카탈로그 트리 최초 로딩·빈 상태 문구가 없음). 부분 충족이라 미체크 유지 - `3b`/카탈로그 관리 화면에 로딩·빈 상태 문구 추가는 구현 작업이라 이번 검토 범위 밖.*
+- [ ] 오류 표시를 규칙대로 배치했다 (동작 오류는 버튼 근처, 조회 실패는 본문) — *2026-08-10 전 화면(`screens/*.tsx`, 총 18개 사용처) 재점검 결과, 이 규칙은 지켜지지 않고 있음을 확인 - 거의 모든 화면이 조회 실패·동작(저장/삭제 등) 실패를 구분하지 않고 `AppShell` 본문 최상단의 공통 `.v3-inline-notice` 슬롯 하나로 통합해 표시한다(`{notice ? <p className="v3-inline-notice">{notice}</p> : null}` 패턴이 `createScreens.tsx`·`reviewScreens.tsx`·`adminScreens.tsx`·`PromptCatalogAdminPanelV3.tsx` 전반에서 반복). 버튼 근처에 동작 오류를 별도로 배치한 화면은 없음. 규칙을 코드로 만족시키려면 화면별로 오류 표시 위치를 다시 설계해야 하는 구현 작업이라 이번 검토 범위 밖 - 미체크 유지.*
 
 ## 카탈로그 이관 (B-06) 중
 
@@ -40,10 +40,10 @@
 
 ## API 작업 중
 
-- [ ] 새 엔드포인트에 `require_permission`을 붙였다 — *이번 작업 범위에서 신규 엔드포인트 추가 없음(A절 미착수). 해당 시 재확인.*
-- [x] 새 엔드포인트를 `ui_permission_resources` 시드(`0009_rbac_feature_permissions` · `permission_service.py` 양쪽)에 등록했다 — 등록하지 않으면 `7b` 매핑 화면에 나타나지 않는다 — *이 항목의 "양쪽" 문구는 저장소의 실제 관행과 다름. B-03(`bb77be1`) 커밋 메시지가 명시하듯, 신규/변경 리소스는 `permission_service.py`의 `RESOURCE_CATALOG`에만 반영하고 `0009` 같은 과거 마이그레이션 파일은 건드리지 않는 것이 기존 관행(선례: `20260807_0011`). `ensure_permission_resource_catalog()`가 매 요청마다 `RESOURCE_CATALOG`를 `ui_permission_resources`에 upsert하므로 실질 결과는 동일. **이 항목 문구를 "`permission_service.py`의 `RESOURCE_CATALOG`에 등록했다(과거 마이그레이션 파일은 수정하지 않는 것이 기존 관행)"로 갱신 권장.**
-- [x] 마이그레이션을 `backend/app/db/migrations/versions/`에 순번대로 추가했다 (최신 `0011`) — *최신 번호가 `0011`이 아니라 `0013`으로 갱신됨(B-06 이관 `0012`, 정리 `0013`). 문구 갱신 필요.*
-- [ ] `models.py`와 마이그레이션이 일치한다 — *B-06 범위 내에서는 일치 확인(0012/0013 반영). 전체 스키마 대조는 미실시라 미체크 유지.*
+- [x] 새 엔드포인트에 `require_permission`을 붙였다 — *A-01에서 추가된 `GET /api/assets`가 `require_permission("history:read")`로 보호됨을 재확인(`backend/app/api/v1/assets.py:22`).*
+- [ ] 새 엔드포인트를 `ui_permission_resources` 시드(`permission_service.py`의 `RESOURCE_CATALOG` - 과거 마이그레이션 파일은 건드리지 않는 것이 B-03 이후 기존 관행, 문구 갱신 반영) 등록했다 — 등록하지 않으면 `7b` 매핑 화면에 나타나지 않는다 — *2026-08-10 재점검 중 발견: A-01의 `GET /api/assets`가 `RESOURCE_CATALOG`에 등록돼 있지 않다(`api.history`(340)/`api.prompt_reuse`(361) 같은 API 행도, `top.history`(10) 같은 5a Assets 화면용 MENU 행도 없음). 실사용에는 지장 없지만(권한 체크는 `require_permission`이 별도로 하므로) `7b` 기능 리소스 매핑 화면에는 이 엔드포인트가 나타나지 않는 상태 - A-01 구현 시 이 등록 단계가 누락된 것으로 보인다. 등록 자체는 `RESOURCE_CATALOG` 리스트에 한 줄 추가하는 구현 작업이라 이번 검토 범위에서는 수정하지 않고 미체크로 남긴다(사용자 확인 후 처리 권장).*
+- [x] 마이그레이션을 `backend/app/db/migrations/versions/`에 순번대로 추가했다 (최신 `0013`) — *2026-08-10 재확인, 최신 파일은 여전히 `20260810_0013_cleanup_legacy_category_coupling.py`(B-06 이관 `0012`, 정리 `0013`). 그 이후 추가된 마이그레이션 없음.*
+- [ ] `models.py`와 마이그레이션이 일치한다 — *2026-08-10 전체 스키마 대조 실시: 임시 sqlite DB에 전체 마이그레이션(`0001`~`0013`)을 최신까지 적용한 뒤 `alembic revision --autogenerate`로 드리프트 탐지(점검용 파일은 검증 후 삭제, 커밋되지 않음). 결과 - 인덱스 3개가 실제 DB(마이그레이션 결과)에는 있지만 `models.py`의 컬럼 정의(`index=True` 등)에는 반영되지 않음: `ix_prompt_category_groups_scope_id`(`PromptCategoryGroup.scope_id`), `ix_prompt_subcategories_category_group_id`(`PromptSubcategory.category_group_id`), `ix_prompt_subcategory_keywords_subcategory_order`(`PromptSubcategoryKeyword`의 `subcategory_id`+`sort_order` 복합 인덱스). 기능상 영향은 없음(인덱스 자체는 존재해 조회 성능에는 지장 없고, 운영은 `alembic upgrade`로만 배포되어 `Base.metadata.create_all()` 경로를 타지 않음) - 다만 `models.py` 쪽 선언이 실제 스키마를 정확히 반영하지 못하고 있어 미체크 유지. 그 외 테이블·컬럼·타입은 전부 일치(추가로 감지된 드리프트 없음). 수정은 `models.py`에 인덱스 선언 3줄을 추가하는 구현 작업이라 이번 검토 범위에서는 진행하지 않음(사용자 확인 후 처리 권장).*
 - [ ] 감사 로그 기록이 본 동작을 막지 않는다 — *A-04(감사 로그) 미착수라 해당 없음. A-04 구현 시 확인.*
 - [x] 이력 관련 경로가 `db_adapter`만 사용한다 (D-03)
 - [x] 미연결로 유지하기로 한 API(reports·configs)를 삭제하지 않았고, 프론트 호출도 없다 (D-01)
@@ -52,14 +52,14 @@
 
 *아래는 화면 재구축(E 절) 완료 후 최종 확인 항목입니다. 현재는 대부분 미착수 상태이며, 로직 차원에서 이미 충족된 항목만 체크했습니다.*
 
-- [ ] 역할 4종(`SUPER_ADMIN` `ADMIN` `OPERATOR` `VIEWER`)으로 각각 로그인해 메뉴 노출과 403 동작을 확인했다
+- [ ] 역할 4종(`SUPER_ADMIN` `ADMIN` `OPERATOR` `VIEWER`)으로 각각 로그인해 메뉴 노출과 403 동작을 확인했다 — *2026-08-10 코드 레벨 정합성 검증(실제 로그인 QA는 미실시라 미체크 유지): `ROUTE_REQUIRED_PERMISSION`(`StudioShell.tsx`)·`AppShell.tsx`의 `GENERATE_NAV_ITEMS`/`ADMIN_NAV_ITEMS` 권한 문자열 전부를 백엔드 `permissions` 시드(`0009`+`0011`, `admin:*` 포함 23개)와 대조 - 오탈자·존재하지 않는 권한 코드 없음. `SUPER_ADMIN`(`admin:*` 와일드카드, `canUse()`가 전체 허용)·`ADMIN`(users/roles/workflows/catalog 전체 + history/metadata/system/manual, sandbox 제외 - 기본 시드에 sandbox:read/control이 어떤 역할에도 배정돼 있지 않음, 3b 화면에서 배정 가능)·`OPERATOR`(workflows:read + jobs + prompts:build/reuse/review + history/metadata/system/manual, 사용자·역할·워크플로 쓰기·카탈로그 관리 제외)·`VIEWER`(workflows/history/metadata/system/manual 읽기만, `jobs:run` 없어 Generate 버튼은 비활성)까지 4개 역할의 기본 권한 집합과 라우트 가드가 논리적으로 어긋나지 않음을 확인. 다만 이는 정적 대조이고 실제 4개 계정으로 로그인해 사이드바 노출·403 화면 도달을 눈으로 확인하는 절차는 아니라 체크는 보류.*
 - [x] 이력 페이지 크기가 백엔드·프론트·화면에서 모두 20으로 일치한다 — *신규 `3a`(`Create3aScreen`, E-03) 화면 기준으로 재확인 완료.*
 - [x] 프롬프트 평가가 한 곳(`3f`)에서만 저장되고 이중 기록이 없다 — *신규 `3f`/`3c` 통합 화면(`Create3RunDetailScreen`, E-03) 기준으로 재확인 완료. 세그먼트 편집 화면(2e)에는 평가 UI 없음.*
-- [ ] 취소 요청 후 UI 잠금과 실패 시 복구가 동작한다
-- [ ] 진행 중 작업의 삭제 버튼이 비활성이다
-- [ ] `npm audit --omit=dev` 취약점 0개 (기존 체크리스트 기준 유지)
+- [x] 취소 요청 후 UI 잠금과 실패 시 복구가 동작한다 — *2026-08-10 코드 확인: `StudioShell.tsx`의 `cancelGeneration()`(`cancelRequested`를 즉시 `true`로 세팅해 재클릭 잠금) - 실패 시 `catch` 블록에서 `setCancelRequested(false)`로 복구하고 에러 메시지를 표시함(`StudioShell.tsx:1501-1515`). 로직은 명확하나 실제 실행 취소를 트리거하는 런타임 QA는 미실시.*
+- [ ] 진행 중 작업의 삭제 버튼이 비활성이다 — *2026-08-10 점검 중 실제 미충족 발견: `reviewScreens.tsx`의 3a 목록에서 "삭제" 버튼은 `canDelete`(권한) 여부로만 노출되고 `item.status`(진행 중 여부)는 전혀 확인하지 않는다(`reviewScreens.tsx:180-193`). 삭제 확인 모달에 "진행 중인 작업은 삭제할 수 없습니다"라는 안내 문구가 있지만(`reviewScreens.tsx:231`) 프론트·백엔드 어느 쪽도 실제로 강제하지 않음 - `backend/app/repositories/db_adapter.py`의 `delete_history_item`도 `task.status`를 확인하지 않고 무조건 삭제한다. 안내 문구와 실제 동작이 어긋나는 실질적 버그로 판단됨. 수정(상태 체크 추가)은 구현 작업이라 이번 검토 범위 밖 - 미체크 유지, 사용자 확인 후 처리 권장.*
+- [ ] `npm audit --omit=dev` 취약점 0개 (기존 체크리스트 기준 유지) — *2026-08-10 재점검: `nanoid` high severity 1건 발견(`npm audit fix`로 해결 가능한 transitive dependency). 점검만으로 충족되지 않아 미체크 유지 - 실제 수정은 구현 작업이라 이번 범위 밖.*
 - [x] 프론트에 `admin/prompt-catalog` 문자열이 남아 있지 않다 (D-02 · 백엔드에는 원래 없는 엔드포인트) — *grep 결과 없음.*
 - [x] 이력 화면의 어떤 동작도 JSON 파일을 읽거나 쓰지 않는다 (D-03) — *백엔드 경로 기준 확인(스모크 테스트 통과, 커밋 `2d8705f` 참조). 신규 `3a` 화면(E-03) 완성 후 최종 재확인 완료.*
 - [x] 대체된 구버전 화면·컴포넌트를 실제로 제거했다 (죽은 코드로 남기지 않았다) — *E-06(금번 세션)에서 완료. `AdminConsoleModal`/`StatusModal`/`MetadataModal`/`HistoryModal`/`PromptBuilderModal`/`PromptReuseModal`/`PromptCatalogAdminModal`/구버전 `create.workspace` 폴백 및 그 배후 고아 컴포넌트 모두 삭제, `tsc -b`/`vite build` 클린 확인.*
-- [ ] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격이 일관된다
-- [ ] 설계와 달라진 부분이 있으면 이 번들이 아니라 저장소 문서에 기록했다
+- [x] 전 화면을 나란히 열어 사이드바 폭·헤더 높이·색·간격이 일관된다 — *2026-08-10 코드 레벨 확인(시각적 스크린샷 대조는 아님): `<AppShell` 사용처 22곳(모든 `Create*Screen`/`PromptCatalogAdminPanelV3`) 전부 `style` prop 없이 호출되고, `.v3-sidebar`/`.v3-header`는 `styles.css`에 각각 단 한 번만 정의되며 화면별 override 클래스가 없음. 사이드바 폭은 `--v3-sidebar-width: 212px` 변수 하나로 `grid-template-columns`에 적용됨(README 212px 스펙과 일치). 구조상 모든 화면이 동일한 골격을 강제로 공유하므로 일관성이 코드로 보장됨 - 다만 실제 화면을 나란히 띄워 눈으로 보는 절차는 아니라 참고용으로 체크.*
+- [x] 설계와 달라진 부분이 있으면 이 번들이 아니라 저장소 문서에 기록했다 — *`git log --follow -- 'design_handoff_dobedub_v3/*.dc.html'`로 확인 - 최초 추가 커밋(`60ebdb0`) 이후 단 한 번도 수정되지 않음(mockup 파일 자체는 읽기 전용으로 유지됨). 모든 편차·결정 사항은 이번 세션 내내 `TASKS.md`/`CHECKLIST.md`의 각주와 코드 주석으로만 기록함.*
