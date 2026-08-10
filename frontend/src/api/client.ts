@@ -290,7 +290,6 @@ export type PromptTerm = {
 
 export type PromptCategory = {
   id: number;
-  legacyCategoryId?: number;
   code: string;
   groupId?: number;
   groupCode?: string;
