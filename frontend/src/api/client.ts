@@ -324,7 +324,10 @@ export type PromptCategoryGroup = {
 
 export type PromptCatalogResponse = {
   groups?: PromptCategoryGroup[];
-  categories: PromptCategory[];
+  // B-06 3단계: 백엔드가 구형 "categories" 배열을 응답에서 완전히 제거했다("groups"가
+  // 유일한 canonical 응답). 이 필드는 더 이상 서버에서 내려오지 않으므로 optional로
+  // 남겨 하위 호환 코드가 있다면 방어적으로만 참조하게 한다.
+  categories?: PromptCategory[];
   rules?: Array<Record<string, unknown>>;
   templates?: Array<Record<string, unknown>>;
   relations?: Array<Record<string, unknown>>;

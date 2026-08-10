@@ -1821,21 +1821,21 @@ function allPromptCatalogTerms(categories: PromptCategory[]) {
 }
 
 function promptCatalogCategories(catalog: PromptCatalogResponse | null): PromptCategory[] {
+  // B-06 3단계: 백엔드가 구형 "categories" 배열을 완전히 제거했다("groups"가 유일한
+  // canonical 응답). 이제 신형 groups[].subcategories[]만 평탄화한다 - 구형 fallback은
+  // 더 이상 존재하지 않는다(항상 stale이었을 것이므로 제거가 맞다).
   const groups = catalog?.groups || [];
-  if (groups.length) {
-    return groups.flatMap((group) => (
-      group.subcategories || []
-    ).map((subcategory) => ({
-      ...subcategory,
-      groupId: group.id,
-      groupCode: group.code,
-      groupNameKo: group.nameKo,
-      groupNameEn: group.nameEn,
-      groupSortOrder: group.sortOrder,
-      scopeType: group.scopeCode || group.scopeType || subcategory.scopeType
-    })));
-  }
-  return catalog?.categories || [];
+  return groups.flatMap((group) => (
+    group.subcategories || []
+  ).map((subcategory) => ({
+    ...subcategory,
+    groupId: group.id,
+    groupCode: group.code,
+    groupNameKo: group.nameKo,
+    groupNameEn: group.nameEn,
+    groupSortOrder: group.sortOrder,
+    scopeType: group.scopeCode || group.scopeType || subcategory.scopeType
+  })));
 }
 
 function promptCatalogHasTerms(catalog: PromptCatalogResponse | null) {
@@ -1844,13 +1844,12 @@ function promptCatalogHasTerms(catalog: PromptCatalogResponse | null) {
 
 function selectedPromptKeywordsByScope(categories: PromptCategory[], selectedTermIds: number[]) {
   const selectedIds = new Set(selectedTermIds);
-  const categoryById = new Map(categories.map((category) => [category.id, category]));
   const selected = {
     positive: [] as PromptTerm[],
     negative: [] as PromptTerm[]
   };
   for (const category of categories) {
-    const scopeKey = promptCategoryScopeKey(category, categoryById);
+    const scopeKey = promptCategoryScopeKey(category);
     for (const keyword of category.terms || []) {
       if (!selectedIds.has(keyword.id)) {
         continue;
@@ -1862,7 +1861,6 @@ function selectedPromptKeywordsByScope(categories: PromptCategory[], selectedTer
 }
 
 function promptCatalogRenderScopes(categories: PromptCategory[], includeEmptyCategories = false): PromptCatalogRenderScope[] {
-  const categoryById = new Map(categories.map((category) => [category.id, category]));
   const scopes = new Map<"positive" | "negative", Map<string, PromptCategory[]>>();
 
   for (const category of categories) {
@@ -1872,7 +1870,7 @@ function promptCatalogRenderScopes(categories: PromptCategory[], includeEmptyCat
     if (!includeEmptyCategories && !(category.terms || []).length) {
       continue;
     }
-    const scopeKey = promptCategoryScopeKey(category, categoryById);
+    const scopeKey = promptCategoryScopeKey(category);
     const groupKey = promptCategoryGroupKey(category);
     const scopeGroups = scopes.get(scopeKey) || new Map<string, PromptCategory[]>();
     const groupCategories = scopeGroups.get(groupKey) || [];
@@ -1908,15 +1906,23 @@ function promptCatalogRenderScopes(categories: PromptCategory[], includeEmptyCat
   }).filter((scope) => scope.groups.length);
 }
 
-function promptCategoryScopeKey(category: PromptCategory, categoryById: Map<number, PromptCategory>): "positive" | "negative" {
-  const parent = category.parentCategoryId ? categoryById.get(category.parentCategoryId) : null;
-  const parentCode = parent?.code?.toUpperCase() || "";
-  const categoryCode = category.code.toUpperCase();
-  const groupCode = (category.groupCode || "").toLowerCase();
-  if (parentCode === "NEGATIVE_ROOT" || categoryCode.startsWith("NEGATIVE_") || groupCode.startsWith("negative")) {
+function promptCategoryScopeKey(category: PromptCategory): "positive" | "negative" {
+  // B-06 3단계(TASKS.md 2단계 항목): 프론트가 참조하던 groupCode 문자열 접두어 휴리스틱
+  // ("negative"로 시작하는지)을 백엔드가 내려주는 scopeCode(POSITIVE/NEGATIVE)로 대체한다.
+  // promptCatalogCategories()가 groups[].subcategories[]를 평탄화하며 이미
+  // category.scopeType에 그룹의 scopeCode를 채워 넣으므로(위 함수 참조) 여기서는 그 값만
+  // 읽으면 된다. 구형 catalog.categories 경로(parentCategoryId/ROOT 기반)는 더 이상
+  // 응답에 존재하지 않으므로 categoryById 기반 fallback도 함께 제거한다.
+  const scopeCode = String(category.scopeType || "").toUpperCase();
+  if (scopeCode === "NEGATIVE") {
     return "negative";
   }
-  return "positive";
+  if (scopeCode === "POSITIVE") {
+    return "positive";
+  }
+  // 방어적 fallback: scopeCode가 없는 예상 밖의 데이터에 한해서만 코드 접두어를 본다.
+  const categoryCode = category.code.toUpperCase();
+  return categoryCode.startsWith("NEGATIVE_") ? "negative" : "positive";
 }
 
 function promptCategoryGroupKey(category: PromptCategory) {
@@ -3335,7 +3341,9 @@ function PromptCatalogAdminContent({
     ...termForm,
     code: termCode,
     canonicalKey: termForm.canonicalKey || termCode,
-    categoryId: Number(termForm.categoryId || selectedCategory?.legacyCategoryId || selectedCategory?.id || 0),
+    // B-06 3단계: categoryId 페이로드 키는 이제 PromptSubcategory.id를 가리킨다
+    // (upsert_prompt_keyword 참조) - 더 이상 legacyCategoryId를 우선하지 않는다.
+    categoryId: Number(termForm.categoryId || selectedCategory?.id || 0),
     riskLevel: termForm.riskLevel || "NONE",
     sortOrder: termForm.sortOrder ? Number(termForm.sortOrder) : 100
   };
@@ -3529,14 +3537,14 @@ function PromptCatalogAdminContent({
                     </div>
                     <label>Description<textarea rows={2} value={String(categoryForm.description || "")} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} /></label>
                     <div className="modal-actions">
-                      <button className="primary-button" type="button" disabled={loading || !canSaveCategory} onClick={() => onSaveCategory(categoryPayload, selectedCategory?.legacyCategoryId || selectedCategory?.id)}>
+                      <button className="primary-button" type="button" disabled={loading || !canSaveCategory} onClick={() => onSaveCategory(categoryPayload, selectedCategory?.id)}>
                         Save Sub Category
                       </button>
                       {selectedCategory ? <button className="secondary-button" type="button" onClick={() => {
                         setSelectedTermId("new");
                         setActiveCatalogAdminLevel("keyword");
                       }}>New Key Word</button> : null}
-                      {selectedCategory ? <button className="secondary-button" type="button" disabled={loading} onClick={() => onDeactivateCategory(selectedCategory.legacyCategoryId || selectedCategory.id)}>Delete Sub Category</button> : null}
+                      {selectedCategory ? <button className="secondary-button" type="button" disabled={loading} onClick={() => onDeactivateCategory(selectedCategory.id)}>Delete Sub Category</button> : null}
                     </div>
                   </>
                 ) : null}
@@ -3659,7 +3667,9 @@ function promptTermCodeFromForm(form: Record<string, string>, term: PromptTerm |
 
 function termFormFrom(term: PromptTerm | null | undefined, category: PromptCategory | null): Record<string, string> {
   return {
-    categoryId: category?.legacyCategoryId || category?.id ? String(category.legacyCategoryId || category.id) : "",
+    // B-06 3단계: categoryId는 PromptSubcategory.id를 가리킨다 - legacyCategoryId는
+    // 더 이상 우선순위를 갖지 않는다.
+    categoryId: category?.id ? String(category.id) : "",
     code: term?.code || "",
     canonicalKey: term?.canonicalKey || "",
     labelKo: term?.labelKo || "",

@@ -18,7 +18,7 @@ from backend.app.services.prompt_builder_service import (
     scene_json_v1_schema,
     upsert_prompt_category_group,
     upsert_prompt_category,
-    upsert_prompt_term,
+    upsert_prompt_keyword,
 )
 from backend.app.services.prompt_system_prompt_service import get_prompt_system_prompt, save_prompt_system_prompt
 
@@ -149,7 +149,7 @@ def deactivate_category(category_id: int, _: CurrentUser = Depends(require_permi
 @router.post("/terms")
 def create_term(payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     try:
-        return upsert_prompt_term(db, payload)
+        return upsert_prompt_keyword(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
@@ -159,7 +159,7 @@ def create_term(payload: dict, _: CurrentUser = Depends(require_permission("prom
 @router.put("/terms/{term_id}")
 def update_term(term_id: int, payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     try:
-        return upsert_prompt_term(db, payload, term_id=term_id)
+        return upsert_prompt_keyword(db, payload, term_id=term_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:

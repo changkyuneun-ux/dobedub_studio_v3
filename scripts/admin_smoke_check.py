@@ -253,7 +253,10 @@ def main() -> None:
 
         catalog_response = client.get("/api/prompts/catalog", headers=admin_headers)
         assert catalog_response.status_code == 200, catalog_response.text
-        assert "categories" in catalog_response.json()
+        # B-06 3단계: 구형 "categories" 배열은 API 응답에서 제거되었다 - "groups"가
+        # 유일한 canonical 응답이다.
+        assert "groups" in catalog_response.json()
+        assert "categories" not in catalog_response.json()
         legacy_catalog_response = client.get("/api/admin/prompt-catalog", headers=admin_headers)
         assert legacy_catalog_response.status_code == 404, legacy_catalog_response.text
 

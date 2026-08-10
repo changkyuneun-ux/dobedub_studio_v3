@@ -39,6 +39,18 @@ PROMPT_TABLES = {
 }
 
 
+def all_subcategories(catalog: dict) -> list[dict]:
+    """B-06 3단계: 구형 catalog["categories"] 배열이 API 응답에서 완전히 제거되어,
+    이제 catalog["groups"][].subcategories[]를 평탄화해 동일한 역할(코드로 조회 가능한
+    카테고리 목록)로 사용한다. ROOT 카테고리(POSITIVE_ROOT/NEGATIVE_ROOT)는 신형
+    계층에 애초에 편입되지 않으므로 여기 포함되지 않는다."""
+    return [
+        subcategory
+        for group in catalog["groups"]
+        for subcategory in group["subcategories"]
+    ]
+
+
 def login_headers(client) -> dict[str, str]:
     response = client.post("/api/auth/login", json={"id": "dobedub", "password": "password"})
     assert response.status_code == 200, response.text
@@ -92,14 +104,13 @@ def main() -> None:
         work_style_group = next(group for group in positive_groups if group["code"] == "positive_work_style")
         genre_subcategory = next(subcategory for subcategory in work_style_group["subcategories"] if subcategory["code"] == "GENRE")
         assert genre_subcategory["terms"]
-        assert len(catalog["categories"]) >= 30
-        genre_category = next(category for category in catalog["categories"] if category["code"] == "GENRE")
-        action_category = next(category for category in catalog["categories"] if category["code"] == "CHARACTER_ACTION")
-        subject_category = next(category for category in catalog["categories"] if category["code"] == "SUBJECT_TYPE")
-        category_codes = {category["code"] for category in catalog["categories"]}
+        subcategories = all_subcategories(catalog)
+        assert len(subcategories) >= 28
+        genre_category = next(category for category in subcategories if category["code"] == "GENRE")
+        action_category = next(category for category in subcategories if category["code"] == "CHARACTER_ACTION")
+        subject_category = next(category for category in subcategories if category["code"] == "SUBJECT_TYPE")
+        category_codes = {category["code"] for category in subcategories}
         expected_extension_categories = {
-            "POSITIVE_ROOT",
-            "NEGATIVE_ROOT",
             "OBJECT_ACTION",
             "MOTION_SPEED",
             "MOTION_INTENSITY",
@@ -122,45 +133,55 @@ def main() -> None:
             "NEGATIVE_EXCLUSION",
         }
         assert expected_extension_categories.issubset(category_codes)
-        positive_root = next(category for category in catalog["categories"] if category["code"] == "POSITIVE_ROOT")
-        negative_root = next(category for category in catalog["categories"] if category["code"] == "NEGATIVE_ROOT")
-        assert genre_category["parentCategoryId"] == positive_root["id"]
-        assert next(category for category in catalog["categories"] if category["code"] == "NEGATIVE_TEXT")["parentCategoryId"] == negative_root["id"]
-        root_update_response = client.put(f"/api/prompts/categories/{positive_root['id']}", json={
-            **positive_root,
-            "nameKo": "수정 불가",
+        # B-06 3단계: ROOT 카테고리는 신형 계층에 편입되지 않는다(parentCategoryId 개념
+        # 자체가 사라짐). 기존의 "ROOT 항목을 직접 수정/비활성화 시도 → 400" 테스트 대신,
+        # upsert_prompt_category의 FIXED_PROMPT_ROOT_CODES 가드가 신형 계층에서도 ROOT
+        # 코드로 생성/수정하는 것을 막는지를 검증한다.
+        root_create_response = client.post("/api/prompts/categories", json={
+            "code": "POSITIVE_ROOT",
+            "groupId": work_style_group["id"],
+            "groupCode": work_style_group["code"],
+            "scopeType": "GLOBAL",
+            "selectionMode": "multi",
+            "required": False,
+            "nameKo": "루트 생성 시도",
+            "nameEn": "Root Create Attempt",
+            "sortOrder": 999,
         })
-        assert root_update_response.status_code == 400
-        root_deactivate_response = client.post(f"/api/prompts/categories/{negative_root['id']}/deactivate")
-        assert root_deactivate_response.status_code == 400
+        assert root_create_response.status_code == 400, root_create_response.text
+        root_rename_response = client.put(f"/api/prompts/categories/{genre_category['id']}", json={
+            **genre_category,
+            "code": "NEGATIVE_ROOT",
+        })
+        assert root_rename_response.status_code == 400, root_rename_response.text
         assert genre_category["selectionMode"] == "multi"
         assert action_category["selectionMode"] == "multi"
         assert subject_category["selectionMode"] == "single"
         assert subject_category["required"] is True
         assert genre_category["scopeType"] == "GLOBAL"
-        assert next(category for category in catalog["categories"] if category["code"] == "LENS_TYPE")["selectionMode"] == "single"
-        assert next(category for category in catalog["categories"] if category["code"] == "CLOTHING")["scopeType"] == "ENTITY"
-        assert next(category for category in catalog["categories"] if category["code"] == "NEGATIVE_TEXT")["scopeType"] == "OUTPUT"
+        assert next(category for category in subcategories if category["code"] == "LENS_TYPE")["selectionMode"] == "single"
+        assert next(category for category in subcategories if category["code"] == "CLOTHING")["scopeType"] == "ENTITY"
+        assert next(category for category in subcategories if category["code"] == "NEGATIVE_TEXT")["scopeType"] == "OUTPUT"
         assert any(
             term["code"] == "negative_identity_drift"
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
         )
         assert any(
             term["code"] == "negative_new_objects"
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
         )
         term_ids = [
             term["id"]
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
             if term["code"] in {"genre_cinematic", "subject_person", "action_gentle_walk", "negative_distortion"}
         ]
         assert len(term_ids) == 4
         subject_term_ids = [
             term["id"]
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
             if term["code"] in {"subject_person", "subject_product"}
         ]
@@ -206,20 +227,47 @@ def main() -> None:
         })
         assert admin_category_response.status_code == 200, admin_category_response.text
         admin_catalog = admin_category_response.json()
-        admin_category = next(category for category in admin_catalog["categories"] if category["code"] == "TEST_ADMIN_CATEGORY")
         admin_group_after_category = next(group for group in admin_catalog["groups"] if group["id"] == updated_group["id"])
-        assert any(subcategory["code"] == "TEST_ADMIN_CATEGORY" for subcategory in admin_group_after_category["subcategories"])
+        admin_category = next(subcategory for subcategory in admin_group_after_category["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
         assert admin_category["selectionMode"] == "multi"
+        # B-06 3단계: 새로 만든 서브카테고리는 구형 카테고리와 연결되어 있지 않다.
+        assert admin_category["legacyCategoryId"] is None
+
+        # discrepancy 재확인(의도된 동작으로 명시적 테스트): prompt_subcategory_keywords는
+        # 용어 콘텐츠 컬럼이 없고 prompt_terms.category_id는 NOT NULL FK이므로,
+        # legacy_category_id가 없는(이번 3단계에서 새로 만든) 서브카테고리 아래에는
+        # 신규 용어를 추가할 수 없다 - 명확한 400으로 실패해야 한다.
+        blocked_term_response = client.post("/api/prompts/terms", json={
+            "categoryId": admin_category["id"],
+            "code": "test_blocked_term",
+            "canonicalKey": "test.blocked.term",
+            "labelKo": "차단된 term",
+            "labelEn": "blocked term",
+            "promptText": "blocked prompt term",
+            "negativeText": "",
+            "riskLevel": "NONE",
+            "sortOrder": 10,
+        })
+        assert blocked_term_response.status_code == 400, blocked_term_response.text
+        assert "구형 카테고리와 연결되어 있지 않아" in blocked_term_response.text
+
         admin_category_update = client.put(f"/api/prompts/categories/{admin_category['id']}", json={
             **admin_category,
             "selectionMode": "single",
             "nameKo": "관리 테스트 수정",
         })
         assert admin_category_update.status_code == 200, admin_category_update.text
-        updated_category = next(category for category in admin_category_update.json()["categories"] if category["code"] == "TEST_ADMIN_CATEGORY")
+        admin_group_after_update = next(group for group in admin_category_update.json()["groups"] if group["id"] == updated_group["id"])
+        updated_category = next(subcategory for subcategory in admin_group_after_update["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
         assert updated_category["selectionMode"] == "single"
+
+        # 성공 경로: 이미 이관된(legacy_category_id가 있는) 기존 서브카테고리(GENRE) 아래
+        # 신규 용어 추가는 정상 동작해야 한다. prompt_terms에는 불가피하게 1행이 늘지만
+        # (discrepancy로 보고됨), 구형 조인 테이블 prompt_category_terms는 더 이상 늘지
+        # 않고 prompt_subcategory_keywords만 늘어난다 - 이는 아래 별도 검증 스크립트에서
+        # 직접 테이블 카운트로 확인한다.
         admin_term_response = client.post("/api/prompts/terms", json={
-            "categoryId": updated_category["id"],
+            "categoryId": genre_subcategory["id"],
             "code": "test_admin_term",
             "canonicalKey": "test.admin.term",
             "labelKo": "관리 term",
@@ -230,23 +278,21 @@ def main() -> None:
             "sortOrder": 10,
         })
         assert admin_term_response.status_code == 200, admin_term_response.text
-        term_category = next(category for category in admin_term_response.json()["categories"] if category["id"] == updated_category["id"])
-        admin_term = next(term for term in term_category["terms"] if term["code"] == "test_admin_term")
+        admin_group_after_term = next(group for group in admin_term_response.json()["groups"] if group["id"] == work_style_group["id"])
+        admin_subcategory_after_term = next(subcategory for subcategory in admin_group_after_term["subcategories"] if subcategory["code"] == "GENRE")
+        admin_term = next(term for term in admin_subcategory_after_term["terms"] if term["code"] == "test_admin_term")
         assert admin_term["promptText"] == "admin prompt term"
-        admin_group_after_term = next(group for group in admin_term_response.json()["groups"] if group["id"] == updated_group["id"])
-        admin_subcategory_after_term = next(subcategory for subcategory in admin_group_after_term["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
-        admin_group_term = next(term for term in admin_subcategory_after_term["terms"] if term["code"] == "test_admin_term")
-        assert admin_group_term["promptText"] == "admin prompt term"
+
         term_deactivate_response = client.post(f"/api/prompts/terms/{admin_term['id']}/deactivate")
         assert term_deactivate_response.status_code == 200, term_deactivate_response.text
-        term_deactivated_category = next(category for category in term_deactivate_response.json()["categories"] if category["id"] == updated_category["id"])
-        assert not any(term["code"] == "test_admin_term" for term in term_deactivated_category["terms"])
-        term_deactivated_group = next(group for group in term_deactivate_response.json()["groups"] if group["id"] == updated_group["id"])
-        term_deactivated_subcategory = next(subcategory for subcategory in term_deactivated_group["subcategories"] if subcategory["code"] == "TEST_ADMIN_CATEGORY")
+        term_deactivated_group = next(group for group in term_deactivate_response.json()["groups"] if group["id"] == work_style_group["id"])
+        term_deactivated_subcategory = next(subcategory for subcategory in term_deactivated_group["subcategories"] if subcategory["code"] == "GENRE")
         assert not any(term["code"] == "test_admin_term" for term in term_deactivated_subcategory["terms"])
+
         category_deactivate_response = client.post(f"/api/prompts/categories/{updated_category['id']}/deactivate")
         assert category_deactivate_response.status_code == 200, category_deactivate_response.text
-        assert not any(category["code"] == "TEST_ADMIN_CATEGORY" for category in category_deactivate_response.json()["categories"])
+        category_deactivated_group = next(group for group in category_deactivate_response.json()["groups"] if group["id"] == updated_group["id"])
+        assert not any(subcategory["code"] == "TEST_ADMIN_CATEGORY" for subcategory in category_deactivated_group["subcategories"])
         group_deactivate_response = client.post(f"/api/prompts/category-groups/{updated_group['id']}/deactivate")
         assert group_deactivate_response.status_code == 200, group_deactivate_response.text
         assert not any(group["code"] == "positive_admin_group" for group in group_deactivate_response.json()["groups"])
@@ -355,7 +401,7 @@ def main() -> None:
 
         extension_term_ids = [
             term["id"]
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
             if term["code"] in {
                 "subject_person",
@@ -400,7 +446,7 @@ def main() -> None:
 
         camera_term_ids = [
             term["id"]
-            for category in catalog["categories"]
+            for category in subcategories
             for term in category["terms"]
             if term["code"] in {"camera_static", "camera_slow_tracking", "subject_person"}
         ]
