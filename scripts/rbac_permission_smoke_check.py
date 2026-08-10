@@ -95,6 +95,42 @@ def main() -> None:
         assert client.get("/api/prompts/catalog", headers=operator_headers).status_code == 200
         assert client.put("/api/prompts/system-prompt", headers=operator_headers, json={"promptText": "blocked"}).status_code == 403
 
+        sandbox_super_create_response = client.post("/api/admin/users", headers=admin_headers, json={
+            "id": "sandbox-super",
+            "name": "Sandbox Super Admin",
+            "role": "SUPER_ADMIN",
+            "permissions": [],
+            "isActive": True,
+            "password": "sandbox-super-pass",
+        })
+        assert sandbox_super_create_response.status_code == 200, sandbox_super_create_response.text
+        sandbox_super_headers = login_headers(client, "sandbox-super", "sandbox-super-pass")
+        sandbox_super_session = client.get("/api/auth/session", headers=sandbox_super_headers)
+        assert sandbox_super_session.status_code == 200, sandbox_super_session.text
+        assert "admin:*" in sandbox_super_session.json()["user"]["effectivePermissionCodes"]
+        assert client.get("/api/admin/sandbox-pod", headers=sandbox_super_headers).status_code == 200
+
+        promoted_headers = login_headers(client, "operator", "operator-pass")
+        promoted_update_response = client.put("/api/admin/users/operator", headers=admin_headers, json={
+            "name": "Operator",
+            "role": "SUPER_ADMIN",
+            "permissions": [],
+            "isActive": True,
+        })
+        assert promoted_update_response.status_code == 200, promoted_update_response.text
+        promoted_session = client.get("/api/auth/session", headers=promoted_headers)
+        assert promoted_session.status_code == 200, promoted_session.text
+        assert promoted_session.json()["user"]["role"] == "SUPER_ADMIN"
+        assert "admin:*" in promoted_session.json()["user"]["effectivePermissionCodes"]
+        assert client.get("/api/admin/sandbox-pod", headers=promoted_headers).status_code == 200
+        restored_operator_response = client.put("/api/admin/users/operator", headers=admin_headers, json={
+            "name": "Operator",
+            "role": "OPERATOR",
+            "permissions": [],
+            "isActive": True,
+        })
+        assert restored_operator_response.status_code == 200, restored_operator_response.text
+
         role_update_response = client.put(
             "/api/admin/roles/OPERATOR/permissions",
             headers=admin_headers,

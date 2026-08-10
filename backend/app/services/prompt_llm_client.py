@@ -19,6 +19,10 @@ class PromptLLMResult:
     raw_response: dict
 
 
+class PromptLLMResponseError(RuntimeError):
+    """A completed LLM job did not contain a valid prompt JSON payload."""
+
+
 def prompt_llm_status(settings: Settings) -> dict:
     provider = (settings.prompt_llm_provider or "mock").strip().lower()
     api_key = _prompt_llm_api_key(settings)
@@ -66,12 +70,35 @@ def _runpod_vllm_generate(
 
     url = _runpod_runsync_url(settings)
     payload = {"input": _runpod_vllm_input(settings, scene=scene, constraints=constraints, language=language, system_prompt=system_prompt)}
-    response = _json_request(url, _auth_headers(_prompt_llm_api_key(settings)), payload, settings.prompt_llm_timeout)
-    status = str(response.get("status") or "").upper()
-    if status and status not in {"COMPLETED", "SUCCEEDED", "SUCCESS"}:
-        raise RuntimeError(f"RunPod vLLM prompt job did not complete: {status}")
-    output = response.get("output", response)
-    return _parse_prompt_llm_output(output, raw_response=response, scene=scene)
+    responses: list[dict] = []
+    parse_error: PromptLLMResponseError | None = None
+    for attempt in range(2):
+        response = _json_request(url, _auth_headers(_prompt_llm_api_key(settings)), payload, settings.prompt_llm_timeout)
+        responses.append(response)
+        status = str(response.get("status") or "").upper()
+        if status and status not in {"COMPLETED", "SUCCEEDED", "SUCCESS"}:
+            raise RuntimeError(f"RunPod vLLM prompt job did not complete: {status}")
+        try:
+            result = _parse_prompt_llm_output(response.get("output", response), raw_response=response, scene=scene)
+        except PromptLLMResponseError as exc:
+            parse_error = exc
+            continue
+        if attempt == 0:
+            return result
+        return PromptLLMResult(
+            positive_prompt=result.positive_prompt,
+            negative_prompt=result.negative_prompt,
+            warnings=[
+                *result.warnings,
+                {
+                    "code": "llm_response_retry_succeeded",
+                    "message": "The initial Prompt LLM response was not valid JSON, so the request was retried once successfully.",
+                    "severity": "warning",
+                },
+            ],
+            raw_response={"attempts": responses, "selectedAttempt": attempt + 1},
+        )
+    raise RuntimeError(f"Prompt LLM returned an invalid response after one retry: {parse_error}")
 
 
 def _openai_compatible_generate(
@@ -230,28 +257,15 @@ def _parse_prompt_llm_output(output: Any, *, raw_response: dict, scene: dict | N
     positive = _first_text(parsed, "positivePrompt", "positive_prompt", "positive")
     negative = _first_text(parsed, "negativePrompt", "negative_prompt", "negative")
     negative_key_present = any(key in parsed for key in ("negativePrompt", "negative_prompt", "negative"))
-    positive_missing = not positive
     positive_placeholder = _is_placeholder_positive_prompt(positive)
-    if positive_missing or positive_placeholder:
-        positive = _fallback_positive_prompt(content, scene=scene)
+    if not positive or positive_placeholder:
+        reason = "placeholder positivePrompt" if positive_placeholder else "missing positivePrompt"
+        raise PromptLLMResponseError(f"Prompt LLM response has {reason}; a valid JSON prompt payload is required.")
     positive = _normalize_positive_sentence(positive)
     if not negative and not negative_key_present:
-        negative = "distorted anatomy, identity drift, unstable motion, text, watermark"
+        negative = ""
     warnings = parsed.get("warnings") if isinstance(parsed.get("warnings"), list) else []
     warnings = _normalize_warnings(warnings)
-    if positive_missing or positive_placeholder:
-        warnings = [
-            *warnings,
-            {
-                "code": "llm_response_placeholder" if positive_placeholder else "llm_response_not_structured",
-                "message": (
-                    "Prompt LLM returned a schema placeholder; Scene JSON summary was used as the positive prompt fallback."
-                    if positive_placeholder
-                    else "Prompt LLM did not return positivePrompt JSON; Scene JSON summary was used as the positive prompt fallback."
-                ),
-                "severity": "warning",
-            },
-        ]
     return PromptLLMResult(
         positive_prompt=positive,
         negative_prompt=negative,
@@ -297,17 +311,20 @@ def _load_json_object(text: str) -> dict:
     except json.JSONDecodeError:
         candidates = _json_object_candidates(cleaned)
         if not candidates:
-            return {"positivePrompt": cleaned}
+            return {}
+        # The worker may echo input/example JSON before its final completion.
+        # The last complete, non-placeholder prompt object is authoritative.
         parsed = next(
             (
                 candidate
-                for candidate in candidates
+                for candidate in reversed(candidates)
                 if _first_text(candidate, "positivePrompt", "positive_prompt", "positive")
+                and not _is_placeholder_positive_prompt(_first_text(candidate, "positivePrompt", "positive_prompt", "positive"))
             ),
-            candidates[-1],
+            {},
         )
     if not isinstance(parsed, dict):
-        return {"positivePrompt": cleaned}
+        return {}
     return parsed
 
 

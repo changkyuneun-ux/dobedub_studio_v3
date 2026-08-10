@@ -251,9 +251,11 @@ def main() -> None:
         assert metadata_response.status_code == 200, metadata_response.text
         assert metadata_response.json()["workflowId"] == "registered-test.json"
 
-        catalog_response = client.get("/api/admin/prompt-catalog", headers=admin_headers)
+        catalog_response = client.get("/api/prompts/catalog", headers=admin_headers)
         assert catalog_response.status_code == 200, catalog_response.text
         assert "categories" in catalog_response.json()
+        legacy_catalog_response = client.get("/api/admin/prompt-catalog", headers=admin_headers)
+        assert legacy_catalog_response.status_code == 404, legacy_catalog_response.text
 
     print("OK admin smoke check passed")
 

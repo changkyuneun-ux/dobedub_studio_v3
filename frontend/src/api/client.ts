@@ -766,5 +766,6 @@ export const apiClient = {
     requestJson<AuthSession>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(payload)
-    })
+    }),
+  currentSession: () => requestJson<{ user: AdminUser }>("/api/auth/session")
 };

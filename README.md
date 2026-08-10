@@ -144,6 +144,8 @@ index.html
 - `GET /api/reports/{reportId}`
 - `GET /api/files/{assetId}`
 
+`GET /api/prompts/catalog`는 Prompt Builder와 Admin Prompt Catalog가 공통으로 사용하는 단일 카탈로그 조회 API입니다.
+
 ## 환경변수
 
 로컬 서버는 앱 폴더의 `.env` 파일을 자동으로 읽습니다. 먼저 샘플을 복사한 뒤 실제 값을 입력합니다.

@@ -17,9 +17,6 @@ from backend.app.services.admin_service import (
     upsert_admin_user,
 )
 from backend.app.services.permission_service import update_role_permission_codes
-from backend.app.services.prompt_builder_service import prompt_catalog
-
-
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
@@ -119,11 +116,3 @@ def deactivate_workflow(workflow_id: str, _: CurrentUser = Depends(require_permi
         return set_admin_workflow_active(workflow_id, False)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-
-@router.get("/prompt-catalog")
-def admin_prompt_catalog(_: CurrentUser = Depends(require_permission("prompt-catalog:read")), db: Session = Depends(get_db)):
-    try:
-        return prompt_catalog(db)
-    except SQLAlchemyError as exc:
-        raise HTTPException(status_code=500, detail=f"Prompt catalog failed: {exc}") from exc

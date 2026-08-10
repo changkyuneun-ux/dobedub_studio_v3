@@ -493,6 +493,30 @@ def main() -> None:
         runpod_request_body = json.loads(runpod_request.data.decode("utf-8"))
         assert "CUSTOM QWEN SYSTEM PROMPT" in json.dumps(runpod_request_body, ensure_ascii=False)
 
+        class FakeEchoedRunpodResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self):
+                return b'{"status":"COMPLETED","output":[{"choices":[{"tokens":["Echo example: {\\"positivePrompt\\":\\"example prompt\\",\\"negativePrompt\\":\\"\\",\\"warnings\\":[]}\\nFinal: {\\"positivePrompt\\":\\"actual final prompt\\",\\"negativePrompt\\":\\"\\",\\"warnings\\":[]}"]}]}]}'
+
+        os.environ["PROMPT_LLM_PROVIDER"] = "runpod_vllm"
+        with patch("backend.app.services.prompt_llm_client.urllib.request.urlopen", return_value=FakeEchoedRunpodResponse()):
+            echoed_generate_response = client.post("/api/prompts/generate", json={
+                "workflowId": "1-images.json",
+                "segmentIndex": 1,
+                "language": "ko",
+                "termIds": term_ids,
+                "scene": scene["scene"],
+                "constraints": scene["constraints"],
+            })
+        os.environ["PROMPT_LLM_PROVIDER"] = "mock"
+        assert echoed_generate_response.status_code == 200, echoed_generate_response.text
+        assert echoed_generate_response.json()["positivePrompt"] == "actual final prompt."
+
         class FakePlaceholderRunpodResponse:
             def __enter__(self):
                 return self
@@ -514,11 +538,8 @@ def main() -> None:
                 "constraints": scene["constraints"],
             })
         os.environ["PROMPT_LLM_PROVIDER"] = "mock"
-        assert placeholder_generate_response.status_code == 200, placeholder_generate_response.text
-        placeholder_generated = placeholder_generate_response.json()
-        assert placeholder_generated["positivePrompt"] != "string."
-        assert "person" in placeholder_generated["positivePrompt"].lower()
-        assert any(warning["code"] == "llm_response_placeholder" for warning in placeholder_generated["warnings"])
+        assert placeholder_generate_response.status_code == 502, placeholder_generate_response.text
+        assert "invalid response after one retry" in placeholder_generate_response.text
 
         invalid_generate_response = client.post("/api/prompts/generate", json={
             "workflowId": "1-images.json",

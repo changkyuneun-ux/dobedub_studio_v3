@@ -229,6 +229,44 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    let active = true;
+    async function refreshSessionPermissions() {
+      try {
+        const response = await apiClient.currentSession();
+        if (!active || !response.user) {
+          return;
+        }
+        const raw = sessionStorage.getItem(SESSION_USER_STORAGE_KEY);
+        const currentSession = raw ? JSON.parse(raw) as AuthSession : null;
+        if (!currentSession?.accessToken) {
+          return;
+        }
+        const nextSession = { ...currentSession, user: response.user };
+        sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(nextSession));
+        setUser(response.user);
+      } catch {
+        // A temporary refresh failure must not discard an otherwise valid session.
+      }
+    }
+    function refreshOnVisible() {
+      if (document.visibilityState === "visible") {
+        void refreshSessionPermissions();
+      }
+    }
+    void refreshSessionPermissions();
+    window.addEventListener("focus", refreshSessionPermissions);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refreshSessionPermissions);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
+  }, [user?.id]);
+
   function handleLogin(nextSession: AuthSession) {
     clearLoginSession();
     sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(nextSession));
