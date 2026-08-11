@@ -169,6 +169,15 @@ export function PromptCatalogAdminPanelV3({
       sidebarExtra={
         <div className="v3-step-tracker">
           <div className="v3-label" style={{ padding: "0 10px 4px" }}>CATALOG TREE · {groups.length}</div>
+          {loading && !catalog ? (
+            <p className="v3-muted-text" style={{ padding: "4px 10px" }}>카탈로그를 불러오는 중입니다.</p>
+          ) : !scopes.length ? (
+            <p className="v3-muted-text" style={{ padding: "4px 10px" }}>
+              {focus === "negativeDefaults"
+                ? "NEGATIVE 카탈로그가 없습니다."
+                : "카탈로그가 비어 있습니다. 오른쪽 패널에서 새 카테고리를 추가하세요."}
+            </p>
+          ) : null}
           {scopes.map((scope) => {
             const scopeKey = promptAdminScopeAccordionKey(scope.key);
             const scopeExpanded = expandedAdminTreeKeys.has(scopeKey);

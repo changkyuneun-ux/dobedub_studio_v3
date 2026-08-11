@@ -643,7 +643,9 @@ export function Create3bScreen({ user, onGoTo }: { user: User; onGoTo: (route: S
       }
     >
       {notice ? <p className="v3-inline-notice">{notice}</p> : null}
-      {selectedRole ? (
+      {loading && !governance ? (
+        <p className="v3-muted-text">역할·권한 정보를 불러오는 중입니다.</p>
+      ) : selectedRole ? (
         <>
           <div className="v3-card">
             <div className="v3-card-header">
@@ -677,7 +679,7 @@ export function Create3bScreen({ user, onGoTo }: { user: User; onGoTo: (route: S
             </div>
           </div>
         </>
-      ) : <p className="v3-muted-text">Role 정보가 없습니다.</p>}
+      ) : <p className="v3-muted-text">등록된 Role이 없습니다. 권한 정보를 불러오지 못했다면 상단 새로고침 후 다시 시도하세요.</p>}
       <AuditLogTable targetType="role" pageSize={5} title="변경 기록" />
     </AppShell>
   );
