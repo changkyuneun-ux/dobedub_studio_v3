@@ -14,8 +14,10 @@ FROM python:3.12-slim
 ENV HOST=0.0.0.0 \
     PORT=7860 \
     PYTHONUNBUFFERED=1 \
-    WORKFLOWS_DIR=/app/workflows \
+    WORKFLOW_SEED_DIR=/app/workflows \
+    WORKFLOWS_DIR=/app/data/workflows \
     STUDIO_DATA_DIR=/app/data \
+    METADATA_DIR=/app/data/metadata \
     OUTPUTS_DIR=/app/data/outputs
 
 WORKDIR /app
@@ -26,7 +28,7 @@ COPY --from=frontend-build /frontend/dist /app/frontend/dist
 
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
-RUN mkdir -p /app/data/uploads /app/data/outputs /app/data/reports
+RUN mkdir -p /app/data/uploads /app/data/outputs /app/data/reports /app/data/workflows /app/data/metadata
 
 EXPOSE 7860
 

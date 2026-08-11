@@ -13,6 +13,7 @@ class Settings:
     app_name: str = "DOBEDUB STUDIO API"
     api_prefix: str = "/api/v1"
     project_root: Path = PROJECT_ROOT
+    workflow_seed_dir: Path = PROJECT_ROOT / "workflows"
     workflows_dir: Path = PROJECT_ROOT / "workflows"
     data_dir: Path = PROJECT_ROOT / "data"
     metadata_dir: Path = PROJECT_ROOT / "metadata"
@@ -83,6 +84,7 @@ def get_settings() -> Settings:
     except ValueError:
         auth_token_ttl_minutes = 480
     return Settings(
+        workflow_seed_dir=Path(os.environ.get("WORKFLOW_SEED_DIR", PROJECT_ROOT / "workflows")),
         workflows_dir=Path(os.environ.get("WORKFLOWS_DIR", PROJECT_ROOT / "workflows")),
         data_dir=Path(os.environ.get("STUDIO_DATA_DIR", PROJECT_ROOT / "data")),
         metadata_dir=Path(os.environ.get("METADATA_DIR", PROJECT_ROOT / "metadata")),

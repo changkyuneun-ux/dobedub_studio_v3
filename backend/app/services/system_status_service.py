@@ -10,6 +10,7 @@ from backend.app.services.prompt_llm_client import prompt_llm_status
 from backend.app.services.runpod_client import mask_secret, runpod_is_configured
 from backend.app.services.segment_defaults_loader import load_segment_defaults
 from backend.app.services.workflow_parser import workflow_files
+from backend.app.services.workflow_storage_service import workflow_store_status
 
 
 def directory_status(path: Path) -> dict:
@@ -84,6 +85,7 @@ def system_status() -> dict:
         },
         "promptLlm": prompt_llm_status(settings),
         "workflows": workflows,
+        "workflowStore": workflow_store_status(settings.workflow_seed_dir, settings.workflows_dir, settings.data_dir),
         "segmentDefaults": segment_defaults,
         "metadata": {
             "dir": metadata.get("metadataDir", str(settings.metadata_dir)),

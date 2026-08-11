@@ -29,9 +29,12 @@ HISTORY_TERMINAL_STATUSES = {"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}
 
 
 def ensure_storage_dirs() -> None:
+    settings = get_settings()
     paths = data_paths()
     for key in ("uploads", "outputs", "reports"):
         paths[key].mkdir(parents=True, exist_ok=True)
+    settings.workflows_dir.mkdir(parents=True, exist_ok=True)
+    settings.metadata_dir.mkdir(parents=True, exist_ok=True)
 
 
 def load_history() -> list[dict]:
