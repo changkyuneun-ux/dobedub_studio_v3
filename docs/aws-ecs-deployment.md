@@ -1,6 +1,6 @@
 # AWS ECS 배포 가이드
 
-이 문서는 현재 운영 중인 `DOBEDUB STUDIO` ECS 서비스를 안전하게 갱신하기 위한 기준입니다. 상세 실행 순서는 [ECS 운영 배포 체크리스트](./ecs-production-deployment-checklist.md)를 사용합니다.
+이 문서는 현재 운영 중인 `DOBEDUB STUDIO` ECS 서비스를 안전하게 갱신하기 위한 구성 기준입니다. 실제 명령, 조건부 migration, ECS Express Canary 모니터링 및 롤백 절차는 [ECS Express 배포 Runbook](./ecs-express-deployment-runbook.md)을 우선 사용합니다. 작업 전 확인 항목은 [ECS 운영 배포 체크리스트](./ecs-production-deployment-checklist.md)를 사용합니다.
 
 ## 전제
 

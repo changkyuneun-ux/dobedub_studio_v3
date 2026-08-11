@@ -25,6 +25,7 @@
 | 2026-08-07 | Sandbox Pod ID/이름을 고정 설정 | Network Volume ID와 Template ID로 현재 Pod ID와 HTTP URL을 매 요청마다 재해결 | RunPod migration 대응 |
 | 2026-08-07 | Sandbox Pod의 여러 HTTP 포트와 단순 RUNNING 상태만 표시 | ComfyUI `8188` 단일 서비스 주소와 `INITIALIZING`/`READY` 준비 상태 표시, 중지 후에는 Template·Network Volume 기반 새 Pod 배포 | Sandbox 운영 화면 현행화 |
 | 2026-08-07 | 창 높이가 낮을 때 Sandbox Pod 상세 표의 하단 행이 접힘 | 반응형 2열 상세 행과 내부 스크롤로 변경하여 Pod 상태, 서비스 상태, 시작/변경 시각을 유지 | Admin Console 화면 안정화 |
+| 2026-08-10 | workflow별 Wan video 해상도와 영상 길이를 기본값으로만 사용 | Width/Height와 Video Length를 workflow 노드별로 설정하고 실제 RunPod payload에 반영 | duration/FPS 연결 workflow는 내부 length 연결 유지 |
 
 ## 목차
 
@@ -374,7 +375,8 @@ System Prompt는 Qwen이 WAN I2V용 Positive/Negative Prompt를 어떤 규칙으
 | Sampling Steps | 샘플링 반복 횟수. 높을수록 디테일은 늘 수 있으나 생성 시간이 증가 |
 | CFG Scale | 프롬프트 반영 강도. 과도하면 왜곡이나 경직된 움직임 발생 가능 |
 | Motion Shift | 움직임 변화량. workflow 내 연결된 sampling 노드에 반영 |
-| Frames 또는 Duration | 생성 길이 결정. workflow 구조에 따라 frames 또는 seconds 기준 |
+| Width / Height | WanImageToVideo 또는 WanFirstLastFrameToVideo 노드의 생성 해상도. 16의 배수만 입력 가능하며 workflow별 기본값을 사용 |
+| Video Length (Frames) 또는 Video Length (Seconds) | 생성 길이 결정. workflow 구조에 따라 video 노드의 `length` 또는 연결된 duration/FPS 계산 노드에 전달 |
 | FPS | 초당 프레임 수 |
 | Final Bit Depth | 최종 CreateVideo 출력 bit depth |
 | Final Format | SaveVideo format. 예: auto, mp4 |
@@ -382,6 +384,8 @@ System Prompt는 Qwen이 WAN I2V용 Positive/Negative Prompt를 어떤 규칙으
 | Applied Seed | 생성 직전에 서버가 자동 생성하여 실제 활성 KSampler에 적용한 값. 결과 확인용으로만 표시 |
 
 `세그먼트 설정 초기화` 버튼을 누르면 현재 workflow/subgraph의 기본값으로 되돌립니다.
+
+해상도와 영상 길이는 현재 선택한 workflow의 실제 노드 구조에 맞춰 전달됩니다. `Width`와 `Height`는 해당 Wan video 노드에 직접 적용됩니다. 길이가 duration/FPS 수식으로 연결된 workflow는 그 연결을 유지한 채 duration 또는 FPS 원본 값만 변경하므로, 고정된 `length` 값으로 바뀌지 않습니다. VAE Loader는 영상 latent를 처리하지만 영상 길이를 직접 결정하는 항목은 아닙니다.
 
 Seed는 Wan Node Config에서 직접 입력하거나 변경하지 않습니다. `GENERATE VIDEO`를 누를 때마다 서버가 새 값을 자동 생성하고, 실제 새 노이즈를 만드는 KSampler에만 적용합니다. `add_noise=disable`인 보조 KSampler는 변경하지 않습니다. 이 값은 샘플링 횟수나 영상 길이를 바꾸지 않으며, 생성 결과를 확인하기 위한 식별값입니다. 재작업을 실행해도 새 Seed가 자동 생성됩니다.
 

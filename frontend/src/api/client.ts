@@ -192,6 +192,7 @@ export type ConfigControl = {
   type: "int" | "float" | "string" | "text" | string;
   min?: number | null;
   max?: number | null;
+  step?: number | null;
   default?: string | number | null;
   randomizable?: boolean;
   options?: string[];

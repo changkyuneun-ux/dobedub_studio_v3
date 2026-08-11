@@ -7,6 +7,8 @@ from pathlib import Path
 VIDEO_NODE_TYPES = {"WanFirstLastFrameToVideo", "WanImageToVideo"}
 
 PARAM_UI_KEYS = {
+    "width": "width",
+    "height": "height",
     "fps": "fps",
     "output_fps": "outputFps",
     "frames": "frames",
@@ -20,10 +22,12 @@ PARAM_UI_KEYS = {
 }
 
 PARAM_LABELS = {
+    "width": "Width",
+    "height": "Height",
     "fps": "FPS",
     "output_fps": "Final Output FPS",
-    "frames": "Frames",
-    "duration_seconds": "Duration",
+    "frames": "Video Length (Frames)",
+    "duration_seconds": "Video Length (Seconds)",
     "steps": "Sampling Steps",
     "cfg_scale": "CFG Scale",
     "motion_shift": "Motion Shift",
@@ -33,6 +37,8 @@ PARAM_LABELS = {
 }
 
 PARAM_DESCRIPTIONS = {
+    "width": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+    "height": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
     "fps": "초당 프레임 수입니다. 높을수록 재생은 부드럽지만 출력 프레임/처리량이 증가합니다.",
     "output_fps": "최종 출력 비디오의 초당 프레임 수입니다. 세그먼트 생성 FPS와 별도로 최종 결합 영상 저장에 적용됩니다.",
     "frames": "생성할 총 프레임 수입니다. 길이와 움직임 범위를 직접 결정합니다.",
@@ -374,6 +380,21 @@ def segment_param_spec(workflow: dict, video_node_id: str | None, *, include_fin
         params["motion_shift"] = spec
 
     video_inputs = workflow.get(video_node_id or "", {}).get("inputs") or {}
+    for dimension in ("width", "height"):
+        dimension_value = video_inputs.get(dimension)
+        if dimension in video_inputs and not isinstance(dimension_value, list):
+            spec = param_spec(
+                [{"node": video_node_id, "field": dimension}],
+                "int",
+                dimension_value,
+                min=256,
+                max=1280,
+                step=16,
+                description=PARAM_DESCRIPTIONS[dimension],
+            )
+            if spec:
+                params[dimension] = spec
+
     length_value = video_inputs.get("length")
     length_link = linked_node_id(length_value)
     duration_target = title_value_target(workflow, node_ids, "duration", expected_classes={"PrimitiveInt", "PrimitiveFloat"})
@@ -386,7 +407,8 @@ def segment_param_spec(workflow: dict, video_node_id: str | None, *, include_fin
         if spec:
             params["frames"] = spec
     elif "length" in video_inputs and not isinstance(length_value, list):
-        spec = param_spec([{"node": video_node_id, "field": "length"}], "int", length_value, min=15, max=121)
+        max_frames = max(241, int(length_value or 0))
+        spec = param_spec([{"node": video_node_id, "field": "length"}], "int", length_value, min=15, max=max_frames)
         if spec:
             params["frames"] = spec
 
@@ -499,6 +521,7 @@ def config_from_param_spec(workflow_id: str, index: int, workflows_dir: Path) ->
             "type": param_spec.get("type", "float"),
             "min": param_spec.get("min"),
             "max": param_spec.get("max"),
+            "step": param_spec.get("step"),
             "default": default_value,
             "randomizable": bool(param_spec.get("randomizable")),
             "options": param_spec.get("options") or [],

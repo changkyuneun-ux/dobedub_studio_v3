@@ -240,9 +240,13 @@ def main() -> None:
         generated_config = json.loads((workflows_dir / "registered-test.paramconfig.json").read_text(encoding="utf-8"))
         assert generated_config["segments"][0]["params"]["steps"]["default"] == 4
         assert generated_config["segments"][0]["params"]["cfg_scale"]["default"] == 1
+        assert generated_config["segments"][0]["params"]["width"]["default"] == 720
+        assert generated_config["segments"][0]["params"]["height"]["default"] == 720
         generated_defaults = json.loads((data_dir / "segment-defaults.json").read_text(encoding="utf-8"))
         assert generated_defaults["registered-test.json"]["segments"][0]["config"]["steps"] == 4
         assert generated_defaults["registered-test.json"]["segments"][0]["config"]["cfgScale"] == 1
+        assert generated_defaults["registered-test.json"]["segments"][0]["config"]["width"] == 720
+        assert generated_defaults["registered-test.json"]["segments"][0]["config"]["height"] == 720
         assert "seed" not in generated_defaults["registered-test.json"]["segments"][0]["config"]
         defaults_response = client.get("/api/workflows/registered-test.json/segment-defaults", headers=admin_headers)
         assert defaults_response.status_code == 200, defaults_response.text

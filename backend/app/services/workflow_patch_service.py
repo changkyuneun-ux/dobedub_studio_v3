@@ -12,6 +12,10 @@ from backend.app.services.workflow_parser import PARAM_LABELS, PARAM_UI_KEYS
 
 I2V_INPUT_IMAGE_REQUIRED_MESSAGE = "입력파일을 업로드하세요. 이 워크플로우는 i2v 전용입니다. t2i, t2v는 지원하지 않습니다."
 MAX_GENERATION_SEED = (1 << 53) - 1
+RESOLUTION_MULTIPLE = 16
+MIN_RESOLUTION_DIMENSION = 256
+MAX_RESOLUTION_DIMENSION = 1280
+MAX_RESOLUTION_PIXELS = 1_048_576
 
 
 def validate_i2v_input_images(payload: dict, workflow: dict, segments: list[dict]) -> None:
@@ -110,6 +114,8 @@ def apply_single_prompt(workflow: dict, positive_text: str | None, negative_text
 
 def ui_config_to_param_config(node_config: dict) -> dict:
     return {
+        "width": node_config.get("width"),
+        "height": node_config.get("height"),
         "fps": node_config.get("fps"),
         "output_fps": node_config.get("outputFps", node_config.get("output_fps")),
         "frames": node_config.get("frames"),
@@ -123,13 +129,31 @@ def ui_config_to_param_config(node_config: dict) -> dict:
     }
 
 
-def values_equal(left, right) -> bool:
-    if left is None or right is None:
-        return left is right
-    try:
-        return abs(float(left) - float(right)) < 1e-9
-    except (TypeError, ValueError):
-        return str(left) == str(right)
+def validate_segment_resolution(params: dict, node_config: dict, segment_index: int) -> None:
+    """Validate the direct width/height controls before patching a workflow."""
+    dimensions = {}
+    for key in ("width", "height"):
+        spec = params.get(key)
+        if not spec:
+            continue
+        value = node_config.get(key, spec.get("default"))
+        try:
+            dimension = int(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Segment {segment_index} {key} must be an integer.") from exc
+        if dimension < MIN_RESOLUTION_DIMENSION or dimension > MAX_RESOLUTION_DIMENSION:
+            raise ValueError(
+                f"Segment {segment_index} {key} must be between "
+                f"{MIN_RESOLUTION_DIMENSION} and {MAX_RESOLUTION_DIMENSION}."
+            )
+        if dimension % RESOLUTION_MULTIPLE:
+            raise ValueError(f"Segment {segment_index} {key} must be a multiple of {RESOLUTION_MULTIPLE}.")
+        dimensions[key] = dimension
+
+    if len(dimensions) == 2 and dimensions["width"] * dimensions["height"] > MAX_RESOLUTION_PIXELS:
+        raise ValueError(
+            f"Segment {segment_index} resolution must not exceed {MAX_RESOLUTION_PIXELS:,} pixels."
+        )
 
 
 def apply_automatic_generation_seed(workflow: dict, segments: list[dict]) -> dict:
@@ -173,13 +197,12 @@ def apply_node_config_to_workflow(
         segment_spec = specs[index] if index < len(specs) else {}
         params = segment_spec.get("params") or {}
         node_config = ui_config_to_param_config(segment.get("config") or {})
+        validate_segment_resolution(params, node_config, index + 1)
         for param_name, param_spec in params.items():
             if param_name == "seed":
                 continue
             value = node_config.get(param_name, param_spec.get("default"))
             if value is None:
-                continue
-            if values_equal(value, param_spec.get("default")):
                 continue
             for target in param_spec.get("targets") or []:
                 node_id = str(target.get("node"))
@@ -227,6 +250,7 @@ def build_wan_node_config_snapshot(
                 "type": param_spec.get("type", "float"),
                 "min": param_spec.get("min"),
                 "max": param_spec.get("max"),
+                "step": param_spec.get("step"),
                 "options": param_spec.get("options") or [],
                 "targets": [
                     metadata_loader.target_metadata(workflow, target)

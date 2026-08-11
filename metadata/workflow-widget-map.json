@@ -1,9 +1,9 @@
 {
   "manifest": {
-    "generatedAt": "2026-08-06T12:41:56+09:00",
+    "generatedAt": "2026-08-10T17:13:41+09:00",
     "source": "workflow-json",
     "workflowDirectory": "workflows",
-    "fingerprint": "b8861c884ddb0f5f24fb0be14eceb3eb00c2cd0f6c5a99f16d348277ce2ba4c0",
+    "fingerprint": "3b799a479953cb47c60b0464fcfc679348be651a1f92f5064738dab04805293d",
     "workflowCount": 8,
     "hasObjectInfoSnapshot": false,
     "sources": [
@@ -15,9 +15,9 @@
       },
       {
         "path": "workflows/1-images.paramconfig.json",
-        "sha256": "54e5e7c154ff1a465c3df465443fae54c16b1ca7821bfb404429b156611e71de",
-        "sizeBytes": 3290,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "fda9ef8c588673baa82c383ca3d8b259893f32e9de61bc8b33915ced6557d887",
+        "sizeBytes": 4160,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/2-images.json",
@@ -27,9 +27,9 @@
       },
       {
         "path": "workflows/2-images.paramconfig.json",
-        "sha256": "915f86cc4be1843767dcba85bd01b6fe41b1bd4baea423674a39cd4133961c74",
-        "sizeBytes": 3316,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "9407861e285b4fd25478e1abce2d91a10b721a4464f2fe3e65795e26b7cf4cc0",
+        "sizeBytes": 4186,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/3-images.json",
@@ -39,9 +39,9 @@
       },
       {
         "path": "workflows/3-images.paramconfig.json",
-        "sha256": "61c2da3945942708c793ecbc2bd48e198b87dea13479b7e86a916bdbda1f66d5",
-        "sizeBytes": 5590,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "4aedf5857cd5f7ff62f300252cce6e2317a71b5cc7b088c32f25a4fde4d61dbf",
+        "sizeBytes": 7332,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/4-images.json",
@@ -51,9 +51,9 @@
       },
       {
         "path": "workflows/4-images.paramconfig.json",
-        "sha256": "b59c15eacecfceefb25b565e8331ac1734e2b54698b46af020b67dbd9d6df0ff",
-        "sizeBytes": 7471,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "7d23d693fb9f69eb9a4eb51018698a3f6ea5e70af6f20fdf2a942a2008c5378e",
+        "sizeBytes": 10085,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/5-images.json",
@@ -63,9 +63,9 @@
       },
       {
         "path": "workflows/5-images.paramconfig.json",
-        "sha256": "f1c7ff211aa9a6e252d2ed5055117765d72b25814c44fe5ddf41367f3b5893e5",
-        "sizeBytes": 9352,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "68108d3478ef549157ea1ffef756c5a08c7df6e95b279e937311ecf7c026df57",
+        "sizeBytes": 12838,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/6-images.json",
@@ -75,9 +75,9 @@
       },
       {
         "path": "workflows/6-images.paramconfig.json",
-        "sha256": "d104153d3d4e62e828e597d6c10ca87889320f399531f92fe6fb123ea67ae20a",
-        "sizeBytes": 11233,
-        "modifiedAt": "2026-08-02T15:32:37"
+        "sha256": "6ea6e45cbd184876d100b25bbb95ce557e49f89f2a03d4d25122a3d00ffdb6f4",
+        "sizeBytes": 15591,
+        "modifiedAt": "2026-08-10T17:10:13"
       },
       {
         "path": "workflows/Blowbang1.json",
@@ -87,9 +87,9 @@
       },
       {
         "path": "workflows/Blowbang1.paramconfig.json",
-        "sha256": "c0b9f9caf4f9ba45f4244496905d2f37eb53406ebb7c370f5583b0c92d953e81",
-        "sizeBytes": 3508,
-        "modifiedAt": "2026-08-04T12:25:37"
+        "sha256": "a59f5977b1450fa358b94bfd3b9483b5d8df80f652bb71eb2719034b9df003d3",
+        "sizeBytes": 4382,
+        "modifiedAt": "2026-08-10T17:12:42"
       },
       {
         "path": "workflows/Pickme_Workflow.json",
@@ -99,15 +99,15 @@
       },
       {
         "path": "workflows/Pickme_Workflow.paramconfig.json",
-        "sha256": "f07c46b80dc236fb50085103bb05faf07346811e3ee6301c58df54095aaeb4dc",
-        "sizeBytes": 3342,
-        "modifiedAt": "2026-08-06T12:41:56"
+        "sha256": "4fa6fea0201b86526b2155db1042154dccc44c28c2b50effbd09f8c30338d464",
+        "sizeBytes": 4216,
+        "modifiedAt": "2026-08-10T17:12:42"
       },
       {
         "path": "data/segment-defaults.json",
-        "sha256": "c2b206970d66c3c57235388f1127a9d1a25524afe78453d4734d805e0f41756c",
-        "sizeBytes": 5721,
-        "modifiedAt": "2026-08-06T12:41:56"
+        "sha256": "2607f6fbd97923c6a93bb006f0d69acadc6e021d967785fb9d64c7f4f2a4cc9c",
+        "sizeBytes": 6606,
+        "modifiedAt": "2026-08-10T17:10:13"
       }
     ]
   },
@@ -941,34 +941,13 @@
           "endImageNode": "",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 753639532255811,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "129:86",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -991,6 +970,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -1013,6 +993,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.000000000000001,
               "randomizable": false,
               "sync": true,
@@ -1035,12 +1016,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "129:98",
+                  "field": "width",
+                  "classType": "WanImageToVideo",
+                  "title": "WAN 비디오 생성 (이미지 → 비디오)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "129:98",
+                  "field": "height",
+                  "classType": "WanImageToVideo",
+                  "title": "WAN 비디오 생성 (이미지 → 비디오)"
+                }
+              ]
+            },
+            {
               "param": "duration_seconds",
               "uiKey": "durationSeconds",
-              "label": "Duration",
+              "label": "Video Length (Seconds)",
               "type": "float",
               "min": 1.0,
               "max": 10.0,
+              "step": null,
               "default": 5,
               "randomizable": false,
               "sync": false,
@@ -1063,6 +1091,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -1085,6 +1114,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -1107,6 +1137,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -1132,6 +1163,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -1747,34 +1779,13 @@
           "endImageNode": "",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "140:57",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -1803,6 +1814,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -1831,6 +1843,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -1853,12 +1866,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -1881,6 +1941,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -1903,6 +1964,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -1925,6 +1987,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -1950,6 +2013,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -3187,34 +3251,13 @@
           "endImageNode": "122",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "140:57",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -3243,6 +3286,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -3271,6 +3315,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -3293,12 +3338,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -3321,6 +3413,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -3343,6 +3436,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 24,
               "randomizable": false,
               "sync": false,
@@ -3365,6 +3459,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -3387,6 +3482,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -3412,6 +3508,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -3444,34 +3541,13 @@
           "endImageNode": "124",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "228:222",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -3500,6 +3576,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -3528,6 +3605,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -3550,12 +3628,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -3578,6 +3703,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -5374,34 +5500,13 @@
           "endImageNode": "122",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "140:57",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -5430,6 +5535,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -5458,6 +5564,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -5480,12 +5587,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -5508,6 +5662,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -5530,6 +5685,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 24,
               "randomizable": false,
               "sync": false,
@@ -5552,6 +5708,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -5574,6 +5731,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -5599,6 +5757,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -5631,34 +5790,13 @@
           "endImageNode": "124",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "228:222",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -5687,6 +5825,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -5715,6 +5854,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -5737,12 +5877,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -5765,6 +5952,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -5794,34 +5982,13 @@
           "endImageNode": "126",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "245:239",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -5850,6 +6017,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -5878,6 +6046,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -5900,12 +6069,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -5928,6 +6144,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -8286,34 +8503,13 @@
           "endImageNode": "122",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "140:57",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -8342,6 +8538,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -8370,6 +8567,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -8392,12 +8590,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -8420,6 +8665,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -8442,6 +8688,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 24,
               "randomizable": false,
               "sync": false,
@@ -8464,6 +8711,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -8486,6 +8734,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -8511,6 +8760,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -8543,34 +8793,13 @@
           "endImageNode": "124",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "228:222",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -8599,6 +8828,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -8627,6 +8857,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -8649,12 +8880,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -8677,6 +8955,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -8706,34 +8985,13 @@
           "endImageNode": "126",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "245:239",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -8762,6 +9020,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -8790,6 +9049,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -8812,12 +9072,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -8840,6 +9147,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -8869,34 +9177,13 @@
           "endImageNode": "128",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "262:256",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -8925,6 +9212,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -8953,6 +9241,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -8975,12 +9264,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "262:258",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "262:258",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -9003,6 +9339,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -11923,34 +12260,13 @@
           "endImageNode": "122",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "140:57",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -11979,6 +12295,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -12007,6 +12324,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -12029,12 +12347,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "140:67",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -12057,6 +12422,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -12079,6 +12445,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 24,
               "randomizable": false,
               "sync": false,
@@ -12101,6 +12468,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -12123,6 +12491,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -12148,6 +12517,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -12180,34 +12550,13 @@
           "endImageNode": "124",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "228:222",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -12236,6 +12585,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -12264,6 +12614,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -12286,12 +12637,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "228:224",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -12314,6 +12712,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -12343,34 +12742,13 @@
           "endImageNode": "126",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "245:239",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -12399,6 +12777,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -12427,6 +12806,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -12449,12 +12829,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "245:241",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -12477,6 +12904,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -12506,34 +12934,13 @@
           "endImageNode": "128",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "262:256",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -12562,6 +12969,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -12590,6 +12998,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -12612,12 +13021,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "262:258",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "262:258",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -12640,6 +13096,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -12669,34 +13126,13 @@
           "endImageNode": "130",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 106238756028535,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "279:273",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 24,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -12725,6 +13161,7 @@
               "type": "float",
               "min": 0.0,
               "max": 6.0,
+              "step": null,
               "default": 1.0,
               "randomizable": false,
               "sync": false,
@@ -12753,6 +13190,7 @@
               "type": "float",
               "min": 2.0,
               "max": 10.0,
+              "step": null,
               "default": 5.0,
               "randomizable": false,
               "sync": true,
@@ -12775,12 +13213,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "279:275",
+                  "field": "width",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "279:275",
+                  "field": "height",
+                  "classType": "WanFirstLastFrameToVideo",
+                  "title": "WAN 비디오 생성 (시작-끝 프레임)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
               "max": 45,
+              "step": null,
               "default": 25,
               "randomizable": false,
               "sync": false,
@@ -12803,6 +13288,7 @@
               "type": "int",
               "min": 8,
               "max": 30,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -13557,34 +14043,13 @@
           "endImageNode": "",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 199339479576185,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "172:166",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "고급 KSampler"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 50,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -13613,6 +14078,7 @@
               "type": "float",
               "min": 0.0,
               "max": 12.0,
+              "step": null,
               "default": 1,
               "randomizable": false,
               "sync": false,
@@ -13641,6 +14107,7 @@
               "type": "float",
               "min": 0.0,
               "max": 10.0,
+              "step": null,
               "default": 4.99,
               "randomizable": false,
               "sync": true,
@@ -13663,12 +14130,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:164",
+                  "field": "width",
+                  "classType": "WanImageToVideo",
+                  "title": "WAN 비디오 생성 (이미지 → 비디오)"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 1280,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "172:164",
+                  "field": "height",
+                  "classType": "WanImageToVideo",
+                  "title": "WAN 비디오 생성 (이미지 → 비디오)"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
-              "max": 121,
+              "max": 241,
+              "step": null,
               "default": 161,
               "randomizable": false,
               "sync": false,
@@ -13691,6 +14205,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -13713,6 +14228,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -13735,6 +14251,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "mp4",
               "randomizable": false,
               "sync": false,
@@ -13760,6 +14277,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "h264",
               "randomizable": false,
               "sync": false,
@@ -14494,34 +15012,13 @@
           "endImageNode": "",
           "params": [
             {
-              "param": "seed",
-              "uiKey": "seed",
-              "label": "Seed",
-              "type": "int",
-              "min": null,
-              "max": null,
-              "default": 199339479576185,
-              "randomizable": true,
-              "sync": false,
-              "options": [],
-              "description": "결과 재현값입니다. 같은 입력/설정에서 동일한 결과를 재현할 때 사용합니다.",
-              "note": "",
-              "targets": [
-                {
-                  "nodeId": "143:133",
-                  "field": "noise_seed",
-                  "classType": "KSamplerAdvanced",
-                  "title": "KSampler (Advanced)"
-                }
-              ]
-            },
-            {
               "param": "steps",
               "uiKey": "steps",
               "label": "Sampling Steps",
               "type": "int",
               "min": 1,
               "max": 50,
+              "step": null,
               "default": 4,
               "randomizable": false,
               "sync": false,
@@ -14544,6 +15041,7 @@
               "type": "float",
               "min": 0.0,
               "max": 12.0,
+              "step": null,
               "default": 1,
               "randomizable": false,
               "sync": false,
@@ -14566,6 +15064,7 @@
               "type": "float",
               "min": 0.0,
               "max": 10.0,
+              "step": null,
               "default": 5.000000000000001,
               "randomizable": false,
               "sync": true,
@@ -14588,12 +15087,59 @@
               ]
             },
             {
+              "param": "width",
+              "uiKey": "width",
+              "label": "Width",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 1280,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent width입니다. 16의 배수만 허용되며, Height와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:132",
+                  "field": "width",
+                  "classType": "WanImageToVideo",
+                  "title": "WanImageToVideo"
+                }
+              ]
+            },
+            {
+              "param": "height",
+              "uiKey": "height",
+              "label": "Height",
+              "type": "int",
+              "min": 256,
+              "max": 1280,
+              "step": 16,
+              "default": 720,
+              "randomizable": false,
+              "sync": false,
+              "options": [],
+              "description": "Wan video latent height입니다. 16의 배수만 허용되며, Width와 함께 workflow가 처리할 해상도를 결정합니다.",
+              "note": "",
+              "targets": [
+                {
+                  "nodeId": "143:132",
+                  "field": "height",
+                  "classType": "WanImageToVideo",
+                  "title": "WanImageToVideo"
+                }
+              ]
+            },
+            {
               "param": "frames",
               "uiKey": "frames",
-              "label": "Frames",
+              "label": "Video Length (Frames)",
               "type": "int",
               "min": 15,
-              "max": 121,
+              "max": 241,
+              "step": null,
               "default": 161,
               "randomizable": false,
               "sync": false,
@@ -14616,6 +15162,7 @@
               "type": "int",
               "min": 8,
               "max": 60,
+              "step": null,
               "default": 16,
               "randomizable": false,
               "sync": false,
@@ -14638,6 +15185,7 @@
               "type": "int",
               "min": 8,
               "max": 16,
+              "step": null,
               "default": 8,
               "randomizable": false,
               "sync": false,
@@ -14660,6 +15208,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
@@ -14685,6 +15234,7 @@
               "type": "string",
               "min": null,
               "max": null,
+              "step": null,
               "default": "auto",
               "randomizable": false,
               "sync": false,
