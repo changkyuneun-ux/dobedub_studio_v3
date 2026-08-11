@@ -50,12 +50,12 @@
 
 완료 기준 — 자산 화면이 작업을 거치지 않고 직접 목록을 그린다. — *백엔드 TestClient로 필터(`type`/`workflowId`)·페이지네이션·조인 결과 확인, 프론트는 `tsc -b`/`vite build` 클린 확인. 실 데이터 화면 스크린샷 검증은 미실시.*
 
-### A-02 · 컬렉션 — P2
-`collection` 관련 코드가 저장소에 전무합니다.
+### A-02 · 컬렉션 — P2 — **완료** (2026-08-11)
+`collection` 관련 코드가 저장소에 전무했습니다.
 
-- [ ] 마이그레이션: `collections`(id, name, created_by, created_at), `collection_items`(collection_id, asset_id, sort_order)
-- [ ] `GET/POST /api/collections`, `POST /api/collections/{id}/items`
-- [ ] 화면 `5c` 구현
+- [x] 마이그레이션 `20260811_0015`: `collections`(id, name, created_by, created_at), `collection_items`((collection_id, asset_id) 복합 PK, sort_order). created_by는 audit_logs와 같은 이유로 users.id FK 없음, 삭제 시 CASCADE.
+- [x] `GET/POST /api/collections`, `GET /api/collections/{id}`, `POST /api/collections/{id}/items` — 모두 history:read로 보호(assets와 동일 근거). RESOURCE_CATALOG에 MENU(5c)+API 등록. TestClient E2E로 201/404/400 검증.
+- [x] 화면 `5c` 구현 — `Create5cScreen`. 사이드바=컬렉션 목록+생성, 본문=선택 컬렉션 항목 그리드, 우측=최근 자산 담기. GENERATE 사이드바에 "Collections" 항목 추가, 5a에서 "컬렉션 보기" 링크. **설계의 태그·공개범위(PRIVATE/SHARED)·검색/정렬은 대응 백엔드가 없어 제외**(5a와 동일 원칙, 코드 주석에 사유 명시). 이로써 유일하게 남아 있던 미구현 화면(5c)이 해소됨.
 
 ### A-03 · 작업 알림 — P2 — **1안으로 결정(2026-08-11) · 완료**
 알림 저장·읽음 처리 구조가 없습니다. 두 안 중 택일이 필요합니다.
@@ -256,7 +256,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] `3f`/`3c` Run 상세 — **B-02 평가 로직(task_prompts/prompt_feedback 역할 분리) 재사용**(C-04) — *`Create3RunDetailScreen`으로 완료/실패 화면 통합 구현, 평가 카드는 `V3PromptReviewGroup`으로 분리. 아직 커밋 전(다음 커밋에 포함 예정).*
 - [x] `4c` 프롬프트 재사용 (C-05) — *`Create4cScreen` 구현. 아직 커밋 전(다음 커밋에 포함 예정).*
 - [x] `5a` 자산 — A-01(자산 목록 API) 선행 필요, API 완성 후 착수 — *A-01 API·화면 모두 완료(`Create5aScreen`). 아직 커밋 전.*
-- [ ] `5c` 컬렉션 — *의도적으로 범위 밖. A-02(컬렉션 테이블·API)가 저장소에 전혀 없어(`collections`/`collection_items` 마이그레이션 없음, `GET/POST /api/collections` 없음) 화면을 만들면 전부 가짜 데이터가 됨 — 원칙 위반이라 보류. A-02 착수 후 재개.*
+- [x] `5c` 컬렉션 — *A-02 백엔드(마이그레이션 0015·컬렉션 API) 구현 후 `Create5cScreen`으로 완료(2026-08-11). 태그·공개범위는 백엔드 부재로 제외. A-02 항목 참조.*
 
 ### E-04 · `4 Admin` 흐름 — P1 — **완료**
 구버전 `AdminConsoleModal`(탭형 단일 모달, main.tsx)이 users/roles/catalog/workflows/sandbox를 이미 다 구현해 두었고, `StatusModal`(6c)·`MetadataModal`(6d)·`SystemPromptEditor`(7a 원형)도 각각 독립 라우트/패널로 존재했다. E-04는 이 로직들을 유지한 채 화면만 `AppShell` 기반 v3 화면으로 하나씩 옮기는 작업이다 — 새 API를 만들 필요가 거의 없다(4b 제외).

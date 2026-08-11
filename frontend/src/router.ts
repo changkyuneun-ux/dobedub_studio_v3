@@ -26,10 +26,10 @@
 //   review.runDetail  — 3f(완료)·3c(실패) Run 상세. 상태로 분기하므로 화면 하나가
 //                       두 id를 함께 담당한다(신규 구현, E-03)
 //   review.reuse      — 4c 프롬프트 재사용 (신규 구현, E-03)
-//   review.assets     — 5a 자산 목록 (신규 구현, E-03). 5c(컬렉션 상세)는 A-02
-//                       (컬렉션 API·테이블)가 전혀 없어 이번 구현 범위에서 뺐다 -
-//                       가짜 데이터로 채우지 않는다는 원칙에 따라 백엔드가 생기기
-//                       전까지 별도 라우트를 만들지 않는다.
+//   review.assets     — 5a 자산 목록 (신규 구현, E-03)
+//   review.collections — 5c 자산 컬렉션 (A-02 백엔드 구현 후 추가). 컬렉션 생성·
+//                       목록·상세·자산 담기. 설계의 태그·공개범위는 대응 백엔드가
+//                       없어 제외(가짜 데이터 금지).
 //   admin.systemPrompt — 7a 시스템 프롬프트 (신규 구현, E-04). "프롬프트 카탈로그"
 //                       Admin 사이드바 그룹 소속.
 //   admin.sandbox      — 5b Sandbox Pod (신규 구현, E-04). "Sandbox Pod" Admin
@@ -85,6 +85,7 @@ export type StudioRoute =
   | "review.runDetail"
   | "review.reuse"
   | "review.assets"
+  | "review.collections"
   | "admin.systemPrompt"
   | "admin.sandbox"
   | "admin.roles"
@@ -128,6 +129,7 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "review.runDetail": "/studio/review/run",
   "review.reuse": "/studio/review/reuse",
   "review.assets": "/studio/review/assets",
+  "review.collections": "/studio/review/collections",
   "admin.systemPrompt": "/studio/admin/system-prompt",
   "admin.sandbox": "/studio/admin/sandbox",
   "admin.roles": "/studio/admin/roles",

@@ -485,6 +485,22 @@ export type AssetsResponse = {
   total: number;
 };
 
+// A-02: 자산 컬렉션(화면 5c). 태그·공개범위와 마찬가지로 컬렉션 자체에도 태그/공개
+// 필드는 백엔드에 없다 - 이름·생성자·담긴 수(itemCount)만 다룬다.
+export type CollectionSummary = {
+  id: number;
+  name: string;
+  createdBy?: string | null;
+  createdAt?: string;
+  itemCount: number;
+};
+
+export type CollectionItem = AssetItem & { sortOrder: number };
+
+export type CollectionDetail = CollectionSummary & { items: CollectionItem[] };
+
+export type CollectionsResponse = { items: CollectionSummary[] };
+
 export type JobCreateResponse = {
   taskId: string;
   runpodJobId: string;
@@ -696,6 +712,13 @@ export const apiClient = {
     if (params.workflowId) query.set("workflowId", params.workflowId);
     return requestJson<AssetsResponse>(`/api/assets?${query.toString()}`);
   },
+  // A-02(5c): 자산 컬렉션. 모두 history:read로 보호.
+  collections: () => requestJson<CollectionsResponse>("/api/collections"),
+  createCollection: (name: string) =>
+    requestJson<CollectionSummary>("/api/collections", { method: "POST", body: JSON.stringify({ name }) }),
+  collection: (id: number) => requestJson<CollectionDetail>(`/api/collections/${id}`),
+  addCollectionItem: (id: number, assetId: string) =>
+    requestJson<CollectionDetail>(`/api/collections/${id}/items`, { method: "POST", body: JSON.stringify({ assetId }) }),
   promptCatalog: () => requestJson<PromptCatalogResponse>("/api/prompts/catalog"),
   promptSystemPrompt: () => requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt"),
   savePromptSystemPrompt: (payload: Record<string, unknown>) =>

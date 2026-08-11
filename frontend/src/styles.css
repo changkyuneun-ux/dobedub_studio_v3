@@ -4111,6 +4111,29 @@ textarea {
   color: var(--v3-text-body);
 }
 
+/* A-02 · 5c 컬렉션 만들기 폼(사이드바) */
+.v3-collection-create {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px 0;
+}
+
+.v3-collection-create input {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 7px;
+  color: var(--v3-text-body);
+  font: inherit;
+  font-size: 12px;
+  padding: 7px 10px;
+}
+
+.v3-collection-create input:focus {
+  border-color: var(--v3-accent);
+  outline: none;
+}
+
 .v3-step-tracker {
   display: flex;
   flex-direction: column;

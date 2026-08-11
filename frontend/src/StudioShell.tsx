@@ -22,6 +22,8 @@ import {
   PromptGenerateResponse,
   HistoryItem,
   AssetItem,
+  CollectionSummary,
+  CollectionDetail,
   JobStatusResponse,
   TaskPromptItem
 } from "./api/client";
@@ -82,7 +84,8 @@ import {
   Create3aScreen,
   Create3RunDetailScreen,
   Create4cScreen,
-  Create5aScreen
+  Create5aScreen,
+  Create5cScreen
 } from "./screens/reviewScreens";
 import {
   Create7aScreen,
@@ -110,6 +113,7 @@ import { PromptCatalogAdminPanelV3 } from "./screens/PromptCatalogAdminPanelV3";
 export const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.history": "history:read",
   "review.assets": "history:read",
+  "review.collections": "history:read",
   "admin.systemPrompt": "prompts:build",
   "admin.sandbox": "sandbox:read",
   "admin.roles": "roles:read",
@@ -138,6 +142,7 @@ export function routeAccessGranted(user: User | null, route: StudioRoute): boole
 export const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "review.history": "Task History",
   "review.assets": "Assets",
+  "review.collections": "Collections",
   "admin.systemPrompt": "System Prompt",
   "admin.sandbox": "Sandbox Pod",
   "admin.roles": "역할 & 권한",
@@ -186,6 +191,13 @@ export function StudioShell({
   const [assetsNotice, setAssetsNotice] = useState("");
   const [assetsTypeFilter, setAssetsTypeFilter] = useState("");
   const [selectedAssetId, setSelectedAssetId] = useState("");
+  // A-02 · 5c 컬렉션 상태.
+  const [collections, setCollections] = useState<CollectionSummary[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null);
+  const [collectionDetail, setCollectionDetail] = useState<CollectionDetail | null>(null);
+  const [collectionsLoading, setCollectionsLoading] = useState(false);
+  const [collectionsNotice, setCollectionsNotice] = useState("");
+  const [collectionCreateName, setCollectionCreateName] = useState("");
   // E-04(4a/4d): 구버전 AdminConsoleModal Workflows 탭의 상태를 그대로 옮겨왔다.
   // Create flow가 쓰는 `workflows`(WorkflowItem[], apiClient.workflows())와는 다른
   // 관리자 전용 목록(AdminWorkflow[], apiClient.adminWorkflows() - active/
@@ -346,6 +358,73 @@ export function StudioShell({
   function changeAssetsTypeFilter(type: string) {
     setAssetsTypeFilter(type);
     void loadAssetsPage(1, assetsPageSize, type);
+  }
+
+  // A-02 · 5c 컬렉션 로더/핸들러.
+  async function loadCollections(selectId?: number) {
+    setCollectionsLoading(true);
+    setCollectionsNotice("");
+    try {
+      const response = await apiClient.collections();
+      const items = response.items || [];
+      setCollections(items);
+      const nextId = selectId ?? selectedCollectionId ?? items[0]?.id ?? null;
+      setSelectedCollectionId(nextId);
+      if (nextId != null) {
+        await loadCollectionDetail(nextId);
+      } else {
+        setCollectionDetail(null);
+      }
+    } catch (error) {
+      setCollectionsNotice(error instanceof Error ? error.message : "컬렉션을 불러오지 못했습니다.");
+    } finally {
+      setCollectionsLoading(false);
+    }
+  }
+
+  async function loadCollectionDetail(id: number) {
+    try {
+      setCollectionDetail(await apiClient.collection(id));
+    } catch (error) {
+      setCollectionsNotice(error instanceof Error ? error.message : "컬렉션 상세를 불러오지 못했습니다.");
+    }
+  }
+
+  function selectCollection(id: number) {
+    setSelectedCollectionId(id);
+    void loadCollectionDetail(id);
+  }
+
+  async function createCollection() {
+    const name = collectionCreateName.trim();
+    if (!name) {
+      return;
+    }
+    setCollectionsNotice("");
+    try {
+      const created = await apiClient.createCollection(name);
+      setCollectionCreateName("");
+      await loadCollections(created.id);
+      setCollectionsNotice(`컬렉션 "${created.name}"을(를) 만들었습니다.`);
+    } catch (error) {
+      setCollectionsNotice(error instanceof Error ? error.message : "컬렉션 생성에 실패했습니다.");
+    }
+  }
+
+  async function addAssetToCollection(assetId: string) {
+    if (selectedCollectionId == null) {
+      return;
+    }
+    setCollectionsNotice("");
+    try {
+      const detail = await apiClient.addCollectionItem(selectedCollectionId, assetId);
+      setCollectionDetail(detail);
+      // 목록의 itemCount도 갱신되도록 요약을 다시 불러온다(상세 선택은 유지).
+      const response = await apiClient.collections();
+      setCollections(response.items || []);
+    } catch (error) {
+      setCollectionsNotice(error instanceof Error ? error.message : "자산을 담지 못했습니다.");
+    }
   }
 
   function changeAssetsPageSize(pageSize: 20 | 50) {
@@ -1113,6 +1192,11 @@ export function StudioShell({
     if (route === "review.assets") {
       void loadAssetsPage(1);
     }
+    if (route === "review.collections") {
+      // 우측 "자산 추가" 패널이 쓸 최근 자산 목록도 함께 불러온다(assets 상태 재사용).
+      void loadCollections();
+      void loadAssetsPage(1);
+    }
     if (route === "admin.systemPrompt" && !promptSystemPrompt) {
       void loadPromptSystemPrompt();
     }
@@ -1800,6 +1884,23 @@ export function StudioShell({
         onPageChange={(page) => void loadAssetsPage(page)}
         onPageSizeChange={changeAssetsPageSize}
         onDownload={(item) => downloadProtectedAsset(item.downloadUrl, item.fileName).catch((downloadError) => setAssetsNotice(downloadError instanceof Error ? downloadError.message : "다운로드에 실패했습니다."))}
+      />
+    ) : route === "review.collections" ? (
+      <Create5cScreen
+        user={user}
+        onGoTo={onNavigate}
+        collections={collections}
+        selectedCollectionId={selectedCollectionId}
+        detail={collectionDetail}
+        loading={collectionsLoading}
+        notice={collectionsNotice}
+        createName={collectionCreateName}
+        recentAssets={assets}
+        onSelectCollection={selectCollection}
+        onCreateNameChange={setCollectionCreateName}
+        onCreateCollection={() => void createCollection()}
+        onAddAsset={(assetId) => void addAssetToCollection(assetId)}
+        onDownload={(item) => downloadProtectedAsset(item.downloadUrl, item.fileName).catch((downloadError) => setCollectionsNotice(downloadError instanceof Error ? downloadError.message : "다운로드에 실패했습니다."))}
       />
     ) : route === "admin.systemPrompt" ? (
       <Create7aScreen

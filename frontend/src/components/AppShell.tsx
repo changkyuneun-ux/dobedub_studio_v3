@@ -37,7 +37,9 @@ const GENERATE_NAV_ITEMS: NavItem[] = [
   { key: "workspace", label: "Workspace" },
   { key: "promptLibrary", label: "Prompt Library", permission: "prompts:reuse" },
   { key: "taskHistory", label: "Task History", permission: "history:read" },
-  { key: "assets", label: "Assets", permission: "history:read" }
+  { key: "assets", label: "Assets", permission: "history:read" },
+  // A-02: 5c 컬렉션. 자산과 같은 history:read로 노출.
+  { key: "collections", label: "Collections", permission: "history:read" }
 ];
 
 // ADMIN 영역: design_handoff "4 Admin.dc.html" 사이드바 공통 상단.
