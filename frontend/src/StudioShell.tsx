@@ -211,6 +211,9 @@ export function StudioShell({
   const [adminUserPasswordReset, setAdminUserPasswordReset] = useState("");
   const [adminUsersLoading, setAdminUsersLoading] = useState(false);
   const [adminUsersNotice, setAdminUsersNotice] = useState("");
+  // #4 오류 위치 규칙: 7c 사용자 동작(저장·비번 재설정·비활성화) 실패는 상단 공통
+  // notice가 아니라 해당 버튼 근처에 표시한다. 성공 안내는 기존대로 adminUsersNotice.
+  const [adminUsersError, setAdminUsersError] = useState("");
   const [modalNotice, setModalNotice] = useState("");
   const [systemStatus, setSystemStatus] = useState<SystemStatusResponse | null>(null);
   const [runpodConnection, setRunpodConnection] = useState<RunpodConnectionResponse | null>(null);
@@ -979,6 +982,7 @@ export function StudioShell({
   async function saveAdminUserDetail() {
     setAdminUsersLoading(true);
     setAdminUsersNotice("");
+    setAdminUsersError("");
     try {
       const payload: Record<string, unknown> = {
         id: adminUserForm.id,
@@ -995,7 +999,7 @@ export function StudioShell({
       setSelectedAdminUserId(response.user?.id || adminUserForm.id);
       setAdminUsersNotice("사용자 정보를 저장했습니다.");
     } catch (error) {
-      setAdminUsersNotice(error instanceof Error ? error.message : "User save failed");
+      setAdminUsersError(error instanceof Error ? error.message : "User save failed");
     } finally {
       setAdminUsersLoading(false);
     }
@@ -1008,12 +1012,13 @@ export function StudioShell({
     }
     setAdminUsersLoading(true);
     setAdminUsersNotice("");
+    setAdminUsersError("");
     try {
       await apiClient.resetAdminUserPassword(selectedAdminUserId, adminUserPasswordReset);
       setAdminUserPasswordReset("");
       setAdminUsersNotice("비밀번호를 재설정했습니다.");
     } catch (error) {
-      setAdminUsersNotice(error instanceof Error ? error.message : "Password reset failed");
+      setAdminUsersError(error instanceof Error ? error.message : "Password reset failed");
     } finally {
       setAdminUsersLoading(false);
     }
@@ -1025,13 +1030,14 @@ export function StudioShell({
     }
     setAdminUsersLoading(true);
     setAdminUsersNotice("");
+    setAdminUsersError("");
     try {
       const response = await apiClient.deactivateAdminUser(selectedAdminUserId);
       setAdminUsers(response.items || []);
       setAdminUserForm((current) => ({ ...current, isActive: "false" }));
       setAdminUsersNotice("사용자를 비활성화했습니다.");
     } catch (error) {
-      setAdminUsersNotice(error instanceof Error ? error.message : "User deactivate failed");
+      setAdminUsersError(error instanceof Error ? error.message : "User deactivate failed");
     } finally {
       setAdminUsersLoading(false);
     }
@@ -1714,6 +1720,7 @@ export function StudioShell({
         loading={historyLoading}
         selectedTaskId={selectedHistoryTaskId}
         deleteTarget={deleteTarget}
+        deleteError={modalNotice}
         onSelect={(item) => setSelectedHistoryTaskId(item.taskId)}
         onPageChange={(page) => void loadHistoryPage(page)}
         onPageSizeChange={changeHistoryPageSize}
@@ -1723,8 +1730,8 @@ export function StudioShell({
           setSelectedHistoryTaskId(item.taskId);
           onNavigate("review.runDetail");
         }}
-        onRequestDelete={setDeleteTarget}
-        onCancelDelete={() => setDeleteTarget(null)}
+        onRequestDelete={(item) => { setModalNotice(""); setDeleteTarget(item); }}
+        onCancelDelete={() => { setModalNotice(""); setDeleteTarget(null); }}
         onConfirmDelete={() => void deleteHistoryItem()}
         canRework={canUse(user, "jobs:run")}
         canDelete={canUse(user, "history:delete")}
@@ -1857,6 +1864,7 @@ export function StudioShell({
         governance={adminUserGovernance}
         loading={adminUsersLoading}
         notice={adminUsersNotice}
+        actionError={adminUsersError}
         passwordResetValue={adminUserPasswordReset}
         onFieldChange={(field, value) => setAdminUserForm((current) => ({ ...current, [field]: value }))}
         onRoleChange={changeAdminUserRole}

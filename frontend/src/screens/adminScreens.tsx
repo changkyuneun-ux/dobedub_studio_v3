@@ -794,6 +794,7 @@ export function Create7cScreen({
   governance,
   loading,
   notice,
+  actionError,
   passwordResetValue,
   onFieldChange,
   onRoleChange,
@@ -811,6 +812,9 @@ export function Create7cScreen({
   governance: PermissionGovernance | null;
   loading: boolean;
   notice: string;
+  // #4 오류 위치 규칙: 저장·비번 재설정·비활성화 동작 실패는 상단 notice가 아니라
+  // 동작 버튼 근처(Save User 위)에 표시. 성공 안내만 상단 notice로 남긴다.
+  actionError: string;
   passwordResetValue: string;
   onFieldChange: (field: "id" | "name" | "password" | "isActive", value: string) => void;
   onRoleChange: (role: string) => void;
@@ -873,6 +877,7 @@ export function Create7cScreen({
             </label>
           </div>
           {isDefaultAdmin ? <p className="v3-muted-text">기본 SUPER_ADMIN 계정은 시스템 잠금 방지를 위해 비활성화할 수 없습니다.</p> : null}
+          {actionError ? <p className="v3-inline-error" role="alert">{actionError}</p> : null}
           <div className="v3-inline-actions">
             <button className="v3-primary-button" type="button" disabled={loading || !canWrite || !form.id || !form.name} onClick={onSave}>Save User</button>
           </div>

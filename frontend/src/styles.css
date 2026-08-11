@@ -4332,6 +4332,19 @@ textarea {
   margin: 0;
 }
 
+/* #4 오류 위치 규칙: 동작(저장·삭제·실행) 실패를 그 버튼 근처에 두는 인라인 오류.
+   조회 실패용 본문 상단 .v3-inline-notice와 달리 danger 톤 + 옅은 배경으로 구분. */
+.v3-inline-error {
+  background: var(--v3-danger-bg);
+  border: 1px solid var(--v3-danger-border);
+  border-radius: 8px;
+  color: var(--v3-danger);
+  font-size: 11.5px;
+  font-weight: 600;
+  margin: 0;
+  padding: 9px 11px;
+}
+
 .v3-card {
   background: var(--v3-bg-panel);
   border: 1px solid var(--v3-border);

@@ -51,6 +51,7 @@ export function Create3aScreen({
   loading,
   selectedTaskId,
   deleteTarget,
+  deleteError,
   onSelect,
   onPageChange,
   onPageSizeChange,
@@ -74,6 +75,10 @@ export function Create3aScreen({
   loading: boolean;
   selectedTaskId: string;
   deleteTarget: HistoryItem | null;
+  // #4 오류 위치 규칙: 삭제(동작) 실패는 본문 상단이 아니라 삭제 모달의 버튼 근처에
+  // 표시한다. modalNotice(StudioShell)를 그대로 받는다 - 이전엔 어디에도 렌더되지
+  // 않아 삭제 실패가 사용자에게 전혀 보이지 않았다.
+  deleteError: string;
   onSelect: (item: HistoryItem) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: 20 | 50) => void;
@@ -225,6 +230,7 @@ export function Create3aScreen({
               <span className="v3-warning-dot" style={{ background: "var(--v3-danger)" }} />
               <span style={{ color: "var(--v3-danger)" }}>되돌릴 수 없습니다</span>
             </div>
+            {deleteError ? <p className="v3-inline-error" role="alert">{deleteError}</p> : null}
             <div className="v3-inline-actions">
               <button className="v3-secondary-button v3-flex-button" type="button" onClick={onCancelDelete}>취소</button>
               <button
