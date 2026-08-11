@@ -10,6 +10,7 @@ import { serviceStatusLabel, qwenStatusLabel } from "./helpers/format";
 import { canUseAdminConsole } from "./helpers/adminForms";
 import { SESSION_USER_STORAGE_KEY, loadSessionUser, clearLoginSession } from "./auth-session";
 import { StudioShell } from "./StudioShell";
+import { LoginScreen } from "./screens/accessScreens";
 
 function App() {
   const initialUser = useMemo(() => loadSessionUser(), []);
@@ -134,6 +135,12 @@ function App() {
     }
   }
 
+  // E-05: 로그인 화면(6a)은 전역 TopBar 없이 자체 브랜드 헤더를 갖는 전체 화면이다
+  // (design_handoff 6a는 1360×820 캔버스에 TopBar가 없음). 인증 후에만 app-shell +
+  // TopBar + StudioShell을 렌더한다.
+  if (!user || route === "access.login") {
+    return <LoginScreen onLogin={handleLogin} health={health} healthError={healthError} />;
+  }
   return (
     <div className="app-shell">
       <TopBar
@@ -144,14 +151,12 @@ function App() {
         route={route}
         onNavigate={navigate}
       />
-      {user && route !== "access.login" ? (
-        <StudioShell
-          user={user}
-          health={health}
-          route={route}
-          onNavigate={navigate}
-        />
-      ) : <LoginView onLogin={handleLogin} />}
+      <StudioShell
+        user={user}
+        health={health}
+        route={route}
+        onNavigate={navigate}
+      />
     </div>
   );
 }
@@ -202,55 +207,6 @@ function TopBar({
       ) : null}
     </header>
   );
-}
-
-function LoginView({ onLogin }: { onLogin: (session: AuthSession) => void }) {
-  const [id, setId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-    try {
-      const response = await apiClient.login({ id, password });
-      onLogin(response);
-    } catch (error) {
-      setError(loginErrorMessage(error));
-    }
-  }
-
-  return (
-    <main className="login-screen">
-      <form className="login-card" onSubmit={submit}>
-        <h1>DOBEDUB STUDIO | 접속</h1>
-        <label>
-          <span>ID (Email Address)</span>
-          <input value={id} onChange={(event) => setId(event.target.value)} placeholder="Enter your Employee ID" required />
-        </label>
-        <label>
-          <span>Password</span>
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your Password" required />
-        </label>
-        {error ? <p className="error-text">{error}</p> : null}
-        <button className="primary-button" type="submit">접속하기</button>
-      </form>
-    </main>
-  );
-}
-
-function loginErrorMessage(error: unknown) {
-  const message = error instanceof Error ? error.message : "";
-  if (message === "Invalid credentials") {
-    return "아이디 또는 비밀번호가 올바르지 않습니다.";
-  }
-  if (message === "User is inactive") {
-    return "비활성화된 사용자입니다. 관리자에게 문의하세요.";
-  }
-  if (message === "id and password are required") {
-    return "아이디와 비밀번호를 입력하세요.";
-  }
-  return message || "로그인에 실패했습니다.";
 }
 
 createRoot(document.getElementById("root") as HTMLElement).render(
