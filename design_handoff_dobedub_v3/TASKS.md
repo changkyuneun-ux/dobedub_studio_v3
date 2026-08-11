@@ -57,13 +57,18 @@
 - [ ] `GET/POST /api/collections`, `POST /api/collections/{id}/items`
 - [ ] 화면 `5c` 구현
 
-### A-03 · 작업 알림 — P2
+### A-03 · 작업 알림 — P2 — **1안으로 결정(2026-08-11) · 완료**
 알림 저장·읽음 처리 구조가 없습니다. 두 안 중 택일이 필요합니다.
 
 - 1안 · 폴링 결과를 클라이언트 토스트로 처리. 개발량 최소, 화면을 떠나면 소실.
 - 2안 · `notifications` 테이블 + 읽음 상태 + `GET /api/notifications`.
 
-- [ ] 방식 결정 후 구현. **결정 전에는 화면 `6e`를 건드리지 마십시오.**
+- [x] **1안 채택.** 작업이 종료(완료/취소/실패)될 때 `StudioShell`의 `showToast`가
+  화면 우상단에 6초짜리 토스트를 띄운다(`v3-toast`, 완료=accent·실패=danger·취소=warning).
+  진행 화면(2c)을 떠나 있어도 보이도록 StudioShell 루트에 고정 렌더. 백엔드(테이블·
+  엔드포인트) 없음. **설계 화면 `6e`(알림 센터·목록·읽음)는 1안에서는 성립하지 않아
+  구현하지 않는다** — 센터는 영속 저장(2안)을 전제로 하기 때문. 향후 2안이 필요해지면
+  이 토스트는 유지하고 센터 화면만 추가하면 된다.
 
 ### A-04 · 감사 로그 — P1
 권한 변경, 카탈로그 수정, 사용자 역할 변경, Pod 제어, 이력 삭제 모두 기록이 없습니다. 각 테이블의 `updated_at`으로 마지막 시각만 알 수 있고 행위자와 변경 내용은 알 수 없습니다.
@@ -269,11 +274,11 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 
 E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`adminMetadata`(6d) 두 항목을 추가했다 — design_handoff 원본은 이 둘을 6항목 Admin 사이드바가 아닌 별도 상단 nav로 그리지만, AppShell이 area를 `generate`/`admin` 두 가지만 지원하는 현재 구조에서는 관리 기능에 가까운 이 둘을 ADMIN 영역에 편입하는 편이 화면 골격 중복을 피할 수 있다고 판단했다. 화면 내용·API·권한은 design_handoff 그대로다.
 
-### E-05 · `1 Access` 흐름 — P2 — **6a/7g/6b 완료, 6e만 A-03 대기**
+### E-05 · `1 Access` 흐름 — P2 — **완료** (6a/7g/6b 화면 + 6e는 A-03 1안 토스트로 해소)
 - [x] `6a` 로그인 — *커밋 `92292ff`. 구버전 dark 테마 `LoginView`(.login-screen)를 `screens/accessScreens.tsx`의 v3 `LoginScreen`으로 재구축. 로그인 시 전역 TopBar 없이 전체 화면 렌더. 더미 금지로 좌측 통계 3칸·Sandbox Pod 상태 행은 제외(로그인 전 조회 API/권한 없음), ComfyUI·Qwen만 공개 헬스체크로 표시.*
 - [x] `7g` 403 (C-09) — *커밋 `1eaf2b4`. 임시 `AccessDeniedModal`을 정식 `AccessDeniedScreen`(AppShell 본문)으로 대체. 필요 권한/내 역할/요청 경로 카드 + Workspace 이동. 접근 거부를 렌더 시점 계산(`deniedRoute`)해 권한 없는 API 선호출 깜빡임 제거. 설계 7g의 3분할 중 401 세션 만료는 기존 로그인 복귀 동작이, 서버 오류는 각 화면 인라인 notice가 담당(README "실제로는 별개 상태")하므로 403만 화면화.*
 - [x] `6b` 사용자 매뉴얼 — *커밋 `fa50188`. 구버전 `ManualModal`(오버레이)을 `ManualScreen`(AppShell 본문 전체 화면)으로 전환, iframe 검색 로직 이관. `components/Modals.tsx`는 마지막 export가 빠지며 파일 삭제. 더미 금지로 목차(TOC)·PDF 내려받기 제외.*
-- [ ] `6e` 알림 — **A-03 방식 결정 전 착수 금지.** (2026-08-11 현재 미결. 설계 6e는 알림 "센터"(목록·읽음)라 사실상 A-03 2안(테이블 영속화)을 전제함 — 1안 토스트로는 센터 화면이 성립하지 않음. 결정 필요.)
+- [x] `6e` 알림 — **A-03 1안(토스트)으로 해소.** 설계 6e 알림 센터 화면은 1안에서는 성립하지 않아 만들지 않는다(사유는 A-03 참조). 대신 작업 종료 토스트를 `StudioShell`에 구현 — E-05 화면 UI 항목으로서의 6e는 이로써 종결.
 
 ### E-06 · 구버전 제거 — 각 흐름 이관 완료마다 즉시 — **구버전 삭제·파일 분리 완료**
 - [x] 대체된 구버전 컴포넌트·모달을 `main.tsx`에서 실제로 삭제(죽은 코드로 남기지 않음) — *`main.tsx` 9804줄 → 6814줄(파일 분리 전 기준, 약 2990줄 삭제). 제거한 것: `AdminConsoleModal`(+`AdminTab` 타입), `PromptCatalogAdminModal`/`PromptCatalogAdminContent`(구버전, `PromptCatalogAdminPanelV3`와는 별개), `StatusModal`/`StatusCard`, `MetadataModal`/`renderMetadataTab`/`ConfigRow`, `HistoryModal`/`HistoryDetail`/`PromptCell`, `PromptBuilderModal`/`SystemPromptEditor`/`SelectedKeywordBox`, `PromptReuseModal`, 구버전 `create.workspace` 폴백 JSX(`<main className="studio-grid">`), `SandboxPodConfirmModal`, 그리고 위 항목들이 사라지며 완전히 고아가 된 `PromptReviewPanel`/`PromptReviewCard`/`PromptFeedbackCard`/`AssetThumbs`/`PromptTextBox`/`PromptSceneStructurePreview`/`PromptTagRow`/`toPromptSceneStructure`/`PromptTermButton` 등. 각 항목은 삭제 전 실사용 호출부가 정말 없는지 grep으로 확인 후 제거했다(`goToPromptReuseScreen`/`searchPromptReuse`/`promptReuse*` 상태, `findPromptTermCategory`처럼 신규 화면과 공유하는 로직은 보존). `router.ts`도 함께 정리 - `admin.console`/`create.workspace` 라우트를 제거하고, 옛 북마크(`/studio/studio`, `/studio/admin`)는 각각 `create.load`/`admin.roles`로 보내도록 `LEGACY_LAST_SEGMENT_ROUTE`와 catch-all을 갱신. `TopBar`(로그아웃·ComfyUI/Qwen 상태 표시 등 `AppShell`에는 없는 전역 기능을 담당하므로 구버전이지만 살아있는 코드)는 삭제하지 않고 "Admin" 버튼 목적지만 `admin.roles`로 변경.*

@@ -258,7 +258,25 @@ export function StudioShell({
   const [outputAssets, setOutputAssets] = useState<OutputAsset[]>([]);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  // A-03 · 1안(2026-08-11 결정): 알림은 폴링 결과를 클라이언트 토스트로만 처리한다.
+  // notifications 테이블·읽음 상태·6e 알림 센터 화면은 만들지 않는다(화면을 떠나면
+  // 소실되는 휘발성 알림). 작업이 종료(완료/취소/실패)될 때 아래 showToast로 띄운다.
+  const toastIdRef = useRef(0);
+  const [toast, setToast] = useState<{ id: number; message: string; tone: "success" | "danger" | "neutral" } | null>(null);
   const workflowSelectionLocked = running || cancelRequested;
+
+  function showToast(message: string, tone: "success" | "danger" | "neutral") {
+    toastIdRef.current += 1;
+    setToast({ id: toastIdRef.current, message, tone });
+  }
+
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+    const timer = window.setTimeout(() => setToast((current) => (current?.id === toast.id ? null : current)), 6000);
+    return () => window.clearTimeout(timer);
+  }, [toast?.id]);
 
   async function loadWorkflowIntoState(workflowId: string, options?: { preserveNotice?: boolean }) {
     setError("");
@@ -1447,15 +1465,20 @@ export function StudioShell({
         setOutputAssets(finalJob.outputAssets || []);
         setSegments((items) => items.map((segment) => ({ ...segment, progress: 100 })));
         setHistory((await apiClient.history(1, historyPageSize)).items || []);
+        showToast("작업이 완료되었습니다. 결과 화면에서 확인하세요.", "success");
       } else if (finalJob.status === "cancelled") {
         setNotice("작업이 취소되었습니다.");
+        showToast("작업이 취소되었습니다.", "neutral");
       } else {
         setNotice(finalJob.message || "작업이 종료되었습니다.");
         setOutputAssets(finalJob.outputAssets || []);
+        showToast(finalJob.message || "작업이 실패했습니다.", "danger");
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Generate failed");
+      const message = error instanceof Error ? error.message : "Generate failed";
+      setError(message);
       setLogText(`RUNPOD STATUS : FAILED`);
+      showToast(message, "danger");
     } finally {
       setRunning(false);
       setCancelRequested(false);
@@ -1916,6 +1939,15 @@ export function StudioShell({
        deleteTarget을 받아 자체적으로 v3 스펙 삭제 확인창을 그리므로(reviewScreens.tsx
        213~243번째 줄), 여기서 또 렌더하면 3a에서 확인창이 두 개 겹쳐 떴다.
        E-05: 매뉴얼(6b)도 ManualScreen 전체 화면으로 전환돼 전역 모달 렌더가 없다. */}
+    {/* A-03 · 1안: 작업 종료 알림 토스트. 어느 화면에 있든(진행 화면을 떠나도) 보이도록
+       StudioShell 루트에 고정 렌더한다. 6초 후 자동 사라짐 + 수동 닫기. */}
+    {toast ? (
+      <div className={`v3-toast is-${toast.tone}`} role="status" aria-live="polite">
+        <span className="v3-toast-dot" aria-hidden="true" />
+        <span className="v3-toast-message">{toast.message}</span>
+        <button className="v3-toast-close" type="button" aria-label="알림 닫기" onClick={() => setToast(null)}>×</button>
+      </div>
+    ) : null}
     </>
   );
 }

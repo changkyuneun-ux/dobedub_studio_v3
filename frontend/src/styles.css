@@ -4052,6 +4052,65 @@ textarea {
   margin: 0;
 }
 
+/* A-03 · 1안: 작업 종료 알림 토스트 (design_handoff 6e는 센터 화면이라 미구현) */
+.v3-toast {
+  align-items: center;
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 10px;
+  box-shadow: var(--v3-modal-shadow);
+  display: flex;
+  gap: 10px;
+  font-family: var(--v3-font-body);
+  max-width: 380px;
+  padding: 12px 14px;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 1000;
+}
+
+.v3-toast-dot {
+  border-radius: 50%;
+  flex: none;
+  height: 7px;
+  width: 7px;
+}
+
+.v3-toast.is-success .v3-toast-dot {
+  background: var(--v3-accent);
+}
+
+.v3-toast.is-danger .v3-toast-dot {
+  background: var(--v3-danger);
+}
+
+.v3-toast.is-neutral .v3-toast-dot {
+  background: var(--v3-warning);
+}
+
+.v3-toast-message {
+  color: var(--v3-text-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.v3-toast-close {
+  background: none;
+  border: none;
+  color: var(--v3-text-label);
+  cursor: pointer;
+  flex: none;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.v3-toast-close:hover {
+  color: var(--v3-text-body);
+}
+
 .v3-step-tracker {
   display: flex;
   flex-direction: column;
