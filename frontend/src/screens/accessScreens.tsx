@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { apiClient, AuthSession, HealthResponse } from "../api/client";
 import { serviceStatusLabel, qwenStatusLabel } from "../helpers/format";
+import { StudioRoute, routePath } from "../router";
+import { User } from "../auth";
+import { AppShell } from "../components/AppShell";
+import { shellNavigate } from "../helpers/navigation";
 
 // E-05 · 1 Access.dc.html의 접속·안내 흐름 화면들.
 // design_handoff_dobedub_v3/1 Access.dc.html: 6a 로그인 / 7g 차단·만료·오류 / 6b 매뉴얼.
@@ -129,6 +133,74 @@ export function LoginScreen({
         </form>
       </section>
     </main>
+  );
+}
+
+// 7g · 차단(403 권한 없음) — design_handoff 7g "차단 · 만료 · 오류 3종".
+// 설계 원본은 403·401·서버오류를 한 카드 3분할로 그리지만 README는 "실제로는 별개
+// 상태"라고 명시한다. 여기서는 그중 403(직접 URL 진입 시 권한 없음)만 정식 화면으로
+// 구현한다 - 401 세션 만료는 토큰 만료 시 로그인 화면(6a)으로 되돌아가는 기존 동작이,
+// 서버 오류는 각 화면의 인라인 notice가 담당한다.
+//
+// 구버전 임시 AccessDeniedModal(modal-layer 오버레이)을 대체한다. 인증된 사용자가
+// 권한 없는 라우트에 직접 진입한 상황이므로 사이드바가 있는 AppShell 본문에 그린다
+// (권한 없는 메뉴는 사이드바에서 이미 숨겨져 있어, 이 화면은 직접 URL 진입으로만 도달).
+export function AccessDeniedScreen({
+  user,
+  route,
+  routeLabel,
+  requiredPermission,
+  onGoTo
+}: {
+  user: User;
+  route: StudioRoute;
+  routeLabel: string;
+  requiredPermission: string;
+  onGoTo: (route: StudioRoute) => void;
+}) {
+  const area = route.startsWith("admin.") ? "admin" : "generate";
+  const role = user.role || "권한 미지정";
+  return (
+    <AppShell
+      user={user}
+      area={area}
+      activeItem=""
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
+      headerEyebrow="403 · 권한 없음"
+      headerTitle="접근 권한이 없습니다"
+    >
+      <div className="v3-access-denied">
+        <div className="v3-access-denied-badge">403</div>
+        <h2 className="v3-access-denied-title">이 화면에 접근할 권한이 없습니다</h2>
+        <p className="v3-access-denied-desc">
+          {routeLabel}은(는) <code>{requiredPermission}</code> 권한이 필요합니다. 현재 역할{" "}
+          <code>{role}</code>에는 포함되어 있지 않습니다.
+        </p>
+        <div className="v3-access-denied-card">
+          <div className="v3-access-denied-row">
+            <span>필요 권한</span>
+            <code>{requiredPermission}</code>
+          </div>
+          <div className="v3-access-denied-row">
+            <span>내 역할</span>
+            <code>{role}</code>
+          </div>
+          <div className="v3-access-denied-row">
+            <span>요청 경로</span>
+            <code>{routePath(route)}</code>
+          </div>
+        </div>
+        <div className="v3-access-denied-actions">
+          <button className="v3-primary-button" type="button" onClick={() => onGoTo("create.load")}>
+            Workspace로 이동
+          </button>
+        </div>
+        <p className="v3-access-denied-note">
+          권한이 없는 메뉴는 사이드바에서 숨겨집니다 · 직접 URL 진입만 이 화면에 도달합니다.
+          접근이 필요하면 관리자에게 권한을 요청하십시오.
+        </p>
+      </div>
+    </AppShell>
   );
 }
 

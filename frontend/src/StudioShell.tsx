@@ -69,9 +69,9 @@ import {
   previewSegmentDetailRows
 } from "./helpers/workflow";
 import {
-  AccessDeniedModal,
   ManualModal
 } from "./components/Modals";
+import { AccessDeniedScreen } from "./screens/accessScreens";
 import { useProtectedAssetUrl } from "./components/ProtectedAssets";
 import {
   Create2aScreen,
@@ -107,8 +107,9 @@ import { PromptCatalogAdminPanelV3 } from "./screens/PromptCatalogAdminPanelV3";
 // 권한 없이 데이터를 조회할 수 있었다. admin만 canUseAdminConsole 체크가 있었지만
 // 그마저도 조용히 studio로 되돌릴 뿐 사용자에게 이유를 보여주지 않았다.
 // design_handoff_dobedub_v3/README.md: "권한이 없는 메뉴는 사이드바에서 숨깁니다.
-// 직접 URL 진입만 7g의 403 화면에 도달합니다." — 정식 7g 화면은 아직 없으므로(E-05/C-09
-// 대상) 여기서는 임시로 AccessDeniedModal을 띄운다. 화면이 만들어지면 그쪽으로 교체.
+// 직접 URL 진입만 7g의 403 화면에 도달합니다." — E-05에서 정식 7g 화면
+// (screens/accessScreens.tsx의 AccessDeniedScreen)을 구현해, 직접 URL 진입 시
+// 아래 deniedRoute 계산으로 그 화면을 본문에 그린다.
 export const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "review.history": "history:read",
   "review.assets": "history:read",
@@ -229,7 +230,6 @@ export function StudioShell({
   const [modelMetadata, setModelMetadata] = useState<ModelMetadataResponse | null>(null);
   const [metadataLoading, setMetadataLoading] = useState(false);
   const [metadataNotice, setMetadataNotice] = useState("");
-  const [accessDeniedRoute, setAccessDeniedRoute] = useState<StudioRoute | null>(null);
   const [promptCatalog, setPromptCatalog] = useState<PromptCatalogResponse | null>(null);
   const [promptSystemPrompt, setPromptSystemPrompt] = useState<PromptSystemPromptResponse | null>(null);
   const [promptSystemPromptText, setPromptSystemPromptText] = useState("");
@@ -1081,12 +1081,9 @@ export function StudioShell({
     // metadataModalOpen/adminModalOpen/historyModalOpen과 그 배후의 구버전
     // 모달들은 모두 제거됐다 - manualModalOpen만 실제로 라우트 기반 모달이다.
     setManualModalOpen(route === "access.manual" && granted);
-    setAccessDeniedRoute(
-      !granted && route !== "create.load" && route !== "access.login"
-        ? route
-        : null
-    );
-
+    // E-05: 접근 거부 판정은 렌더 시점에 직접 계산해 7g AccessDeniedScreen을 본문으로
+    // 그린다(아래 deniedRoute). 별도 상태로 들고 있으면 라우트 화면이 먼저 마운트돼
+    // 권한 없는 API를 호출하는 깜빡임이 생겨, 여기서는 데이터 로딩만 막는다.
     if (!granted) {
       return;
     }
@@ -1527,9 +1524,24 @@ export function StudioShell({
     setOutputAssets([]);
   }
 
+  // E-05 · 7g: 권한 없는 라우트에 직접 URL로 진입한 경우 라우트 화면 대신 403
+  // AccessDeniedScreen을 본문에 그린다. create.load/access.login은 가드 대상이 아니다.
+  const deniedRoute =
+    !routeAccessGranted(user, route) && route !== "create.load" && route !== "access.login"
+      ? route
+      : null;
+
   return (
     <>
-    {route === "create.load" ? (
+    {deniedRoute ? (
+      <AccessDeniedScreen
+        user={user}
+        route={deniedRoute}
+        routeLabel={ROUTE_LABEL[deniedRoute] || deniedRoute}
+        requiredPermission={ROUTE_REQUIRED_PERMISSION[deniedRoute] || ""}
+        onGoTo={onNavigate}
+      />
+    ) : route === "create.load" ? (
       <Create2aScreen
         user={user}
         health={health}
@@ -1905,12 +1917,6 @@ export function StudioShell({
         html={manualHtml}
         loading={manualLoading}
         error={manualError}
-        onClose={() => onNavigate("create.load")}
-      />
-    ) : null}
-    {accessDeniedRoute ? (
-      <AccessDeniedModal
-        routeLabel={ROUTE_LABEL[accessDeniedRoute] || accessDeniedRoute}
         onClose={() => onNavigate("create.load")}
       />
     ) : null}

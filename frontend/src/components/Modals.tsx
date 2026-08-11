@@ -10,32 +10,8 @@ import { useEffect, useRef, useState } from "react";
 // 하나뿐임을 확인한 뒤(grep으로 다른 호출부 없음 확인) 이 구버전 모달과
 // StudioShell.tsx의 렌더 지점을 제거했다 - Create3aScreen 안의 v3 모달만 남는다.
 
-// 임시 403 화면. design_handoff_dobedub_v3의 정식 화면 `7g`(차단·만료·오류)가
-// E-05에서 구현되면 이 컴포넌트는 제거하고 그쪽으로 대체한다. 그 전까지 최소한
-// "권한이 없다"는 사실을 사용자에게 알리기 위한 자리다 - 이전에는 이 상황에서
-// 아무 안내 없이 빈 화면(history/status/metadata/manual)이거나 조용한 리다이렉트
-// (admin)만 있었다.
-export function AccessDeniedModal({
-  routeLabel,
-  onClose
-}: {
-  routeLabel: string;
-  onClose: () => void;
-}) {
-  return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-labelledby="accessDeniedTitle">
-      <section className="confirm-modal">
-        <div className="modal-header">
-          <h2 id="accessDeniedTitle">권한이 없습니다</h2>
-        </div>
-        <p>"{routeLabel}" 화면을 사용할 권한이 없습니다. 필요한 경우 관리자에게 권한을 요청하십시오.</p>
-        <div className="confirm-actions">
-          <button className="secondary-button" type="button" onClick={onClose}>확인</button>
-        </div>
-      </section>
-    </div>
-  );
-}
+// 2026-08-11 · E-05: 임시 AccessDeniedModal(403 오버레이)은 정식 7g 화면
+// (screens/accessScreens.tsx의 AccessDeniedScreen)이 구현되며 제거했다.
 
 export function ManualModal({
   html,
