@@ -42,6 +42,14 @@ import { shellNavigateAdmin } from "../helpers/navigation";
 //
 // 조회는 prompts:build 권한(백엔드 GET 요건과 동일), 저장은 prompt-catalog:write
 // 권한이 있어야 버튼이 활성화된다(백엔드 PUT 요건과 동일).
+//
+// B-07 · SYSTEM 그룹 표기: design_handoff는 카탈로그를 POSITIVE·NEGATIVE·SYSTEM
+// 3그룹으로 보이지만 이는 **화면 묶음일 뿐 DB 스코프가 아니다.** DB(prompt_scopes)에는
+// POSITIVE 계열·NEGATIVE 계열 두 스코프만 있고, 이 SYSTEM 탭이 다루는 시스템 지시문은
+// prompt_scopes/prompt_category_groups 계층이 아니라 별도 테이블 prompt_system_prompts에
+// code당 1건으로 저장된다. 그래서 이 화면은 스코프→그룹→서브카테고리 트리 없이 지시문
+// 한 건만 편집하고, POSITIVE/NEGATIVE 트리를 그리는 PromptCatalogAdminPanelV3(4e/3d/4b)와
+// 완전히 분리된 별도 컴포넌트다.
 export function Create7aScreen({
   user,
   onGoTo,

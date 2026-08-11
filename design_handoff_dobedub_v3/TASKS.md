@@ -166,7 +166,7 @@
 ### B-07 · SYSTEM 그룹 표기 — P2
 DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지시문은 `prompt_system_prompts`라는 별도 테이블입니다.
 
-- [ ] 설계의 3그룹(POSITIVE·NEGATIVE·SYSTEM)은 **화면 묶음일 뿐 DB 그룹이 아님**을 코드 주석과 문서에 명시 — *2026-08-10 점검: `screens/adminScreens.tsx`의 `Create7aScreen`(7a)이나 `screens/PromptCatalogAdminPanelV3.tsx`(4e/3d/4b) 어디에도 이 구분을 명시한 주석이 없음. 코드 주석 추가는 구현(코드 변경) 작업이라 이번 검토 범위 밖 - 미체크 유지, 사용자 확인 후 처리 권장.*
+- [x] 설계의 3그룹(POSITIVE·NEGATIVE·SYSTEM)은 **화면 묶음일 뿐 DB 그룹이 아님**을 코드 주석과 문서에 명시 — *2026-08-11 처리: `screens/adminScreens.tsx`의 `Create7aScreen` 위 주석 블록에 명시(DB prompt_scopes에는 POSITIVE·NEGATIVE 두 스코프뿐, SYSTEM 지시문은 별도 테이블 prompt_system_prompts에 code당 1건). PromptCatalogAdminPanelV3와 분리된 별도 컴포넌트임도 함께 기록.*
 - [x] SYSTEM 탭은 카테고리 계층 없이 지시문 1건만 다룰 것 — *`Create7aScreen`(`screens/adminScreens.tsx:43-99`) 확인 - 스코프/그룹/서브카테고리 트리 없이 `promptSystemPrompt` 레코드 1건(코드·모델·본문 텍스트)만 다루는 단일 textarea 편집기임을 재확인. `PromptCatalogAdminPanelV3`(4e/3d/4b, POSITIVE/NEGATIVE 트리)와 완전히 분리된 별도 컴포넌트.*
 
 ### B-08 · 시스템 지시문 버전 보관 — P2
