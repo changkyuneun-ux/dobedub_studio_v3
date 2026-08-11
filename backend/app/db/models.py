@@ -318,7 +318,7 @@ class PromptCategoryGroup(Base):
     __tablename__ = "prompt_category_groups"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    scope_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_scopes.id", ondelete="CASCADE"), nullable=False)
+    scope_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_scopes.id", ondelete="CASCADE"), nullable=False, index=True)
     code: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     name_ko: Mapped[str] = mapped_column(String(191), nullable=False)
     name_en: Mapped[str] = mapped_column(String(191), nullable=False)
@@ -336,7 +336,7 @@ class PromptSubcategory(Base):
     __tablename__ = "prompt_subcategories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    category_group_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_category_groups.id", ondelete="CASCADE"), nullable=False)
+    category_group_id: Mapped[int] = mapped_column(Integer, ForeignKey("prompt_category_groups.id", ondelete="CASCADE"), nullable=False, index=True)
     # B-06 4단계: legacy_category_id 컬럼 제거(마이그레이션 20260810_0013).
     code: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     scope_type: Mapped[str] = mapped_column(String(32), nullable=False, default="SCENE")
@@ -573,3 +573,7 @@ Index("ix_prompt_category_terms_category_order", PromptCategoryTerm.category_id,
 Index("ix_prompt_term_renderings_lookup", PromptTermRendering.term_id, PromptTermRendering.model_profile_id, PromptTermRendering.polarity)
 Index("ix_prompt_term_relations_source_type", PromptTermRelation.source_term_id, PromptTermRelation.relation_type)
 Index("ix_prompt_generation_requests_workflow_segment", PromptGenerationRequest.workflow_id, PromptGenerationRequest.segment_index)
+# 마이그레이션 20260803_0004가 만든 신형 카탈로그 계층 인덱스를 models.py 선언과
+# 일치시킨다(드리프트 해소). scope_id·category_group_id 단일 인덱스는 각 컬럼의
+# index=True로, 아래 복합 인덱스는 migration과 같은 이름으로 선언.
+Index("ix_prompt_subcategory_keywords_subcategory_order", PromptSubcategoryKeyword.subcategory_id, PromptSubcategoryKeyword.sort_order)
