@@ -38,7 +38,11 @@ class DbStudioRepository:
     def load_history(self) -> list[dict]:
         tasks = self.session.scalars(
             select(WorkflowTask)
-            .where(func.upper(WorkflowTask.status).in_({"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}))
+            # B-05: soft delete된 작업은 제외.
+            .where(
+                func.upper(WorkflowTask.status).in_({"COMPLETED", "SUCCESS", "FAILED", "TIMED_OUT"}),
+                WorkflowTask.deleted_at.is_(None),
+            )
             .order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
         ).all()
         return [self._task_to_history_item(task) for task in tasks]
@@ -112,41 +116,19 @@ class DbStudioRepository:
         # 않으면(즉 대기·진행 중이면) 삭제를 거부한다.
         if str(task.status or "").upper() not in TERMINAL_STATES:
             raise ValueError(f"진행 중인 작업은 삭제할 수 없습니다: {task_id} (status={task.status})")
-        asset_ids = []
-        for link in list(task.input_assets) + list(task.output_assets):
-            if link.asset_id not in asset_ids:
-                asset_ids.append(link.asset_id)
-
-        self.session.delete(task)
-        self.session.flush()
-
-        removed_assets = []
-        file_results = []
-        for asset_id in asset_ids:
-            asset = self.session.get(Asset, asset_id)
-            if not asset:
-                file_results.append({"assetId": asset_id, "path": "", "deleted": False, "reason": "asset-metadata-missing"})
-                continue
-            if self._asset_has_task_refs(asset_id):
-                file_results.append({
-                    "assetId": asset_id,
-                    "path": asset.storage_key,
-                    "deleted": False,
-                    "reason": "asset-still-referenced",
-                })
-                continue
-            result = delete_asset_file(self._asset_to_json(asset), self.uploads_dir, self.outputs_dir)
-            result["assetId"] = asset_id
-            file_results.append(result)
-            self.session.delete(asset)
-            removed_assets.append(asset_id)
-
-        self.session.commit()
+        # B-05: 하드 삭제 → soft delete. 작업 레코드와 그 프롬프트/자산 링크는 남기고
+        # deleted_at만 찍는다. 이력 조회(목록·총계·재사용 프롬프트)는 deleted_at IS NULL만
+        # 보므로 사용자에겐 사라진 것으로 보이고, 결과물 파일(assets)은 그대로 남는다
+        # (3a "결과물 파일은 Assets에 남습니다"). 이미 삭제된 작업의 재삭제는 멱등 처리.
+        if task.deleted_at is None:
+            task.deleted_at = datetime.utcnow()
+            self.session.commit()
         return {
             "deleted": True,
             "taskId": task_id,
-            "removedAssets": removed_assets,
-            "fileResults": file_results,
+            "softDeleted": True,
+            "removedAssets": [],
+            "fileResults": [],
         }
 
     def load_configs(self) -> list[dict]:

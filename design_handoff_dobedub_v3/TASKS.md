@@ -122,12 +122,12 @@
 - [ ] dry-run을 유지한다면 화면 `2f`(실행 전 확인)에 모드 배지를 추가하고, 실제 실행과 시각적으로 구분 — *해당 없음(아래 항목의 "항상 실제 실행" 경로를 택함).*
 - [x] 항상 실제 실행이라면 기본값을 바꾸고 컬럼 용도를 문서화 — *`get_settings()`/`Settings.dry_run` 기본값을 `False`로 변경, `models.py`의 `execution_mode` 컬럼에 `Settings.dry_run` 기본값과의 관계를 주석으로 명시.*
 
-### B-05 · 이력 삭제 방식 — P2
-`delete_history_item`은 하드 삭제이고 `workflow_tasks`에 삭제 표시 컬럼이 없습니다. 삭제 사실 자체도 남지 않습니다.
+### B-05 · 이력 삭제 방식 — P2 — **완료** (2026-08-11)
+`delete_history_item`이 하드 삭제였고 `workflow_tasks`에 삭제 표시 컬럼이 없었습니다.
 
-- [ ] `deleted_at` 컬럼 추가, 조회에서 제외하는 방식으로 전환 — *미착수. `delete_history_item`은 여전히 하드 삭제(`db_adapter.py`) - A-04는 "삭제했다는 사실"만 감사 로그에 남길 뿐, 삭제 자체를 soft delete로 바꾸지는 않았다.*
-- [x] A-04와 함께 처리 (삭제 행위를 감사 로그에 기록) — *`backend/app/api/v1/history.py`의 `delete_history_item()`이 삭제 직전 스냅샷(before_json)과 함께 `action="history.delete"`로 기록. 삭제 자체(하드 삭제)를 막거나 되돌리지는 않음 - 위 `deleted_at` 항목과는 별개.*
-- [x] 화면 문구는 그대로 — 사용자에게는 복구 불가로 안내 — *`Create3aScreen`의 삭제 확인 모달(`reviewScreens.tsx:222-225`)이 "되돌릴 수 없습니다" 경고 스트립을 이미 표시함. B-05(soft delete) 백엔드 착수 전이라 현재는 실제로도 하드 삭제라 문구와 동작이 일치 - B-05 구현 시에도 이 문구는 그대로 유지하면 됨.*
+- [x] `deleted_at` 컬럼 추가, 조회에서 제외하는 방식으로 전환 — *마이그레이션 `20260811_0016`로 `workflow_tasks.deleted_at` 추가. `db_adapter.delete_history_item`을 하드 삭제 → soft delete(deleted_at만 찍고 작업 레코드·프롬프트·자산 링크·파일은 보존)로 재작성. 이력 조회 3곳 모두 `deleted_at IS NULL`만 보도록 필터 추가: `task_tracking_service.task_history_items`(목록)·`task_history_total`(총계)·`reusable_task_prompts`(재사용, NOT EXISTS로 삭제된 작업의 프롬프트 제외 - 3a "재사용 등록도 함께 사라집니다" 준수), `db_adapter.load_history`(리포지토리 경로). 진행 중 작업 삭제 차단(TERMINAL_STATES)과 멱등 재삭제 유지. 임시 DB E2E로 목록·총계·재사용 제외, 자산·작업 레코드 보존, 진행중 차단, 멱등 확인.*
+- [x] A-04와 함께 처리 (삭제 행위를 감사 로그에 기록) — *`history.py` 라우트가 삭제 직전 스냅샷(before_json)과 함께 `action="history.delete"`로 기록(A-04에서 완료). soft delete로 바뀐 뒤에도 그대로 동작.*
+- [x] 화면 문구는 그대로 — 사용자에게는 복구 불가로 안내 — *`Create3aScreen` 삭제 확인 모달의 "되돌릴 수 없습니다" 유지. 사용자 관점에선 soft delete여도 화면에서 되살릴 수단이 없으므로 문구와 체감 동작이 일치(결과물 파일만 Assets에 남는다는 안내도 이미 있음).*
 
 ### B-06 · 카탈로그를 신형 계층으로 일원화 — P0 · **결정됨** — **완료** (1~3단계, 4단계 중 컬럼 정리까지)
 계층이 두 벌입니다.
@@ -222,7 +222,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] 이력 조회·삭제·상세 경로가 모두 `db_adapter`를 타도록 라우터 정리
 - [x] `json_repository`의 이력 관련 함수는 제거하거나, 남긴다면 마이그레이션 도구 전용임을 주석으로 명시
 - [x] JSON 파일에만 있고 DB에 없는 과거 이력이 있는지 확인하고, 있으면 일회성 이관 스크립트 작성 — *`data/history.json`(23건) vs `workflow_tasks`(25건) 직접 대조, JSON에만 있고 DB에 없는 항목 0건 확인. 기존 `scripts/migrate_json_to_db.py`가 이미 존재·정상 동작해 신규 스크립트 불필요.*
-- [ ] 페이지네이션(B-01)과 soft delete(B-05)는 DB 경로에만 구현 — **이 항목이 두 작업의 선행 조건입니다** — *B-01(페이지네이션)은 DB 경로로 구현 완료. B-05(soft delete)는 미착수라 이 항목은 B-05 완료 후 재확인 필요.*
+- [x] 페이지네이션(B-01)과 soft delete(B-05)는 DB 경로에만 구현 — *B-01(페이지네이션)·B-05(soft delete, `deleted_at`) 모두 DB 경로(`task_tracking_service`/`db_adapter`)에만 구현 완료. JSON 경로는 D-03에서 이력 전용에서 배제됨.*
 
 완료 기준 — 이력 화면의 어떤 동작도 JSON 파일을 읽거나 쓰지 않는다. — *스모크 테스트로 확인(커밋 메시지 참조). 단, 이력 "화면" 자체는 구버전 UI라 신규 `3a` 화면 구현(E-03) 후 재검증 필요.*
 

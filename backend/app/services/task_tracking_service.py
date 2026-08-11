@@ -38,7 +38,8 @@ def task_history_items(page: int | None = None, page_size: int | None = None) ->
     try:
         id_statement = (
             select(WorkflowTask.id)
-            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES))
+            # B-05: soft delete된 작업(deleted_at IS NOT NULL)은 이력에서 제외.
+            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES), WorkflowTask.deleted_at.is_(None))
             .order_by(WorkflowTask.created_at.desc(), WorkflowTask.id.desc())
         )
         if page is not None and page_size is not None:
@@ -74,7 +75,8 @@ def task_history_total() -> int:
         statement = (
             select(func.count())
             .select_from(WorkflowTask)
-            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES))
+            # B-05: soft delete된 작업은 총계에서도 제외(목록과 페이지네이션 일치).
+            .where(func.upper(WorkflowTask.status).in_(HISTORY_RESULT_STATES), WorkflowTask.deleted_at.is_(None))
         )
         return int(session.scalar(statement) or 0)
     finally:
@@ -356,6 +358,14 @@ def reusable_task_prompts(
             query = query.where(TaskPrompt.review_status == "reviewed")
         if reuse_eligible is not None:
             query = query.where(TaskPrompt.reuse_eligible.is_(bool(reuse_eligible)))
+        # B-05: soft delete된 작업에 속한 프롬프트는 재사용 목록에서 제외한다
+        # (3a 삭제 안내 "이 작업의 프롬프트 평가와 재사용 등록도 함께 사라집니다").
+        # task_id가 없는 프롬프트(작업 미연결)는 NOT EXISTS라 그대로 남는다.
+        query = query.where(
+            ~select(WorkflowTask.id)
+            .where(WorkflowTask.id == TaskPrompt.task_id, WorkflowTask.deleted_at.is_not(None))
+            .exists()
+        )
         cleaned_keyword = str(keyword or "").strip()
         fetch_limit = 200 if cleaned_keyword else max(1, min(200, int(limit or 50)))
         rows = session.scalars(query.limit(fetch_limit)).all()

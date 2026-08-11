@@ -193,6 +193,10 @@ class WorkflowTask(Base):
     user_id: Mapped[str | None] = mapped_column(String(191), ForeignKey("users.id"), nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # B-05: 이력 soft delete. NULL이면 살아있는 작업, 값이 있으면 삭제된 것으로 보고
+    # 모든 이력 조회(목록·총계·재사용 프롬프트)에서 제외한다. 결과물 파일(assets)은
+    # 남긴다(3a "결과물 파일은 Assets에 남습니다").
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
     elapsed_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
     positive_prompts: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     negative_prompts: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
