@@ -26,6 +26,7 @@ from backend.app.services.prompt_builder_service import (
 from backend.app.services.prompt_system_prompt_service import (
     DEFAULT_SYSTEM_PROMPT_CODE,
     get_prompt_system_prompt,
+    list_prompt_system_prompt_versions,
     save_prompt_system_prompt,
 )
 
@@ -137,13 +138,22 @@ def system_prompt(_: CurrentUser = Depends(require_permission("prompts:build")),
         raise HTTPException(status_code=500, detail=f"Prompt system prompt load failed: {exc}") from exc
 
 
+@router.get("/system-prompt/versions")
+# B-08: 시스템 지시문 버전 이력(7a 되돌리기용). 조회는 편집 화면과 같은 prompts:build.
+def system_prompt_versions(code: str = DEFAULT_SYSTEM_PROMPT_CODE, _: CurrentUser = Depends(require_permission("prompts:build")), db: Session = Depends(get_db)):
+    try:
+        return {"items": list_prompt_system_prompt_versions(db, str(code or DEFAULT_SYSTEM_PROMPT_CODE))}
+    except SQLAlchemyError as exc:
+        raise HTTPException(status_code=500, detail=f"Prompt system prompt versions load failed: {exc}") from exc
+
+
 @router.put("/system-prompt")
 def update_system_prompt(payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     code = str(payload.get("code") or DEFAULT_SYSTEM_PROMPT_CODE).strip() or DEFAULT_SYSTEM_PROMPT_CODE
     existing = db.scalar(select(PromptSystemPrompt).where(PromptSystemPrompt.code == code))
     before = _system_prompt_snapshot(existing) if existing else None
     try:
-        result = save_prompt_system_prompt(db, payload)
+        result = save_prompt_system_prompt(db, payload, created_by=current_user.id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:

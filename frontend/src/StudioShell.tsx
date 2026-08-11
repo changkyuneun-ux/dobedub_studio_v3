@@ -18,6 +18,7 @@ import {
   PromptEntry,
   PromptCatalogResponse,
   PromptSystemPromptResponse,
+  SystemPromptVersion,
   PromptSceneResponse,
   PromptGenerateResponse,
   HistoryItem,
@@ -244,6 +245,8 @@ export function StudioShell({
   const [promptCatalog, setPromptCatalog] = useState<PromptCatalogResponse | null>(null);
   const [promptSystemPrompt, setPromptSystemPrompt] = useState<PromptSystemPromptResponse | null>(null);
   const [promptSystemPromptText, setPromptSystemPromptText] = useState("");
+  // B-08: 시스템 지시문 버전 이력(7a 되돌리기).
+  const [systemPromptVersions, setSystemPromptVersions] = useState<SystemPromptVersion[]>([]);
   const [promptBuilderPanel, setPromptBuilderPanel] = useState<"keywords" | "systemPrompt">("keywords");
   const [promptSelectedTermIds, setPromptSelectedTermIds] = useState<number[]>([]);
   const [promptScene, setPromptScene] = useState<PromptSceneResponse | null>(null);
@@ -658,6 +661,7 @@ export function StudioShell({
       const response = await apiClient.promptSystemPrompt();
       setPromptSystemPrompt(response);
       setPromptSystemPromptText(response.promptText || "");
+      await loadSystemPromptVersions(response.code);
     } catch (error) {
       setPromptBuilderNotice(error instanceof Error ? error.message : "System Prompt를 불러오지 못했습니다.");
     } finally {
@@ -665,7 +669,20 @@ export function StudioShell({
     }
   }
 
-  async function savePromptSystemPrompt() {
+  // B-08: 버전 이력 로드. 실패해도 편집 화면 자체는 막지 않는다(이력만 비게 둔다).
+  async function loadSystemPromptVersions(code?: string) {
+    try {
+      const response = await apiClient.systemPromptVersions(code);
+      setSystemPromptVersions(response.items || []);
+    } catch {
+      setSystemPromptVersions([]);
+    }
+  }
+
+  // B-08: promptText를 명시적으로 받아 저장한다. 되돌리기는 옛 버전 텍스트로 이 함수를
+  // 부른다(저장 경로가 하나뿐이라 새 버전이 하나 더 쌓이며 감사 로그도 그대로 남는다).
+  async function savePromptSystemPrompt(overrideText?: string) {
+    const promptText = overrideText ?? promptSystemPromptText;
     setPromptBuilderLoading(true);
     setPromptBuilderNotice("");
     try {
@@ -674,11 +691,12 @@ export function StudioShell({
         name: promptSystemPrompt?.name || "Qwen WAN I2V Positive Prompt Composer",
         provider: promptSystemPrompt?.provider || "runpod_vllm",
         modelFamily: promptSystemPrompt?.modelFamily || "qwen",
-        promptText: promptSystemPromptText
+        promptText
       });
       setPromptSystemPrompt(response);
       setPromptSystemPromptText(response.promptText || "");
-      setPromptBuilderNotice("System Prompt를 저장했습니다.");
+      await loadSystemPromptVersions(response.code);
+      setPromptBuilderNotice(overrideText !== undefined ? "선택한 버전으로 되돌렸습니다." : "System Prompt를 저장했습니다.");
     } catch (error) {
       setPromptBuilderNotice(error instanceof Error ? error.message : "System Prompt 저장에 실패했습니다.");
     } finally {
@@ -1910,8 +1928,10 @@ export function StudioShell({
         systemPrompt={promptSystemPrompt}
         value={promptSystemPromptText}
         onChange={setPromptSystemPromptText}
+        versions={systemPromptVersions}
         onReload={() => void loadPromptSystemPrompt()}
         onSave={() => void savePromptSystemPrompt()}
+        onRevert={(promptText) => void savePromptSystemPrompt(promptText)}
       />
     ) : route === "admin.status" ? (
       <Create6cScreen

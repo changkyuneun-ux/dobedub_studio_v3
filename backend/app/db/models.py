@@ -496,6 +496,25 @@ class PromptSystemPrompt(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
 
+class PromptSystemPromptVersion(Base):
+    # B-08: 시스템 지시문 버전 이력. 저장할 때마다 새 상태를 한 행으로 스냅샷해
+    # 7a에서 이전 버전으로 되돌릴 수 있게 한다. created_by는 audit_logs와 같은 이유로
+    # users.id에 FK를 걸지 않는다(느슨한 참조).
+    __tablename__ = "prompt_system_prompt_versions"
+    __table_args__ = (
+        Index("ix_prompt_system_prompt_versions_code_created", "code", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    code: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(191), nullable=False)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False, default="runpod_vllm")
+    model_family: Mapped[str] = mapped_column(String(64), nullable=False, default="qwen")
+    prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_by: Mapped[str | None] = mapped_column(String(191), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
+
+
 class ModelProfile(Base):
     __tablename__ = "model_profiles"
 

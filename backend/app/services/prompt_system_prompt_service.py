@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.db.models import PromptSystemPrompt
+from backend.app.db.models import PromptSystemPrompt, PromptSystemPromptVersion
 
 
 DEFAULT_SYSTEM_PROMPT_CODE = "qwen_wan_i2v_positive"
@@ -109,7 +111,13 @@ def get_prompt_system_prompt(session: Session, code: str = DEFAULT_SYSTEM_PROMPT
     return _prompt_payload(prompt)
 
 
-def save_prompt_system_prompt(session: Session, payload: dict, code: str = DEFAULT_SYSTEM_PROMPT_CODE) -> dict:
+def save_prompt_system_prompt(
+    session: Session,
+    payload: dict,
+    code: str = DEFAULT_SYSTEM_PROMPT_CODE,
+    *,
+    created_by: str | None = None,
+) -> dict:
     prompt = _get_or_create_prompt_system_prompt(session, str(payload.get("code") or code).strip() or code)
     prompt.name = str(payload.get("name") or prompt.name or "Qwen WAN I2V Positive Prompt Composer").strip()
     prompt.provider = str(payload.get("provider") or prompt.provider or "runpod_vllm").strip()
@@ -120,9 +128,49 @@ def save_prompt_system_prompt(session: Session, payload: dict, code: str = DEFAU
     prompt.prompt_text = prompt_text
     prompt.is_active = bool(payload.get("isActive", prompt.is_active))
     session.add(prompt)
+    # B-08: 저장할 때마다 새 상태를 버전 이력으로 스냅샷한다(7a 되돌리기용). 되돌리기도
+    # 결국 이 save를 다시 부르므로 별도 처리 없이 새 버전이 하나 더 쌓인다.
+    session.add(
+        PromptSystemPromptVersion(
+            code=prompt.code,
+            name=prompt.name,
+            provider=prompt.provider,
+            model_family=prompt.model_family,
+            prompt_text=prompt.prompt_text,
+            created_by=created_by,
+            created_at=datetime.utcnow(),
+        )
+    )
     session.commit()
     session.refresh(prompt)
     return _prompt_payload(prompt)
+
+
+def list_prompt_system_prompt_versions(
+    session: Session, code: str = DEFAULT_SYSTEM_PROMPT_CODE, limit: int = 20
+) -> list[dict]:
+    """B-08: 최신순 버전 이력. 7a의 '이전 버전으로 되돌리기' 목록에 쓴다."""
+    safe_limit = max(1, min(100, int(limit or 20)))
+    rows = session.scalars(
+        select(PromptSystemPromptVersion)
+        .where(PromptSystemPromptVersion.code == code)
+        .order_by(PromptSystemPromptVersion.created_at.desc(), PromptSystemPromptVersion.id.desc())
+        .limit(safe_limit)
+    ).all()
+    return [_version_payload(row) for row in rows]
+
+
+def _version_payload(row: PromptSystemPromptVersion) -> dict:
+    return {
+        "id": row.id,
+        "code": row.code,
+        "name": row.name,
+        "provider": row.provider,
+        "modelFamily": row.model_family,
+        "promptText": row.prompt_text,
+        "createdBy": row.created_by,
+        "createdAt": row.created_at.isoformat() if row.created_at else None,
+    }
 
 
 def active_prompt_system_prompt_text(session: Session, code: str = DEFAULT_SYSTEM_PROMPT_CODE) -> str:

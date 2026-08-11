@@ -169,11 +169,11 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] 설계의 3그룹(POSITIVE·NEGATIVE·SYSTEM)은 **화면 묶음일 뿐 DB 그룹이 아님**을 코드 주석과 문서에 명시 — *2026-08-11 처리: `screens/adminScreens.tsx`의 `Create7aScreen` 위 주석 블록에 명시(DB prompt_scopes에는 POSITIVE·NEGATIVE 두 스코프뿐, SYSTEM 지시문은 별도 테이블 prompt_system_prompts에 code당 1건). PromptCatalogAdminPanelV3와 분리된 별도 컴포넌트임도 함께 기록.*
 - [x] SYSTEM 탭은 카테고리 계층 없이 지시문 1건만 다룰 것 — *`Create7aScreen`(`screens/adminScreens.tsx:43-99`) 확인 - 스코프/그룹/서브카테고리 트리 없이 `promptSystemPrompt` 레코드 1건(코드·모델·본문 텍스트)만 다루는 단일 textarea 편집기임을 재확인. `PromptCatalogAdminPanelV3`(4e/3d/4b, POSITIVE/NEGATIVE 트리)와 완전히 분리된 별도 컴포넌트.*
 
-### B-08 · 시스템 지시문 버전 보관 — P2
-`prompt_system_prompts`는 `code` 단위로 1건만 저장하고 이전 버전을 남기지 않습니다. 되돌리기가 성립하지 않아 화면에서도 버튼을 비활성 처리했습니다.
+### B-08 · 시스템 지시문 버전 보관 — P2 — **완료** (2026-08-11)
+`prompt_system_prompts`가 `code` 단위로 1건만 저장하고 이전 버전을 남기지 않아 되돌리기가 성립하지 않았습니다.
 
-- [ ] `version` 컬럼 + 이력 행 유지로 변경하면 `7a`의 되돌리기와 변경 이력을 살릴 수 있음
-- [ ] 하지 않을 경우 화면의 비활성 상태를 그대로 유지
+- [x] 이력 행 유지로 변경해 `7a`의 되돌리기와 변경 이력을 살림 — *마이그레이션 `20260811_0017`로 `prompt_system_prompt_versions` 이력 테이블 추가. `save_prompt_system_prompt`가 저장할 때마다 새 상태를 한 행으로 스냅샷(created_by 포함). `GET /api/prompts/system-prompt/versions`(prompts:build)로 최신순 조회. 7a 화면에 "버전 되돌리기" 카드 추가 - 첫 항목은 현재 값("현재" 표시), 나머지는 "되돌리기" 버튼으로 그 텍스트를 다시 저장(저장 경로가 하나라 되돌리기도 새 버전이 쌓이고 감사 로그가 남음). "변경 이력"(누가/언제)은 기존 AuditLogTable이 계속 담당. TestClient E2E로 스냅샷 누적·최신순·createdBy·되돌리기 확인.*
+- [x] ~~하지 않을 경우 화면의 비활성 상태를 그대로 유지~~ — 구현했으므로 해당 없음.
 
 ---
 

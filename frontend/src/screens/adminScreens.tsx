@@ -11,7 +11,8 @@ import {
   MetadataStatusResponse,
   WorkflowWidgetMetadata,
   ModelMetadataResponse,
-  PromptSystemPromptResponse
+  PromptSystemPromptResponse,
+  SystemPromptVersion
 } from "../api/client";
 import { StudioRoute } from "../router";
 import {
@@ -56,18 +57,23 @@ export function Create7aScreen({
   loading,
   systemPrompt,
   value,
+  versions,
   onChange,
   onReload,
-  onSave
+  onSave,
+  onRevert
 }: {
   user: User | null;
   onGoTo: (route: StudioRoute) => void;
   loading: boolean;
   systemPrompt: PromptSystemPromptResponse | null;
   value: string;
+  // B-08: 최신순 버전 이력. 첫 항목이 현재 값이며, 나머지로 되돌릴 수 있다.
+  versions: SystemPromptVersion[];
   onChange: (value: string) => void;
   onReload: () => void;
   onSave: () => void;
+  onRevert: (promptText: string) => void;
 }) {
   const canSave = canUse(user, "prompt-catalog:write");
   return (
@@ -102,6 +108,37 @@ export function Create7aScreen({
             <button className="v3-secondary-button" type="button" disabled={loading} onClick={onReload}>Reload</button>
             <button className="v3-primary-button" type="button" disabled={loading || !canSave || !value.trim()} onClick={onSave}>Save System Prompt</button>
           </div>
+        </div>
+      </div>
+      {/* B-08: 버전 이력 + 되돌리기. 첫 항목(최신)이 현재 값이라 되돌리기 버튼을 주지
+          않고 "현재"로 표시하고, 나머지 버전은 그 텍스트로 되돌릴 수 있다. */}
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <div className="v3-card-header-title">버전 되돌리기</div>
+          <span className="v3-card-header-meta">{versions.length} versions</span>
+        </div>
+        <div style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+          {!versions.length ? (
+            <p className="v3-muted-text">저장 이력이 없습니다. 저장하면 이 자리에 버전이 쌓이고, 이전 버전으로 되돌릴 수 있습니다.</p>
+          ) : versions.map((version, index) => (
+            <div className="v3-summary-card" key={version.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 12 }}>
+                  {index === 0 ? "현재 버전" : `버전 #${version.id}`} · {version.createdAt || "-"}
+                  {version.createdBy ? ` · ${version.createdBy}` : ""}
+                </div>
+                <div className="v3-muted-text" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{version.promptText}</div>
+              </div>
+              <button
+                className="v3-secondary-button"
+                type="button"
+                disabled={loading || !canSave || index === 0}
+                onClick={() => onRevert(version.promptText)}
+              >
+                {index === 0 ? "현재" : "되돌리기"}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
       <AuditLogTable targetType="prompt_system_prompt" pageSize={5} title="변경 이력" />

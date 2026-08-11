@@ -345,6 +345,20 @@ export type PromptSystemPromptResponse = {
   updatedAt?: string | null;
 };
 
+// B-08: 시스템 지시문 버전 이력(7a 되돌리기).
+export type SystemPromptVersion = {
+  id: number;
+  code: string;
+  name: string;
+  provider: string;
+  modelFamily: string;
+  promptText: string;
+  createdBy?: string | null;
+  createdAt?: string | null;
+};
+
+export type SystemPromptVersionsResponse = { items: SystemPromptVersion[] };
+
 export type PromptSceneResponse = {
   requestId: string;
   outputId: string;
@@ -721,6 +735,9 @@ export const apiClient = {
     requestJson<CollectionDetail>(`/api/collections/${id}/items`, { method: "POST", body: JSON.stringify({ assetId }) }),
   promptCatalog: () => requestJson<PromptCatalogResponse>("/api/prompts/catalog"),
   promptSystemPrompt: () => requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt"),
+  // B-08: 시스템 지시문 버전 이력.
+  systemPromptVersions: (code?: string) =>
+    requestJson<SystemPromptVersionsResponse>(`/api/prompts/system-prompt/versions${code ? `?code=${encodeURIComponent(code)}` : ""}`),
   savePromptSystemPrompt: (payload: Record<string, unknown>) =>
     requestJson<PromptSystemPromptResponse>("/api/prompts/system-prompt", {
       method: "PUT",
