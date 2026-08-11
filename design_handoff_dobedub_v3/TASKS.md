@@ -68,17 +68,17 @@
 ### A-04 · 감사 로그 — P1
 권한 변경, 카탈로그 수정, 사용자 역할 변경, Pod 제어, 이력 삭제 모두 기록이 없습니다. 각 테이블의 `updated_at`으로 마지막 시각만 알 수 있고 행위자와 변경 내용은 알 수 없습니다.
 
-- [ ] 마이그레이션: `audit_logs`(id, actor_id, action, target_type, target_id, before_json, after_json, ip, created_at)
-- [ ] 기록 지점: `update_role_permission_codes`, `upsert_admin_user`, `reset_admin_user_password`, `deactivate_admin_user`, `upsert_prompt_term/category/category_group`, `save_prompt_system_prompt`, `start/stop_sandbox_pod`, `delete_history_item`
-- [ ] `GET /api/admin/audit-logs` — 권한 `roles:read`
-- [ ] 화면의 `미구현` 배지 영역을 실제 데이터로 교체 (`3b` 변경 기록, `7c` 접근 이력, `5b` Pod 제어 이력, `4b`·`7a` 변경 이력)
+- [x] 마이그레이션: `audit_logs`(id, actor_id, action, target_type, target_id, before_json, after_json, ip, created_at) — *`backend/app/db/migrations/versions/20260811_0014_audit_logs.py` + `backend/app/db/models.py`의 `AuditLog`. `actor_id`는 users.id FK를 걸지 않음(로그인 실패 시 존재하지 않는 id, 탈퇴한 사용자의 과거 기록 보존 목적) - 스펙 그대로 느슨한 참조 문자열. 신선한 sqlite에서 `alembic upgrade head` + `alembic revision --autogenerate` drift check로 스키마 일치 확인.*
+- [x] 기록 지점: `update_role_permission_codes`, `upsert_admin_user`, `reset_admin_user_password`, `deactivate_admin_user`, `upsert_prompt_term/category/category_group`, `save_prompt_system_prompt`, `start/stop_sandbox_pod`, `delete_history_item` — *`backend/app/services/audit_log_service.py`의 `record_audit_log()`를 8개 지점 모두의 라우트 핸들러(`admin.py`/`prompts.py`/`sandbox_pod.py`/`history.py`)에서 서비스 함수 성공 직후 호출. 서비스 함수 자체(session만 받고 actor 정보 없음)는 건드리지 않고 라우트 레이어에서 `CurrentUser`/`Request`로 actor_id·ip를 채움 - `sandbox_pod_service.py`가 DB 세션이 아예 없다는 제약과 일관되게 처리.*
+- [x] `GET /api/admin/audit-logs` — 권한 `roles:read` — *`admin.py`의 `audit_logs()`. `RESOURCE_CATALOG`(`permission_service.py`)에 `api.admin.audit_logs`/`top.admin.audit_log` 항목도 함께 등록(과거 세션에서 발견한 "라우트는 있는데 카탈로그 등록을 빠뜨리는" 실수 재발 방지).*
+- [x] 화면의 `미구현` 배지 영역을 실제 데이터로 교체 (`3b` 변경 기록, `7c` 접근 이력, `5b` Pod 제어 이력, `4b`·`7a` 변경 이력) — *공용 `frontend/src/components/AuditLogTable.tsx` 컴포넌트를 만들어 `Create3bScreen`(targetType=role)/`Create5bScreen`(targetType=sandbox_pod)/`Create7aScreen`(targetType=prompt_system_prompt)/`PromptCatalogAdminPanelV3`(targetType=prompt_category_group)/`Create7cScreen`(actorId=해당 사용자, action=login, 신규 등록 폼일 때는 미표시)에 삽입. `AppShell.tsx` 사이드바의 `adminAuditLog` 항목에서 `unimplemented` 배지도 제거하고 신규 `AdminAuditLogScreen`(라우트 `admin.auditLog`)으로 연결. `tsc -b`/`vite build` 통과 확인.*
 
-주의 — 기록 실패가 본 동작을 막으면 안 됩니다. `job_service.py:310`의 기존 패턴(예외를 삼키고 진행)을 따르십시오.
+주의 — 기록 실패가 본 동작을 막으면 안 됩니다. `job_service.py:310`의 기존 패턴(예외를 삼키고 진행)을 따르십시오. — *`record_audit_log()`가 `except Exception: session.rollback()`으로 예외를 삼키는 것을 확인 - TestClient 스모크 테스트에서 세션 자체가 깨지는 상황을 흉내내 검증함.*
 
 ### A-05 · 접근 이력 — P2
 `users.last_login_at` 한 칸만 있어 최근 1회만 남습니다.
 
-- [ ] A-04의 `audit_logs`에 `action='login'`으로 흡수. 별도 테이블 만들지 마십시오.
+- [x] A-04의 `audit_logs`에 `action='login'`으로 흡수. 별도 테이블 만들지 마십시오. — *`backend/app/api/v1/auth.py`의 `login()`에서 성공/실패 모두 `action="login"`으로 기록(실패 시 비밀번호 등 민감정보는 남기지 않고 사유 메시지만). `7c` 사용자 상세 화면에서 해당 사용자의 로그인 이력으로 노출.*
 
 ### A-06 · 세션 갱신 — P2
 토큰 갱신 엔드포인트가 없어 만료되면 재로그인만 가능합니다.
@@ -120,8 +120,8 @@
 ### B-05 · 이력 삭제 방식 — P2
 `delete_history_item`은 하드 삭제이고 `workflow_tasks`에 삭제 표시 컬럼이 없습니다. 삭제 사실 자체도 남지 않습니다.
 
-- [ ] `deleted_at` 컬럼 추가, 조회에서 제외하는 방식으로 전환
-- [ ] A-04와 함께 처리 (삭제 행위를 감사 로그에 기록)
+- [ ] `deleted_at` 컬럼 추가, 조회에서 제외하는 방식으로 전환 — *미착수. `delete_history_item`은 여전히 하드 삭제(`db_adapter.py`) - A-04는 "삭제했다는 사실"만 감사 로그에 남길 뿐, 삭제 자체를 soft delete로 바꾸지는 않았다.*
+- [x] A-04와 함께 처리 (삭제 행위를 감사 로그에 기록) — *`backend/app/api/v1/history.py`의 `delete_history_item()`이 삭제 직전 스냅샷(before_json)과 함께 `action="history.delete"`로 기록. 삭제 자체(하드 삭제)를 막거나 되돌리지는 않음 - 위 `deleted_at` 항목과는 별개.*
 - [x] 화면 문구는 그대로 — 사용자에게는 복구 불가로 안내 — *`Create3aScreen`의 삭제 확인 모달(`reviewScreens.tsx:222-225`)이 "되돌릴 수 없습니다" 경고 스트립을 이미 표시함. B-05(soft delete) 백엔드 착수 전이라 현재는 실제로도 하드 삭제라 문구와 동작이 일치 - B-05 구현 시에도 이 문구는 그대로 유지하면 됨.*
 
 ### B-06 · 카탈로그를 신형 계층으로 일원화 — P0 · **결정됨** — **완료** (1~3단계, 4단계 중 컬럼 정리까지)

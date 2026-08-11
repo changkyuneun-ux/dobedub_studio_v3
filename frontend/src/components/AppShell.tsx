@@ -17,8 +17,9 @@ import { User, canUse } from "../auth";
 // 화면 하단 고정 정보(서비스 상태, 보관 기한 안내 등)는 sidebarFooter로 화면이 채운다.
 //
 // 권한이 없는 메뉴 항목은 숨긴다(README "권한이 없는 메뉴는 사이드바에서 숨깁니다").
-// "감사 로그"처럼 권한은 있으나 기능이 아직 없는 항목(A-04 미착수)은 숨기지 않고
-// `미구현` 배지와 함께 비활성 상태로 보여준다(design_handoff의 표시 방식과 동일).
+// 권한은 있으나 기능이 아직 없는 항목은 숨기지 않고 `미구현` 배지와 함께 비활성
+// 상태로 보여준다(design_handoff의 표시 방식과 동일) - "감사 로그"는 A-04에서
+// 구현이 끝나 더 이상 이 처리 대상이 아니다.
 
 export type AppShellArea = "generate" | "admin";
 
@@ -40,7 +41,6 @@ const GENERATE_NAV_ITEMS: NavItem[] = [
 ];
 
 // ADMIN 영역: design_handoff "4 Admin.dc.html" 사이드바 공통 상단.
-// 감사 로그는 A-04(TASKS.md) 착수 전까지 백엔드가 없어 "미구현" 배지를 유지한다.
 // adminStatus(6c)·adminMetadata(6d)는 design_handoff에서는 이 6항목 사이드바가
 // 아니라 별도 상단 nav 소속이지만(README/Screen Map), AppShell이 area를
 // generate/admin 두 가지만 지원하는 현재 구조에서 시스템 상태·메타데이터 조회는
@@ -54,7 +54,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { key: "adminSandbox", label: "Sandbox Pod", permission: "sandbox:read" },
   { key: "adminStatus", label: "System Status", permission: "system:read" },
   { key: "adminMetadata", label: "Metadata", permission: "metadata:read" },
-  { key: "adminAuditLog", label: "감사 로그", permission: "roles:read", unimplemented: true }
+  { key: "adminAuditLog", label: "감사 로그", permission: "roles:read" }
 ];
 
 export type AppShellProps = {

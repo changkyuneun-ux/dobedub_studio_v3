@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StudioRoute } from "../router";
 import { User } from "../auth";
 import { AppShell } from "../components/AppShell";
+import { AuditLogTable } from "../components/AuditLogTable";
 import { promptText } from "../helpers/prompts";
 import {
   promptCatalogAdminScopes,
@@ -256,12 +257,12 @@ export function PromptCatalogAdminPanelV3({
         <div className="v3-card">
           <div className="v3-card-header">
             <div className="v3-card-header-title">내장 네거티브 + 선택 용어 = 세그먼트 네거티브</div>
-            <span className="v3-sidebar-nav-item-badge">변경 이력 · 미구현</span>
           </div>
           <p className="v3-muted-text" style={{ padding: "0 16px 16px" }}>
             모든 Run에 적용되는 네거티브는 여기서 관리하지 않습니다 - 기본 네거티브는 워크플로 JSON의 네거티브 노드에 내장되어 있고 읽기 전용입니다(워크플로 정의 화면에서 확인).
             이 화면은 그 위에 추가로 얹을 선택 용어(아래 트리의 Negative 계열)만 관리합니다.
           </p>
+          <AuditLogTable targetType="prompt_category_group" pageSize={5} title="변경 이력" />
         </div>
       ) : null}
 

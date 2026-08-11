@@ -19,6 +19,7 @@ import {
   canUse
 } from "../auth";
 import { AppShell } from "../components/AppShell";
+import { AuditLogTable } from "../components/AuditLogTable";
 import { qwenStatusLabel } from "../helpers/format";
 import {
   adminPermissionsFromText,
@@ -36,7 +37,8 @@ import { shellNavigateAdmin } from "../helpers/navigation";
 // promptSystemPromptText)·핸들러(loadPromptSystemPrompt/savePromptSystemPrompt)를
 // 그대로 재사용한다. `prompt_system_prompts`가 code당 1건만 저장하는 전역 레코드라
 // (B-08 미착수 - 버전 이력 없음) 2b에서 고쳐도 여기 반영되고 그 반대도 마찬가지다 -
-// 두 화면이 같은 데이터를 보는 것이 의도된 동작이다.
+// 두 화면이 같은 데이터를 보는 것이 의도된 동작이다. 버전 이력 UI(B-08)는 아직
+// 없지만 A-04 감사 로그(AuditLogTable)로 누가/언제 바꿨는지는 확인할 수 있다.
 //
 // 조회는 prompts:build 권한(백엔드 GET 요건과 동일), 저장은 prompt-catalog:write
 // 권한이 있어야 버튼이 활성화된다(백엔드 PUT 요건과 동일).
@@ -94,6 +96,7 @@ export function Create7aScreen({
           </div>
         </div>
       </div>
+      <AuditLogTable targetType="prompt_system_prompt" pageSize={5} title="변경 이력" />
     </AppShell>
   );
 }
@@ -494,6 +497,8 @@ export function Create5bScreen({ user, onGoTo }: { user: User; onGoTo: (route: S
         </div>
       ) : null}
 
+      <AuditLogTable targetType="sandbox_pod" pageSize={5} title="Pod 제어 이력" />
+
       {sandboxPodPendingAction ? (
         <div className="v3-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="v3SandboxConfirmTitle">
           <div className="v3-modal-panel">
@@ -665,6 +670,7 @@ export function Create3bScreen({ user, onGoTo }: { user: User; onGoTo: (route: S
           </div>
         </>
       ) : <p className="v3-muted-text">Role 정보가 없습니다.</p>}
+      <AuditLogTable targetType="role" pageSize={5} title="변경 기록" />
     </AppShell>
   );
 }
@@ -930,6 +936,8 @@ export function Create7cScreen({
           </div>
         </div>
       ) : null}
+
+      {selectedUser ? <AuditLogTable actorId={selectedUser.id} action="login" pageSize={5} title="접근 이력" /> : null}
     </AppShell>
   );
 }
@@ -1101,6 +1109,60 @@ export function Create4dScreen({
           </div>
         </div>
       </div>
+    </AppShell>
+  );
+}
+
+// A-04 · 감사 로그 — design_handoff에는 없던 신규 화면. `GET /api/admin/audit-logs`를
+// 필터 없이 조회하는 전체 목록 뷰다. action/targetType은 자유 텍스트 입력이고(백엔드가
+// 값 목록을 내려주지 않아 하드코딩된 드롭다운을 만들지 않는다 - TASKS.md 참고),
+// 4c(프롬프트 재사용)의 검색창처럼 입력 즉시가 아니라 Search 클릭/Enter 시점에만
+// 적용해 타이핑마다 재조회하지 않는다. 목록·페이지네이션 자체는 AuditLogTable이
+// 담당한다(page/pageSize/필터 변경 시 재조회하는 로직은 그 컴포넌트 안에 있음).
+export function AdminAuditLogScreen({ user, onGoTo }: { user: User; onGoTo: (route: StudioRoute) => void }) {
+  const [actionDraft, setActionDraft] = useState("");
+  const [targetTypeDraft, setTargetTypeDraft] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [targetTypeFilter, setTargetTypeFilter] = useState("");
+
+  function applyFilters() {
+    setActionFilter(actionDraft.trim());
+    setTargetTypeFilter(targetTypeDraft.trim());
+  }
+
+  return (
+    <AppShell
+      user={user}
+      area="admin"
+      activeItem="adminAuditLog"
+      onNavigate={(key) => shellNavigateAdmin(key, onGoTo)}
+      headerEyebrow="ADMIN · 감사 로그"
+      headerTitle="감사 로그"
+      headerActions={
+        <>
+          <input
+            className="v3-search-input"
+            value={actionDraft}
+            onChange={(event) => setActionDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") applyFilters();
+            }}
+            placeholder="action (예: role.permissions.update)"
+          />
+          <input
+            className="v3-search-input"
+            value={targetTypeDraft}
+            onChange={(event) => setTargetTypeDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") applyFilters();
+            }}
+            placeholder="targetType (예: role)"
+          />
+          <button className="v3-primary-button" type="button" onClick={applyFilters}>Search</button>
+        </>
+      }
+    >
+      <AuditLogTable action={actionFilter || undefined} targetType={targetTypeFilter || undefined} pageSize={20} title="감사 로그" />
     </AppShell>
   );
 }

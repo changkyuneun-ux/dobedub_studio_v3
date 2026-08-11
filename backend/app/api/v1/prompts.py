@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from backend.app.core.security import CurrentUser, require_any_permission, require_permission
+from backend.app.db.models import PromptCategoryGroup, PromptSubcategory, PromptSystemPrompt, PromptTerm
 from backend.app.db.session import get_db
 from backend.app.services import studio_api_service
+from backend.app.services.audit_log_service import record_audit_log
 from backend.app.services.prompt_builder_service import (
     build_scene_json,
     deactivate_prompt_category_group,
@@ -20,9 +23,67 @@ from backend.app.services.prompt_builder_service import (
     upsert_prompt_category,
     upsert_prompt_keyword,
 )
-from backend.app.services.prompt_system_prompt_service import get_prompt_system_prompt, save_prompt_system_prompt
+from backend.app.services.prompt_system_prompt_service import (
+    DEFAULT_SYSTEM_PROMPT_CODE,
+    get_prompt_system_prompt,
+    save_prompt_system_prompt,
+)
 
 router = APIRouter(prefix="/prompts", tags=["prompts"])
+
+
+def _client_ip(request: Request) -> str | None:
+    return request.client.host if request.client else None
+
+
+# A-04: 감사 로그 대상 스냅샷 헬퍼 - upsert 서비스 함수는 카탈로그 전체(prompt_catalog(session))를
+# 반환하므로 개별 엔티티의 before/after는 라우트에서 직접 모델을 조회해 만든다.
+def _category_group_snapshot(group: PromptCategoryGroup) -> dict:
+    return {
+        "id": group.id,
+        "code": group.code,
+        "nameKo": group.name_ko,
+        "nameEn": group.name_en,
+        "sortOrder": group.sort_order,
+        "isActive": group.is_active,
+    }
+
+
+def _category_snapshot(category: PromptSubcategory) -> dict:
+    return {
+        "id": category.id,
+        "code": category.code,
+        "nameKo": category.name_ko,
+        "nameEn": category.name_en,
+        "scopeType": category.scope_type,
+        "selectionType": category.selection_type,
+        "sortOrder": category.sort_order,
+        "isActive": category.is_active,
+    }
+
+
+def _term_snapshot(term: PromptTerm) -> dict:
+    return {
+        "id": term.id,
+        "code": term.code,
+        "labelKo": term.label_ko,
+        "labelEn": term.label_en,
+        "riskLevel": term.risk_level,
+        "sortOrder": term.sort_order,
+        "isActive": term.is_active,
+    }
+
+
+def _system_prompt_snapshot(prompt: PromptSystemPrompt) -> dict:
+    return {
+        "id": prompt.id,
+        "code": prompt.code,
+        "name": prompt.name,
+        "provider": prompt.provider,
+        "modelFamily": prompt.model_family,
+        "promptText": prompt.prompt_text,
+        "isActive": prompt.is_active,
+    }
 
 
 @router.get("")
@@ -77,33 +138,74 @@ def system_prompt(_: CurrentUser = Depends(require_permission("prompts:build")),
 
 
 @router.put("/system-prompt")
-def update_system_prompt(payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def update_system_prompt(payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+    code = str(payload.get("code") or DEFAULT_SYSTEM_PROMPT_CODE).strip() or DEFAULT_SYSTEM_PROMPT_CODE
+    existing = db.scalar(select(PromptSystemPrompt).where(PromptSystemPrompt.code == code))
+    before = _system_prompt_snapshot(existing) if existing else None
     try:
-        return save_prompt_system_prompt(db, payload)
+        result = save_prompt_system_prompt(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt system prompt save failed: {exc}") from exc
+    after = db.scalar(select(PromptSystemPrompt).where(PromptSystemPrompt.code == code))
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.system_prompt.update",
+        target_type="prompt_system_prompt",
+        target_id=code,
+        before=before,
+        after=_system_prompt_snapshot(after) if after else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.post("/category-groups")
-def create_category_group(payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def create_category_group(payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     try:
-        return upsert_prompt_category_group(db, payload)
+        result = upsert_prompt_category_group(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt category save failed: {exc}") from exc
+    group = db.scalar(select(PromptCategoryGroup).where(PromptCategoryGroup.code == str(payload.get("code") or "").strip().lower()))
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.category_group.create",
+        target_type="prompt_category_group",
+        target_id=str(group.id) if group else None,
+        before=None,
+        after=_category_group_snapshot(group) if group else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.put("/category-groups/{group_id}")
-def update_category_group(group_id: int, payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def update_category_group(group_id: int, payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+    existing = db.get(PromptCategoryGroup, group_id)
+    before = _category_group_snapshot(existing) if existing else None
     try:
-        return upsert_prompt_category_group(db, payload, group_id=group_id)
+        result = upsert_prompt_category_group(db, payload, group_id=group_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt category save failed: {exc}") from exc
+    after = db.get(PromptCategoryGroup, group_id)
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.category_group.update",
+        target_type="prompt_category_group",
+        target_id=str(group_id),
+        before=before,
+        after=_category_group_snapshot(after) if after else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.post("/category-groups/{group_id}/deactivate")
@@ -117,23 +219,49 @@ def deactivate_category_group(group_id: int, _: CurrentUser = Depends(require_pe
 
 
 @router.post("/categories")
-def create_category(payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def create_category(payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     try:
-        return upsert_prompt_category(db, payload)
+        result = upsert_prompt_category(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt category save failed: {exc}") from exc
+    category = db.scalar(select(PromptSubcategory).where(PromptSubcategory.code == str(payload.get("code") or "").strip().upper()))
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.category.create",
+        target_type="prompt_category",
+        target_id=str(category.id) if category else None,
+        before=None,
+        after=_category_snapshot(category) if category else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.put("/categories/{category_id}")
-def update_category(category_id: int, payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def update_category(category_id: int, payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+    existing = db.get(PromptSubcategory, category_id)
+    before = _category_snapshot(existing) if existing else None
     try:
-        return upsert_prompt_category(db, payload, category_id=category_id)
+        result = upsert_prompt_category(db, payload, category_id=category_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt category save failed: {exc}") from exc
+    after = db.get(PromptSubcategory, category_id)
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.category.update",
+        target_type="prompt_category",
+        target_id=str(category_id),
+        before=before,
+        after=_category_snapshot(after) if after else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.post("/categories/{category_id}/deactivate")
@@ -147,23 +275,49 @@ def deactivate_category(category_id: int, _: CurrentUser = Depends(require_permi
 
 
 @router.post("/terms")
-def create_term(payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def create_term(payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
     try:
-        return upsert_prompt_keyword(db, payload)
+        result = upsert_prompt_keyword(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt term save failed: {exc}") from exc
+    term = db.scalar(select(PromptTerm).where(PromptTerm.code == str(payload.get("code") or "").strip()))
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.term.create",
+        target_type="prompt_term",
+        target_id=str(term.id) if term else None,
+        before=None,
+        after=_term_snapshot(term) if term else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.put("/terms/{term_id}")
-def update_term(term_id: int, payload: dict, _: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+def update_term(term_id: int, payload: dict, request: Request, current_user: CurrentUser = Depends(require_permission("prompt-catalog:write")), db: Session = Depends(get_db)):
+    existing = db.get(PromptTerm, term_id)
+    before = _term_snapshot(existing) if existing else None
     try:
-        return upsert_prompt_keyword(db, payload, term_id=term_id)
+        result = upsert_prompt_keyword(db, payload, term_id=term_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=500, detail=f"Prompt term save failed: {exc}") from exc
+    after = db.get(PromptTerm, term_id)
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="prompt_catalog.term.update",
+        target_type="prompt_term",
+        target_id=str(term_id),
+        before=before,
+        after=_term_snapshot(after) if after else None,
+        ip=_client_ip(request),
+    )
+    return result
 
 
 @router.post("/terms/{term_id}/deactivate")

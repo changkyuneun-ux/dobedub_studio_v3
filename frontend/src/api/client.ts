@@ -433,6 +433,27 @@ export type HistoryResponse = {
   total: number;
 };
 
+// A-04: `GET /api/admin/audit-logs` 응답. `beforeJson`/`afterJson`은 스키마가
+// 고정되지 않은 임의의 JSON이라 화면에서는 JSON.stringify로만 보여준다.
+export type AuditLogItem = {
+  id: number;
+  actorId: string | null;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  beforeJson: Record<string, unknown> | null;
+  afterJson: Record<string, unknown> | null;
+  ip: string | null;
+  createdAt: string;
+};
+
+export type AuditLogResponse = {
+  items: AuditLogItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
 // A-01/E-03(5a): `assets` 테이블을 그대로 노출한 목록 응답. `taskId`/`outputRole`은
 // `task_output_assets` 조인 결과라 아직 어느 작업 출력에도 연결되지 않은 자산(예:
 // 업로드만 되고 실행에 쓰이지 않은 입력 이미지)은 빈 문자열로 내려온다 - 화면에서
@@ -824,5 +845,15 @@ export const apiClient = {
       method: "POST",
       body: JSON.stringify(payload)
     }),
-  currentSession: () => requestJson<{ user: AdminUser }>("/api/auth/session")
+  currentSession: () => requestJson<{ user: AdminUser }>("/api/auth/session"),
+  adminAuditLogs: (params: { page?: number; pageSize?: number; action?: string; targetType?: string; targetId?: string; actorId?: string } = {}) => {
+    const query = new URLSearchParams();
+    query.set("page", String(params.page || 1));
+    query.set("pageSize", String(params.pageSize || 20));
+    if (params.action) query.set("action", params.action);
+    if (params.targetType) query.set("targetType", params.targetType);
+    if (params.targetId) query.set("targetId", params.targetId);
+    if (params.actorId) query.set("actorId", params.actorId);
+    return requestJson<AuditLogResponse>(`/api/admin/audit-logs?${query.toString()}`);
+  }
 };

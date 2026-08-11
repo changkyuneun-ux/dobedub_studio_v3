@@ -19,6 +19,10 @@ RESOURCE_CATALOG = [
     ("MENU", "top.admin.workflows", "Admin > Workflows", "workflows:write", "/studio/admin", None, 53),
     ("MENU", "top.admin.catalog", "Admin > Prompt Catalog", "prompt-catalog:write", "/studio/admin", None, 54),
     ("MENU", "top.admin.sandbox_pod", "Admin > Sandbox Pod", "sandbox:read", "/studio/admin", None, 55),
+    # A-04: 감사 로그 화면(신규). 사이드바 "감사 로그" 항목과 동일하게 roles:read로
+    # 게이팅한다 - AppShell.tsx ADMIN_NAV_ITEMS의 adminAuditLog 항목과 permission을
+    # 맞춰야 카탈로그와 실제 라우트 가드가 어긋나지 않는다.
+    ("MENU", "top.admin.audit_log", "Admin > Audit Log", "roles:read", "/studio/admin", None, 56),
     ("ACTION", "action.metadata_rebuild", "Rebuild Metadata", "metadata:rebuild", None, None, 100),
     ("ACTION", "action.admin_user_save", "Save User", "users:write", None, None, 110),
     ("ACTION", "action.admin_role_save", "Save Role Permissions", "roles:write", None, None, 120),
@@ -54,6 +58,7 @@ RESOURCE_CATALOG = [
     ("API", "api.prompt_feedback", "Prompt Feedback API", "prompts:review", "/api/prompts/feedback", "POST", 362),
     ("API", "api.admin.sandbox_pod", "Sandbox Pod Status API", "sandbox:read", "/api/admin/sandbox-pod", "GET", 370),
     ("API", "api.admin.sandbox_pod_control", "Sandbox Pod Control API", "sandbox:control", "/api/admin/sandbox-pod/start|stop", "POST", 371),
+    ("API", "api.admin.audit_logs", "Admin Audit Log API", "roles:read", "/api/admin/audit-logs", "GET", 372),
 ]
 
 

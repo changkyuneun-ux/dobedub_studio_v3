@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
 
 from backend.app.core.security import CurrentUser, require_permission
+from backend.app.db.models import WorkflowTask
+from backend.app.db.session import get_db
 from backend.app.services import studio_api_service
+from backend.app.services.audit_log_service import record_audit_log
 
 router = APIRouter(prefix="/history", tags=["history"])
 
@@ -18,9 +22,19 @@ def history(page: int = 1, pageSize: int = 20, _: CurrentUser = Depends(require_
 
 
 @router.post("/{task_id}/delete")
-def delete_history_item(task_id: str, _: CurrentUser = Depends(require_permission("history:delete"))):
+def delete_history_item(
+    task_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(require_permission("history:delete")),
+    db: Session = Depends(get_db),
+):
+    # A-04: 삭제 전에 최소한의 스냅샷을 남긴다 - studio_api_service.delete_history_item은
+    # 자체 세션(history_repository())으로 실제 삭제를 수행하므로, 여기서는 별도 세션(db)으로
+    # 삭제 직전 상태만 조회해 감사 로그의 before_json에 담는다.
+    task = db.get(WorkflowTask, task_id)
+    before = {"taskId": task_id, "status": task.status, "workflowId": task.workflow_id} if task else None
     try:
-        return studio_api_service.delete_history_item(task_id)
+        result = studio_api_service.delete_history_item(task_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"History item not found: {task_id}") from exc
     # 2026-08-10: 진행 중(터미널 상태가 아닌) 작업의 삭제 요청 - db_adapter.delete_history_item이
@@ -29,3 +43,14 @@ def delete_history_item(task_id: str, _: CurrentUser = Depends(require_permissio
     # 별개로 API 직접 호출도 여기서 막는다(방어적 이중 확인).
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    record_audit_log(
+        db,
+        actor_id=current_user.id,
+        action="history.delete",
+        target_type="history_item",
+        target_id=task_id,
+        before=before,
+        after={"deleted": True},
+        ip=request.client.host if request.client else None,
+    )
+    return result

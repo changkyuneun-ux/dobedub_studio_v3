@@ -71,6 +71,7 @@
 //                       admin.roles로 보낸다).
 //   admin.status       — 6c 시스템 상태 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
 //   admin.metadata     — 6d 메타데이터 ("4 Admin.dc.html" 소속, 구버전엔 독립 라우트였음)
+//   admin.auditLog     — 감사 로그 (신규 구현, A-04)
 export type StudioRoute =
   | "access.login"
   | "access.manual"
@@ -96,7 +97,8 @@ export type StudioRoute =
   | "admin.catalogTerms"
   | "admin.negativeDefaults"
   | "admin.status"
-  | "admin.metadata";
+  | "admin.metadata"
+  | "admin.auditLog";
 
 // 구버전 경로(/studio/history 등)로 온 북마크·외부 링크가 깨지지 않도록 옛 경로
 // 마지막 세그먼트 → 신규 StudioRoute로 매핑. 신규 경로는 routePath()가 만드는
@@ -138,7 +140,8 @@ const ROUTE_PATH: Record<StudioRoute, string> = {
   "admin.catalogTerms": "/studio/admin/catalog/terms",
   "admin.negativeDefaults": "/studio/admin/catalog/negative-defaults",
   "admin.status": "/studio/admin/status",
-  "admin.metadata": "/studio/admin/metadata"
+  "admin.metadata": "/studio/admin/metadata",
+  "admin.auditLog": "/studio/admin/audit-log"
 };
 
 const PATH_TO_ROUTE: Record<string, StudioRoute> = Object.fromEntries(

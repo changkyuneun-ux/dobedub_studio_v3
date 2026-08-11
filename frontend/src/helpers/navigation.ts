@@ -19,7 +19,7 @@ export function shellNavigate(key: string, onGoTo: (route: StudioRoute) => void)
 // adminWorkflows/adminSandbox)도 GENERATE 영역과 같은 방식으로 한 곳에서 매핑한다.
 // E-04가 끝나면서 모든 그룹이 신규 화면으로 이관됐다. E-06: admin.console(구버전
 // AdminConsoleModal)이 제거되며 더 이상 폴백 대상이 아니라, 알 수 없는 key는 3b
-// (역할 & 권한)로 보낸다.
+// (역할 & 권한)로 보낸다. A-04: adminAuditLog(감사 로그)도 같은 방식으로 추가했다.
 export function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => void) {
   if (key === "adminCatalog") {
     onGoTo("admin.catalogHierarchy");
@@ -35,6 +35,8 @@ export function shellNavigateAdmin(key: string, onGoTo: (route: StudioRoute) => 
     onGoTo("admin.users");
   } else if (key === "adminWorkflows") {
     onGoTo("admin.workflows");
+  } else if (key === "adminAuditLog") {
+    onGoTo("admin.auditLog");
   } else {
     onGoTo("admin.roles");
   }

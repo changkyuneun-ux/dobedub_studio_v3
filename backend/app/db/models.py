@@ -106,6 +106,27 @@ class UiPermissionResource(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
 
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    __table_args__ = (
+        Index("ix_audit_logs_created_at_id", "created_at", "id"),
+        Index("ix_audit_logs_target", "target_type", "target_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # A-04: 로그인 실패 시도처럼 실제 사용자 레코드가 없거나(오타 id) 이후 탈퇴한
+    # 사용자의 과거 기록도 보존해야 하므로 users.id에 대한 FK 제약은 걸지 않는다
+    # (느슨한 참조 문자열).
+    actor_id: Mapped[str | None] = mapped_column(String(191), nullable=True, index=True)
+    action: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    target_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    target_id: Mapped[str | None] = mapped_column(String(191), nullable=True)
+    before_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    after_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
+
+
 class Asset(Base):
     __tablename__ = "assets"
 

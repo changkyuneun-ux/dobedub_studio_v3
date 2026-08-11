@@ -98,7 +98,8 @@ import {
   Create3eScreen,
   Create7cScreen,
   Create4aScreen,
-  Create4dScreen
+  Create4dScreen,
+  AdminAuditLogScreen
 } from "./screens/adminScreens";
 import { PromptCatalogAdminPanelV3 } from "./screens/PromptCatalogAdminPanelV3";
 
@@ -125,6 +126,7 @@ export const ROUTE_REQUIRED_PERMISSION: Partial<Record<StudioRoute, string>> = {
   "admin.negativeDefaults": "prompt-catalog:read",
   "admin.status": "system:read",
   "admin.metadata": "metadata:read",
+  "admin.auditLog": "roles:read",
   "access.manual": "manual:read"
 };
 
@@ -152,6 +154,7 @@ export const ROUTE_LABEL: Partial<Record<StudioRoute, string>> = {
   "admin.negativeDefaults": "Negative 기본값",
   "admin.status": "Check Status",
   "admin.metadata": "Metadata View",
+  "admin.auditLog": "감사 로그",
   "access.manual": "User Manual"
 };
 
@@ -1866,6 +1869,8 @@ export function StudioShell({
         onSaveTerm={(payload, termId) => void savePromptTerm(payload, termId)}
         onDeactivateTerm={(termId) => void deactivatePromptTerm(termId)}
       />
+    ) : route === "admin.auditLog" ? (
+      <AdminAuditLogScreen user={user} onGoTo={onNavigate} />
     ) : (
       // E-06: 구버전 인라인 워크스페이스(studio-grid) JSX는 모든 StudioRoute 분기가
       // 채워지며 도달 불가능해진 죽은 코드였다(정리 대상). 위 분기 어디에도 걸리지
