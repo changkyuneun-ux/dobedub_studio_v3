@@ -2,14 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { apiClient, HealthResponse } from "./api/client";
 import { routeFromLocation, routePath, StudioRoute } from "./router";
-// E-01: User/AuthSession types and permission helpers moved to ./auth so
-// components/AppShell.tsx can use them without importing this entry file.
-import { User, AuthSession, canUse } from "./auth";
+// E-01: User/AuthSession types moved to ./auth so components can use them
+// without importing this entry file.
+import { User, AuthSession } from "./auth";
 import "./styles.css";
-import { serviceStatusLabel, qwenStatusLabel } from "./helpers/format";
-import { canUseAdminConsole } from "./helpers/adminForms";
 import { SESSION_USER_STORAGE_KEY, loadSessionUser, clearLoginSession } from "./auth-session";
 import { StudioShell } from "./StudioShell";
+import { AppShellChromeContext } from "./components/AppShell";
 import { LoginScreen, SessionExpiryBanner } from "./screens/accessScreens";
 
 function App() {
@@ -156,9 +155,9 @@ function App() {
     }
   }
 
-  // E-05: 로그인 화면(6a)은 전역 TopBar 없이 자체 브랜드 헤더를 갖는 전체 화면이다
-  // (design_handoff 6a는 1360×820 캔버스에 TopBar가 없음). 인증 후에만 app-shell +
-  // TopBar + StudioShell을 렌더한다.
+  // 로그인 화면(6a)은 전역 크롬 없이 자체 브랜드 헤더를 갖는 전체 화면이다. 인증 후에는
+  // 구버전 TopBar(상단 메뉴) 대신, AppShell 사이드바가 네비게이션을 전담하고 서비스 상태·
+  // 유저/로그아웃·영역 전환은 AppShellChromeContext로 사이드바 하단 계정 블록에 내려준다.
   if (!user || route === "access.login") {
     return <LoginScreen onLogin={handleLogin} health={health} healthError={healthError} />;
   }
@@ -169,69 +168,17 @@ function App() {
         refreshing={refreshingSession}
         onRefresh={handleRefreshSession}
       />
-      <TopBar
-        user={user}
-        health={health}
-        healthError={healthError}
-        onLogout={handleLogout}
-        route={route}
-        onNavigate={navigate}
-      />
-      <StudioShell
-        user={user}
-        health={health}
-        route={route}
-        onNavigate={navigate}
-      />
+      <AppShellChromeContext.Provider
+        value={{ health, healthError, onLogout: handleLogout, onNavigateRoute: navigate }}
+      >
+        <StudioShell
+          user={user}
+          health={health}
+          route={route}
+          onNavigate={navigate}
+        />
+      </AppShellChromeContext.Provider>
     </div>
-  );
-}
-
-function TopBar({
-  user,
-  health,
-  healthError,
-  onLogout,
-  route,
-  onNavigate
-}: {
-  user: User | null;
-  health: HealthResponse | null;
-  healthError: string;
-  onLogout: () => void;
-  route: StudioRoute;
-  onNavigate: (route: StudioRoute) => void;
-}) {
-  const system = health?.system || health?.legacy;
-  const comfyStatus = serviceStatusLabel(Boolean(system?.runpod?.configured), healthError, system?.dryRun ? "DRY-RUN" : undefined);
-  const qwenStatus = qwenStatusLabel(system?.promptLlm, healthError);
-  return (
-    <header className="topbar">
-      <div className="brand">
-        <img className="brand-mark" src="/studio/favicon.png" alt="" aria-hidden="true" />
-        <span>DOBEDUB STUDIO</span>
-      </div>
-      <nav className="toolbar" aria-label="주요 메뉴">
-        <button className={["create.load", "create.prompt", "create.segments", "create.confirm", "create.progress", "create.result"].includes(route) ? "is-active" : ""} type="button" onClick={() => onNavigate("create.load")}>Workspace</button>
-        {canUse(user, "history:read") ? <button className={route === "review.history" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.history")}>Task History</button> : null}
-        {canUse(user, "history:read") ? <button className={route === "review.assets" ? "is-active" : ""} type="button" onClick={() => onNavigate("review.assets")}>Assets</button> : null}
-        {canUse(user, "system:read") ? <button className={route === "admin.status" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.status")}>Check Status</button> : null}
-        {canUse(user, "metadata:read") ? <button className={route === "admin.metadata" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.metadata")}>Metadata View</button> : null}
-        {canUse(user, "manual:read") ? <button className={route === "access.manual" ? "is-active" : ""} type="button" onClick={() => onNavigate("access.manual")}>User Manual</button> : null}
-        {canUse(user, "prompts:build") ? <button className={route === "admin.systemPrompt" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.systemPrompt")}>System Prompt</button> : null}
-        {canUseAdminConsole(user) ? <button className={route === "admin.roles" ? "is-active" : ""} type="button" onClick={() => onNavigate("admin.roles")}>Admin</button> : null}
-      </nav>
-      <div className="service-status-group" aria-label="API 서버 상태">
-        <div className={`status-pill ${comfyStatus.toLowerCase()}`}>ComfyUI: <strong>{comfyStatus}</strong><span /></div>
-        <div className={`status-pill ${qwenStatus.toLowerCase()}`}>Qwen: <strong>{qwenStatus}</strong><span /></div>
-      </div>
-      {user ? (
-        <div className="user-chip">
-          <span>User: <strong>{user.name || user.id}</strong></span>
-          <button type="button" onClick={onLogout}>로그아웃</button>
-        </div>
-      ) : null}
-    </header>
   );
 }
 

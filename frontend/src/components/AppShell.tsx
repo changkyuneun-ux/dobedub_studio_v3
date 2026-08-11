@@ -1,5 +1,22 @@
 import React from "react";
 import { User, canUse } from "../auth";
+import { HealthResponse } from "../api/client";
+import { StudioRoute } from "../router";
+import { serviceStatusLabel, qwenStatusLabel } from "../helpers/format";
+import { canUseAdminConsole } from "../helpers/adminForms";
+
+// 구버전 상단 TopBar(브랜드 + 네비 메뉴 + 서비스 상태 + 유저/로그아웃)를 제거하면서,
+// 그중 사이드바 나열 메뉴와 중복되지 않는 것들(서비스 상태·유저/로그아웃·영역 전환·
+// Manual/Status/Metadata 접근)을 AppShell 사이드바로 옮긴다. 22개 화면 호출부를 모두
+// 고치지 않도록, App(main.tsx)이 이 값을 Context로 한 번만 내려준다.
+export type AppShellChrome = {
+  health: HealthResponse | null;
+  healthError: string;
+  onLogout: () => void;
+  onNavigateRoute: (route: StudioRoute) => void;
+};
+
+export const AppShellChromeContext = React.createContext<AppShellChrome | null>(null);
 
 // E-01: 공통 레이아웃 컴포넌트. design_handoff_dobedub_v3의 모든 화면(2a~7c)이
 // 공유하는 골격 — 사이드바 212px + 헤더 + 본문 그리드 + 우측 패널(선택) — 을 화면마다
@@ -94,6 +111,20 @@ export function AppShell({
   const navItems = area === "admin" ? ADMIN_NAV_ITEMS : GENERATE_NAV_ITEMS;
   const groupLabel = area === "admin" ? "ADMIN" : "GENERATE";
   const visibleNavItems = navItems.filter((item) => !item.permission || canUse(user, item.permission));
+  const chrome = React.useContext(AppShellChromeContext);
+
+  // HELP 그룹: design_handoff 6b의 사이드바가 GENERATE 그룹 아래 두는 HELP 묶음
+  // (User Manual / System Status / Metadata). 구버전 TopBar가 담당하던 접근을 이관.
+  const helpItems: { route: StudioRoute; label: string; permission: string }[] = [
+    { route: "access.manual", label: "User Manual", permission: "manual:read" },
+    { route: "admin.status", label: "System Status", permission: "system:read" },
+    { route: "admin.metadata", label: "Metadata", permission: "metadata:read" },
+  ];
+  const visibleHelpItems = helpItems.filter((item) => canUse(user, item.permission));
+
+  const system = chrome?.health?.system || chrome?.health?.legacy;
+  const comfyStatus = serviceStatusLabel(Boolean(system?.runpod?.configured), chrome?.healthError || "", system?.dryRun ? "DRY-RUN" : undefined);
+  const qwenStatus = qwenStatusLabel(system?.promptLlm, chrome?.healthError || "");
 
   return (
     <div className="v3-shell">
@@ -124,8 +155,50 @@ export function AppShell({
           ))}
         </div>
 
+        {/* HELP 그룹(GENERATE 영역에서만). ADMIN 영역은 자체 nav에 Status/Metadata를 이미 둔다. */}
+        {area === "generate" && chrome && visibleHelpItems.length ? (
+          <>
+            <div className="v3-sidebar-group-label">HELP</div>
+            <div className="v3-sidebar-nav">
+              {visibleHelpItems.map((item) => (
+                <button
+                  key={item.route}
+                  type="button"
+                  className="v3-sidebar-nav-item"
+                  onClick={() => chrome.onNavigateRoute(item.route)}
+                >
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : null}
+
         {sidebarExtra ? <div className="v3-sidebar-extra">{sidebarExtra}</div> : null}
         {sidebarFooter ? <div className="v3-sidebar-footer">{sidebarFooter}</div> : null}
+
+        {/* 계정·상태 블록: 구버전 TopBar의 서비스 상태 + 유저/로그아웃 + 영역 전환을 이관.
+            사이드바 최하단에 고정한다. */}
+        {chrome ? (
+          <div className="v3-sidebar-account">
+            <div className="v3-sidebar-status">
+              <span className={`v3-status-dot is-${comfyStatus.toLowerCase()}`} aria-hidden="true" />ComfyUI · {comfyStatus}
+            </div>
+            <div className="v3-sidebar-status">
+              <span className={`v3-status-dot is-${qwenStatus.toLowerCase()}`} aria-hidden="true" />Qwen · {qwenStatus}
+            </div>
+            {area === "generate" && canUseAdminConsole(user) ? (
+              <button className="v3-sidebar-switch" type="button" onClick={() => chrome.onNavigateRoute("admin.roles")}>관리자 콘솔 →</button>
+            ) : null}
+            {area === "admin" ? (
+              <button className="v3-sidebar-switch" type="button" onClick={() => chrome.onNavigateRoute("create.load")}>← 스튜디오</button>
+            ) : null}
+            <div className="v3-sidebar-user">
+              <span className="v3-sidebar-user-name">{user?.name || user?.id}<span className="v3-sidebar-user-role">{user?.role || ""}</span></span>
+              <button className="v3-sidebar-logout" type="button" onClick={chrome.onLogout}>로그아웃</button>
+            </div>
+          </div>
+        ) : null}
       </nav>
 
       <div className="v3-main">
