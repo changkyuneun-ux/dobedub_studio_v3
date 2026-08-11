@@ -1,0 +1,128 @@
+from __future__ import annotations
+
+from datetime import datetime
+
+from sqlalchemy import func, select
+
+from backend.app.db.models import Asset, Collection, CollectionItem
+from backend.app.db.session import SessionLocal
+from backend.app.services.task_tracking_service import _asset_to_json, _format_datetime
+
+
+def _collection_payload(collection: Collection, item_count: int) -> dict:
+    return {
+        "id": collection.id,
+        "name": collection.name,
+        "createdBy": collection.created_by,
+        "createdAt": _format_datetime(collection.created_at),
+        "itemCount": item_count,
+    }
+
+
+def list_collections(created_by: str | None = None) -> list[dict]:
+    """A-02: 컬렉션 목록. 각 컬렉션의 담긴 자산 수(itemCount)를 함께 센다.
+    created_by가 주어지면 해당 사용자가 만든 컬렉션만 반환한다."""
+    session = SessionLocal()
+    try:
+        statement = select(Collection).order_by(Collection.created_at.desc(), Collection.id.desc())
+        if created_by:
+            statement = statement.where(Collection.created_by == created_by)
+        collections = session.scalars(statement).all()
+        if not collections:
+            return []
+        counts = dict(
+            session.execute(
+                select(CollectionItem.collection_id, func.count())
+                .where(CollectionItem.collection_id.in_([c.id for c in collections]))
+                .group_by(CollectionItem.collection_id)
+            ).all()
+        )
+        return [_collection_payload(c, int(counts.get(c.id, 0))) for c in collections]
+    finally:
+        session.close()
+
+
+def create_collection(name: str, created_by: str | None = None) -> dict:
+    clean_name = (name or "").strip()
+    if not clean_name:
+        raise ValueError("name is required")
+    session = SessionLocal()
+    try:
+        collection = Collection(name=clean_name, created_by=created_by, created_at=datetime.utcnow())
+        session.add(collection)
+        session.commit()
+        session.refresh(collection)
+        return _collection_payload(collection, 0)
+    finally:
+        session.close()
+
+
+def add_collection_item(collection_id: int, asset_id: str) -> dict:
+    """컬렉션에 자산을 담는다. 컬렉션·자산이 없으면 KeyError. 이미 담긴 자산이면
+    (collection_id, asset_id 복합 PK) 중복 삽입 없이 조용히 넘어가고 최신 상세를 돌려준다."""
+    if not asset_id:
+        raise ValueError("assetId is required")
+    session = SessionLocal()
+    try:
+        collection = session.get(Collection, collection_id)
+        if collection is None:
+            raise KeyError(f"Collection not found: {collection_id}")
+        if session.get(Asset, asset_id) is None:
+            raise KeyError(f"Asset not found: {asset_id}")
+        existing = session.get(CollectionItem, (collection_id, asset_id))
+        if existing is None:
+            next_order = int(
+                session.scalar(
+                    select(func.coalesce(func.max(CollectionItem.sort_order), 0)).where(
+                        CollectionItem.collection_id == collection_id
+                    )
+                )
+                or 0
+            )
+            session.add(
+                CollectionItem(
+                    collection_id=collection_id,
+                    asset_id=asset_id,
+                    sort_order=next_order + 10,
+                    created_at=datetime.utcnow(),
+                )
+            )
+            session.commit()
+        return _collection_detail(session, collection)
+    finally:
+        session.close()
+
+
+def get_collection(collection_id: int) -> dict:
+    session = SessionLocal()
+    try:
+        collection = session.get(Collection, collection_id)
+        if collection is None:
+            raise KeyError(f"Collection not found: {collection_id}")
+        return _collection_detail(session, collection)
+    finally:
+        session.close()
+
+
+def _collection_detail(session, collection: Collection) -> dict:
+    links = session.scalars(
+        select(CollectionItem)
+        .where(CollectionItem.collection_id == collection.id)
+        .order_by(CollectionItem.sort_order.asc(), CollectionItem.asset_id.asc())
+    ).all()
+    asset_ids = [link.asset_id for link in links]
+    assets_by_id = {
+        asset.id: asset
+        for asset in (session.scalars(select(Asset).where(Asset.id.in_(asset_ids))).all() if asset_ids else [])
+    }
+    items = []
+    for link in links:
+        asset = assets_by_id.get(link.asset_id)
+        if not asset:
+            continue
+        item = _asset_to_json(asset)
+        item["sortOrder"] = link.sort_order
+        items.append(item)
+    payload = _collection_payload(collection, len(items))
+    payload["items"] = items
+    return payload

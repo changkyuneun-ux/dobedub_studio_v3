@@ -13,6 +13,8 @@ RESOURCE_CATALOG = [
     ("MENU", "top.history", "History/Saved Videos", "history:read", "/studio/history", None, 10),
     # A-01 후속: 5a 자산 화면. GET /api/assets는 history:read로 보호된다(같은 권한).
     ("MENU", "top.assets", "Assets", "history:read", "/studio/review/assets", None, 11),
+    # A-02: 5c 컬렉션 화면. 컬렉션 API도 history:read로 보호(collections.py 참조).
+    ("MENU", "top.collections", "Collections", "history:read", "/studio/review/collections", None, 12),
     ("MENU", "top.status", "Check Status", "system:read", "/studio/status", None, 20),
     ("MENU", "top.metadata", "Metadata View", "metadata:read", "/studio/metadata", None, 30),
     ("MENU", "top.manual", "User Manual", "manual:read", "/studio/manual", None, 40),
@@ -50,6 +52,9 @@ RESOURCE_CATALOG = [
     ("API", "api.history_delete", "History Delete API", "history:delete", "/api/history/{task_id}/delete", "POST", 341),
     # A-01: 자산 목록 API. history(D-03)와 동일하게 history:read로 보호.
     ("API", "api.assets", "Assets List API", "history:read", "/api/assets", "GET", 342),
+    # A-02: 컬렉션 API(목록·생성·상세·자산 추가). 모두 history:read로 보호.
+    ("API", "api.collections", "Collections API", "history:read", "/api/collections", "GET/POST", 343),
+    ("API", "api.collection_items", "Collection Items API", "history:read", "/api/collections/{id}/items", "POST", 344),
     ("API", "api.metadata", "Metadata API", "metadata:read", "/api/metadata", "GET", 350),
     ("API", "api.metadata_rebuild", "Metadata Rebuild API", "metadata:rebuild", "/api/metadata/rebuild", "POST", 351),
     ("API", "api.prompts", "Prompt Builder API", "prompts:build", "/api/prompts", "POST", 360),

@@ -13,6 +13,7 @@ from backend.app.api.web import router as web_router
 from backend.app.api.v1.admin import router as admin_router
 from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.assets import router as assets_router
+from backend.app.api.v1.collections import router as collections_router
 from backend.app.api.v1.configs import router as configs_router
 from backend.app.api.v1.health import router as health_router
 from backend.app.api.v1.history import router as history_router
@@ -102,6 +103,7 @@ def create_app() -> FastAPI:
         admin_router,
         auth_router,
         assets_router,
+        collections_router,
         workflows_router,
         segment_defaults_router,
         metadata_router,

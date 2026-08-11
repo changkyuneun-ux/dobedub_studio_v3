@@ -142,6 +142,34 @@ class Asset(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
 
 
+class Collection(Base):
+    # A-02: 자산을 묶는 사용자 컬렉션(화면 5c). created_by는 audit_logs.actor_id와
+    # 같은 이유로 users.id에 FK를 걸지 않는다(느슨한 참조).
+    __tablename__ = "collections"
+    __table_args__ = (
+        Index("ix_collections_created_by", "created_by"),
+        Index("ix_collections_created_at_id", "created_at", "id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(191), nullable=False)
+    created_by: Mapped[str | None] = mapped_column(String(191), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
+
+
+class CollectionItem(Base):
+    # A-02: 컬렉션 ↔ 자산 연결. (collection_id, asset_id) 복합 PK로 중복 담기 방지.
+    __tablename__ = "collection_items"
+    __table_args__ = (
+        Index("ix_collection_items_collection_order", "collection_id", "sort_order"),
+    )
+
+    collection_id: Mapped[int] = mapped_column(Integer, ForeignKey("collections.id", ondelete="CASCADE"), primary_key=True)
+    asset_id: Mapped[str] = mapped_column(String(64), ForeignKey("assets.id", ondelete="CASCADE"), primary_key=True)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=100)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now_utc, nullable=False)
+
+
 class WorkflowTask(Base):
     __tablename__ = "workflow_tasks"
     __table_args__ = (
