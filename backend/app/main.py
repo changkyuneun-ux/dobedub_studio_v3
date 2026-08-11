@@ -27,6 +27,7 @@ from backend.app.api.v1.workflows import router as workflows_router
 from backend.app.core.config import get_settings
 from backend.app.db.session import engine
 from backend.app.services.studio_api_service import ensure_storage_dirs
+from backend.app.services.workflow_storage_service import bootstrap_workflow_store
 
 
 LOGGER = logging.getLogger(__name__)
@@ -54,6 +55,18 @@ def _ensure_database_schema() -> None:
 
 @asynccontextmanager
 async def _lifecycle(_: FastAPI):
+    settings = get_settings()
+    workflow_store = bootstrap_workflow_store(
+        settings.workflow_seed_dir,
+        settings.workflows_dir,
+        settings.data_dir,
+    )
+    LOGGER.info(
+        "Workflow store initialized: created=%s updated=%s preserved=%s",
+        len(workflow_store["created"]),
+        len(workflow_store["updated"]),
+        len(workflow_store["preserved"]),
+    )
     _ensure_database_schema()
     yield
 

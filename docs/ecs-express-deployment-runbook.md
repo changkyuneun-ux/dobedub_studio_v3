@@ -96,6 +96,7 @@ python3 scripts/frontend_smoke_check.py
 python3 scripts/admin_smoke_check.py
 python3 scripts/prompt_db_smoke_check.py
 python3 scripts/rbac_permission_smoke_check.py
+python3 scripts/workflow_persistence_smoke_check.py
 git diff --check
 git status --short
 ```
@@ -205,12 +206,27 @@ jq '{
 - `STORAGE_BACKEND=local`
 - `STUDIO_DATA_DIR=/data/outputs/dobedub-studio`
 - `OUTPUTS_DIR=/data/outputs/dobedub-studio/outputs`
+- `WORKFLOW_SEED_DIR=/app/workflows`
+- `WORKFLOWS_DIR=/data/outputs/dobedub-studio/workflows`
+- `METADATA_DIR=/data/outputs/dobedub-studio/metadata`
 - `RUN_SERVER_AUTO_MIGRATE=0`
 - `RUNPOD_DRY_RUN=0`
 - `DATABASE_SSL_CA=/app/certs/global-bundle.pem`
 - `DATABASE_SSL_VERIFY_IDENTITY=1`
 - secret references: `DATABASE_URL`, `AUTH_JWT_SECRET`, `RUNPOD_API_KEY`, `PROMPT_LLM_API_KEY`, `RUNPOD_SANDBOX_POD_API_KEY`
 - `AUTH_TRUST_PROXY_HEADERS`가 **없음**
+
+### 6.2.1 Workflow 영속 저장소 규칙
+
+`/app/workflows`는 Docker image에 들어 있는 기본 workflow seed 전용이다. Admin Console에서 등록하거나 수정한 workflow JSON과 `.paramconfig.json`은 반드시 EFS 경로에 둔다.
+
+```text
+WORKFLOW_SEED_DIR=/app/workflows
+WORKFLOWS_DIR=/data/outputs/dobedub-studio/workflows
+METADATA_DIR=/data/outputs/dobedub-studio/metadata
+```
+
+앱 시작 시 seed 경로의 파일은 EFS runtime 경로에 없는 경우에만 복사된다. 과거 seed와 동일했던 파일만 새로운 image의 seed로 갱신할 수 있고, Admin이 수정하거나 신규 등록한 파일은 절대 덮어쓰거나 삭제하지 않는다. 이 세 환경변수 중 하나라도 `/app/...` runtime 경로를 가리키면 ECS image 교체 때 workflow 등록 정보가 유실될 수 있으므로 배포 전 필수 확인 항목으로 취급한다.
 
 ### 6.3 새 revision 등록
 

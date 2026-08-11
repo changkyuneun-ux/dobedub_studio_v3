@@ -21,8 +21,10 @@ ECS task definition 또는 secret manager에 아래 값을 설정합니다.
 ```text
 HOST=0.0.0.0
 PORT=7860
-WORKFLOWS_DIR=/app/workflows
+WORKFLOW_SEED_DIR=/app/workflows
+WORKFLOWS_DIR=/data/outputs/dobedub-studio/workflows
 STUDIO_DATA_DIR=/data/outputs/dobedub-studio
+METADATA_DIR=/data/outputs/dobedub-studio/metadata
 OUTPUTS_DIR=/data/outputs/dobedub-studio/outputs
 PERSISTENCE_BACKEND=db
 DATABASE_URL=mysql+pymysql://<user>:<password>@<rds-endpoint>:3306/dobedub_studio
@@ -153,7 +155,7 @@ docker buildx build --platform linux/amd64 --push \
 
 ## 운영 저장소 주의
 
-현재 운영 파일 경로는 EFS mount `/data/outputs`입니다. 컨테이너 자체의 `/app/data`는 영속 저장소가 아니므로 운영 asset 경로로 사용하지 않습니다.
+현재 운영 파일 경로는 EFS mount `/data/outputs`입니다. 컨테이너 자체의 `/app/data`는 영속 저장소가 아니므로 운영 asset 경로로 사용하지 않습니다. `WORKFLOW_SEED_DIR=/app/workflows`는 이미지에 포함된 기본 workflow 원본 전용이며, 실제 Admin 등록/수정 workflow와 paramconfig는 `WORKFLOWS_DIR=/data/outputs/dobedub-studio/workflows`에 저장합니다. 앱 시작 시 기본본은 존재하지 않는 파일만 EFS에 복사하며, 운영 파일은 이후 이미지 배포로 덮어쓰지 않습니다.
 
 ## 운영 배포 기록
 
