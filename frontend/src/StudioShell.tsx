@@ -69,7 +69,6 @@ import {
   previewSegmentDetailRows
 } from "./helpers/workflow";
 import {
-  ConfirmDeleteModal,
   AccessDeniedModal,
   ManualModal
 } from "./components/Modals";
@@ -1898,13 +1897,9 @@ export function StudioShell({
         onNext={() => onNavigate("create.prompt")}
       />
     )}
-    {deleteTarget ? (
-      <ConfirmDeleteModal
-        item={deleteTarget}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={() => void deleteHistoryItem()}
-      />
-    ) : null}
+    {/* 2026-08-11: 구버전 ConfirmDeleteModal(전역 렌더) 제거 - Create3aScreen이
+       deleteTarget을 받아 자체적으로 v3 스펙 삭제 확인창을 그리므로(reviewScreens.tsx
+       213~243번째 줄), 여기서 또 렌더하면 3a에서 확인창이 두 개 겹쳐 떴다. */}
     {manualModalOpen ? (
       <ManualModal
         html={manualHtml}
