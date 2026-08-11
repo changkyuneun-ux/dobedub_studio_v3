@@ -184,7 +184,7 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 - [x] **C-06 `7a` 시스템 프롬프트** — `GET/PUT /api/prompts/system-prompt` 존재. — *2026-08-10 점검: E-04에서 `Create7aScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
 - [x] **C-07 `7b` 기능 리소스 매핑** — `GET /api/admin/permissions`가 roles·permissions·resources를 함께 반환. 조회 전용 화면. — *2026-08-10 점검: E-04에서 `Create7bScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
 - [x] **C-08 `7c` 사용자 상세** — `PUT /admin/users/{id}`, `POST …/reset-password`, `POST …/deactivate`, `user_permissions` 테이블 존재. — *E-04(금번 세션)에서 `Create3eScreen`/`Create7cScreen` 구현으로 반영, `resetAdminUserPassword`/`deactivateAdminUser`를 처음으로 UI에 연결.*
-- [ ] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요. — *미착수(E-05 대상). 현재는 임시 `AccessDeniedModal`로 대체 중.*
+- [x] **C-09 `7g` 403·401·오류** — 라우트 가드와 응답 처리는 이미 있음. 화면만 필요. — *E-05(커밋 `1eaf2b4`)에서 403을 정식 `AccessDeniedScreen`으로 구현해 임시 `AccessDeniedModal`을 대체. 401은 로그인 복귀, 서버 오류는 인라인 notice(README "별개 상태").*
 - [x] **C-10 `2e` 세그먼트 설정** — `GET /api/segment-defaults`, `/workflows/{id}/segment-defaults` 존재. — *E-02(`8ac0c7a`)에서 `Create2eScreen` 구현으로 반영.*
 - [x] **C-11 `6c` `5b` 상태·Pod** — `/system/status`, `/runpod/connection`, `/admin/sandbox-pod` 존재. — *2026-08-10 점검: E-04에서 `Create6cScreen`(6c)·`Create5bScreen`(5b) 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
 - [x] **C-12 `6d` 메타데이터** — `/metadata/status`, `/models`, `/rebuild` 존재. — *2026-08-10 점검: E-04에서 `Create6dScreen` 구현으로 반영됨(E 절에는 체크돼 있었으나 이 C 절 항목은 갱신되지 않고 남아 있었음).*
@@ -269,11 +269,11 @@ DB 스코프는 POSITIVE 계열과 NEGATIVE 계열 둘뿐이고, 시스템 지�
 
 E-04 진행 중 `AppShell.tsx`의 `ADMIN_NAV_ITEMS`에 `adminStatus`(6c)·`adminMetadata`(6d) 두 항목을 추가했다 — design_handoff 원본은 이 둘을 6항목 Admin 사이드바가 아닌 별도 상단 nav로 그리지만, AppShell이 area를 `generate`/`admin` 두 가지만 지원하는 현재 구조에서는 관리 기능에 가까운 이 둘을 ADMIN 영역에 편입하는 편이 화면 골격 중복을 피할 수 있다고 판단했다. 화면 내용·API·권한은 design_handoff 그대로다.
 
-### E-05 · `1 Access` 흐름 — P2
-- [ ] `6a` 로그인
-- [ ] `7g` 403/401/오류 (C-09)
-- [ ] `6b` 사용자 매뉴얼
-- [ ] `6e` 알림 — **A-03 방식 결정 전 착수 금지**
+### E-05 · `1 Access` 흐름 — P2 — **6a/7g/6b 완료, 6e만 A-03 대기**
+- [x] `6a` 로그인 — *커밋 `92292ff`. 구버전 dark 테마 `LoginView`(.login-screen)를 `screens/accessScreens.tsx`의 v3 `LoginScreen`으로 재구축. 로그인 시 전역 TopBar 없이 전체 화면 렌더. 더미 금지로 좌측 통계 3칸·Sandbox Pod 상태 행은 제외(로그인 전 조회 API/권한 없음), ComfyUI·Qwen만 공개 헬스체크로 표시.*
+- [x] `7g` 403 (C-09) — *커밋 `1eaf2b4`. 임시 `AccessDeniedModal`을 정식 `AccessDeniedScreen`(AppShell 본문)으로 대체. 필요 권한/내 역할/요청 경로 카드 + Workspace 이동. 접근 거부를 렌더 시점 계산(`deniedRoute`)해 권한 없는 API 선호출 깜빡임 제거. 설계 7g의 3분할 중 401 세션 만료는 기존 로그인 복귀 동작이, 서버 오류는 각 화면 인라인 notice가 담당(README "실제로는 별개 상태")하므로 403만 화면화.*
+- [x] `6b` 사용자 매뉴얼 — *커밋 `fa50188`. 구버전 `ManualModal`(오버레이)을 `ManualScreen`(AppShell 본문 전체 화면)으로 전환, iframe 검색 로직 이관. `components/Modals.tsx`는 마지막 export가 빠지며 파일 삭제. 더미 금지로 목차(TOC)·PDF 내려받기 제외.*
+- [ ] `6e` 알림 — **A-03 방식 결정 전 착수 금지.** (2026-08-11 현재 미결. 설계 6e는 알림 "센터"(목록·읽음)라 사실상 A-03 2안(테이블 영속화)을 전제함 — 1안 토스트로는 센터 화면이 성립하지 않음. 결정 필요.)
 
 ### E-06 · 구버전 제거 — 각 흐름 이관 완료마다 즉시 — **구버전 삭제·파일 분리 완료**
 - [x] 대체된 구버전 컴포넌트·모달을 `main.tsx`에서 실제로 삭제(죽은 코드로 남기지 않음) — *`main.tsx` 9804줄 → 6814줄(파일 분리 전 기준, 약 2990줄 삭제). 제거한 것: `AdminConsoleModal`(+`AdminTab` 타입), `PromptCatalogAdminModal`/`PromptCatalogAdminContent`(구버전, `PromptCatalogAdminPanelV3`와는 별개), `StatusModal`/`StatusCard`, `MetadataModal`/`renderMetadataTab`/`ConfigRow`, `HistoryModal`/`HistoryDetail`/`PromptCell`, `PromptBuilderModal`/`SystemPromptEditor`/`SelectedKeywordBox`, `PromptReuseModal`, 구버전 `create.workspace` 폴백 JSX(`<main className="studio-grid">`), `SandboxPodConfirmModal`, 그리고 위 항목들이 사라지며 완전히 고아가 된 `PromptReviewPanel`/`PromptReviewCard`/`PromptFeedbackCard`/`AssetThumbs`/`PromptTextBox`/`PromptSceneStructurePreview`/`PromptTagRow`/`toPromptSceneStructure`/`PromptTermButton` 등. 각 항목은 삭제 전 실사용 호출부가 정말 없는지 grep으로 확인 후 제거했다(`goToPromptReuseScreen`/`searchPromptReuse`/`promptReuse*` 상태, `findPromptTermCategory`처럼 신규 화면과 공유하는 로직은 보존). `router.ts`도 함께 정리 - `admin.console`/`create.workspace` 라우트를 제거하고, 옛 북마크(`/studio/studio`, `/studio/admin`)는 각각 `create.load`/`admin.roles`로 보내도록 `LEGACY_LAST_SEGMENT_ROUTE`와 catch-all을 갱신. `TopBar`(로그아웃·ComfyUI/Qwen 상태 표시 등 `AppShell`에는 없는 전역 기능을 담당하므로 구버전이지만 살아있는 코드)는 삭제하지 않고 "Admin" 버튼 목적지만 `admin.roles`로 변경.*
