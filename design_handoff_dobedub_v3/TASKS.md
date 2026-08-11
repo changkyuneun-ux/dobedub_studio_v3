@@ -85,11 +85,11 @@
 
 - [x] A-04의 `audit_logs`에 `action='login'`으로 흡수. 별도 테이블 만들지 마십시오. — *`backend/app/api/v1/auth.py`의 `login()`에서 성공/실패 모두 `action="login"`으로 기록(실패 시 비밀번호 등 민감정보는 남기지 않고 사유 메시지만). `7c` 사용자 상세 화면에서 해당 사용자의 로그인 이력으로 노출.*
 
-### A-06 · 세션 갱신 — P2
-토큰 갱신 엔드포인트가 없어 만료되면 재로그인만 가능합니다.
+### A-06 · 세션 갱신 — P2 — **완료** (2026-08-11)
+토큰 갱신 엔드포인트가 없어 만료되면 재로그인만 가능했습니다.
 
-- [ ] 만료 예고 배너는 토큰 `expiresAt`으로 클라이언트 계산 — **개발 없이 가능, 먼저 적용**
-- [ ] 무중단 연장이 필요하면 `POST /api/auth/refresh` 추가
+- [x] 만료 예고 배너는 토큰 `expiresAt`으로 클라이언트 계산 — *`SessionExpiryBanner`(accessScreens.tsx). 만료 5분 전부터 상단 warning 스트립으로 "약 N분 남음" 예고(design_handoff 7g "만료 5분 전 상단 배너"). App(main.tsx)이 로그인/연장 시 `sessionExpiresAt`을 들고 있다가 전달, 20초마다 재계산.*
+- [x] 무중단 연장 `POST /api/auth/refresh` 추가 — *유효한 토큰(current_user_from_headers가 만료/위조 401 차단)으로 호출하면 같은 사용자에게 새 만료시각 토큰을 재발급(응답 형태는 login과 동일). 비활성 사용자는 403. 배너의 "세션 연장" 버튼이 호출해 세션을 그대로 교체. TestClient E2E로 200·새 만료시각·무토큰/위조토큰 401 확인.*
 
 ---
 

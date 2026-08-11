@@ -4111,6 +4111,32 @@ textarea {
   color: var(--v3-text-body);
 }
 
+/* A-06 · 세션 만료 예고 배너 (상단 스트립) */
+.v3-session-banner {
+  align-items: center;
+  background: var(--v3-warning-bg);
+  border-bottom: 1px solid var(--v3-warning-border);
+  color: var(--v3-warning);
+  display: flex;
+  font-family: var(--v3-font-body);
+  font-size: 12px;
+  font-weight: 500;
+  gap: 10px;
+  padding: 9px 16px;
+}
+
+.v3-session-banner-dot {
+  background: var(--v3-warning);
+  border-radius: 50%;
+  flex: none;
+  height: 7px;
+  width: 7px;
+}
+
+.v3-session-banner button {
+  margin-left: auto;
+}
+
 /* A-02 · 5c 컬렉션 만들기 폼(사이드바) */
 .v3-collection-create {
   display: flex;

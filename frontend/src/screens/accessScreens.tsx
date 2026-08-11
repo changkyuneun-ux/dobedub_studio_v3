@@ -384,6 +384,46 @@ export function ManualScreen({
   );
 }
 
+// A-06: 세션 만료 예고 배너. 토큰 expiresAt 기준으로 클라이언트가 남은 시간을
+// 계산해, 만료 5분 전부터 상단에 배너로 예고하고 "세션 연장" 버튼을 준다(design_handoff
+// 7g "만료 5분 전 상단에 배너로 예고"). 연장은 POST /api/auth/refresh(무중단 재발급).
+const SESSION_WARN_MS = 5 * 60 * 1000;
+
+export function SessionExpiryBanner({
+  expiresAt,
+  refreshing,
+  onRefresh
+}: {
+  expiresAt?: string;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    // 20초마다 갱신 - 분 단위 표시라 초 단위 정밀도는 필요 없다.
+    const timer = window.setInterval(() => setNow(Date.now()), 20000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  if (!expiresAt) {
+    return null;
+  }
+  const remainingMs = new Date(expiresAt).getTime() - now;
+  if (remainingMs <= 0 || remainingMs > SESSION_WARN_MS) {
+    return null;
+  }
+  const remainingMin = Math.max(1, Math.ceil(remainingMs / 60000));
+  return (
+    <div className="v3-session-banner" role="status" aria-live="polite">
+      <span className="v3-session-banner-dot" aria-hidden="true" />
+      <span>세션이 곧 만료됩니다 · 약 {remainingMin}분 남음. 작성 중인 내용은 이 탭에 유지됩니다.</span>
+      <button className="v3-secondary-button" type="button" disabled={refreshing} onClick={onRefresh}>
+        {refreshing ? "연장 중..." : "세션 연장"}
+      </button>
+    </div>
+  );
+}
+
 export function loginErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   if (message === "Invalid credentials") {

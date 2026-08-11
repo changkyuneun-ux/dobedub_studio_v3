@@ -870,6 +870,8 @@ export const apiClient = {
       body: JSON.stringify(payload)
     }),
   currentSession: () => requestJson<{ user: AdminUser }>("/api/auth/session"),
+  // A-06: 무중단 세션 연장. 유효한 토큰으로 호출하면 새 만료시각의 토큰을 재발급받는다.
+  refreshSession: () => requestJson<AuthSession>("/api/auth/refresh", { method: "POST" }),
   adminAuditLogs: (params: { page?: number; pageSize?: number; action?: string; targetType?: string; targetId?: string; actorId?: string } = {}) => {
     const query = new URLSearchParams();
     query.set("page", String(params.page || 1));

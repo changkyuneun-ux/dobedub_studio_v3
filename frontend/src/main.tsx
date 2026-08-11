@@ -10,7 +10,7 @@ import { serviceStatusLabel, qwenStatusLabel } from "./helpers/format";
 import { canUseAdminConsole } from "./helpers/adminForms";
 import { SESSION_USER_STORAGE_KEY, loadSessionUser, clearLoginSession } from "./auth-session";
 import { StudioShell } from "./StudioShell";
-import { LoginScreen } from "./screens/accessScreens";
+import { LoginScreen, SessionExpiryBanner } from "./screens/accessScreens";
 
 function App() {
   const initialUser = useMemo(() => loadSessionUser(), []);
@@ -18,6 +18,9 @@ function App() {
   const [route, setRoute] = useState<StudioRoute>(() => routeFromLocation(window.location.pathname, Boolean(initialUser)));
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [healthError, setHealthError] = useState("");
+  // A-06: 세션 만료 예고 배너용. 로그인/연장 시 토큰 expiresAt을 담아둔다.
+  const [sessionExpiresAt, setSessionExpiresAt] = useState<string | undefined>(undefined);
+  const [refreshingSession, setRefreshingSession] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -110,6 +113,7 @@ function App() {
     clearLoginSession();
     sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(nextSession));
     setUser(nextSession.user);
+    setSessionExpiresAt(nextSession.expiresAt);
     // 로그인 직후 랜딩은 구버전 전체 워크스페이스가 아니라 신규 S1(2a) 화면이다.
     // E-02: design_handoff 2 Create.dc.html 흐름의 실제 첫 단계.
     navigate("create.load");
@@ -118,8 +122,25 @@ function App() {
   function handleLogout() {
     clearLoginSession();
     setUser(null);
+    setSessionExpiresAt(undefined);
     setRoute("access.login");
     window.location.replace(routePath("access.login"));
+  }
+
+  // A-06: 무중단 세션 연장. 아직 유효한 토큰으로 refresh를 호출해 새 토큰으로 교체한다.
+  async function handleRefreshSession() {
+    setRefreshingSession(true);
+    try {
+      const next = await apiClient.refreshSession();
+      clearLoginSession();
+      sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(next));
+      setUser(next.user);
+      setSessionExpiresAt(next.expiresAt);
+    } catch {
+      // 연장 실패 시 기존 세션을 그대로 두고 배너도 유지한다 - 만료되면 401 흐름으로 넘어간다.
+    } finally {
+      setRefreshingSession(false);
+    }
   }
 
   function navigate(nextRoute: StudioRoute, replace = false) {
@@ -143,6 +164,11 @@ function App() {
   }
   return (
     <div className="app-shell">
+      <SessionExpiryBanner
+        expiresAt={sessionExpiresAt}
+        refreshing={refreshingSession}
+        onRefresh={handleRefreshSession}
+      />
       <TopBar
         user={user}
         health={health}
