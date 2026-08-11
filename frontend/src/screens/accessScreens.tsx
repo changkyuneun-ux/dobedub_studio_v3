@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { apiClient, AuthSession, HealthResponse } from "../api/client";
 import { serviceStatusLabel, qwenStatusLabel } from "../helpers/format";
 import { StudioRoute, routePath } from "../router";
@@ -199,6 +199,186 @@ export function AccessDeniedScreen({
           권한이 없는 메뉴는 사이드바에서 숨겨집니다 · 직접 URL 진입만 이 화면에 도달합니다.
           접근이 필요하면 관리자에게 권한을 요청하십시오.
         </p>
+      </div>
+    </AppShell>
+  );
+}
+
+// 6b · User Manual — design_handoff 6b "User Manual · 목차 + 본문 · 화면 내 상시 접근".
+// 구버전 ManualModal(오버레이)을 대체해, 사이드바가 있는 AppShell 본문에 매뉴얼을
+// 그리는 전체 화면으로 전환. iframe 문서 내 검색(하이라이트·다음 이동) 로직은
+// ManualModal에서 그대로 이관.
+//
+// 설계 원본과 다르게 뺀 것(더미 데이터 금지):
+// - 좌측 목차(TOC) 패널 — 매뉴얼은 /api/manual이 주는 단일 HTML 문서이고 그 내부
+//   구조(장·절)를 신뢰성 있게 파싱해 TOC를 만들 수단이 없다. 문서 자체의 내부 앵커
+//   이동은 iframe 안에서 그대로 동작한다. 임의 목차를 지어내지 않고 본문 검색으로 대체.
+// - "PDF 내려받기" — 매뉴얼 PDF를 주는 API가 없다.
+export function ManualScreen({
+  user,
+  html,
+  loading,
+  error,
+  onGoTo
+}: {
+  user: User;
+  html: string;
+  loading: boolean;
+  error: string;
+  onGoTo: (route: StudioRoute) => void;
+}) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const hitsRef = useRef<HTMLElement[]>([]);
+  const hitIndexRef = useRef(-1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchStatus, setSearchStatus] = useState("");
+
+  function clearHighlights() {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc) return;
+    doc.querySelectorAll<HTMLElement>("mark.manual-hit").forEach((mark) => {
+      const text = doc.createTextNode(mark.textContent || "");
+      mark.replaceWith(text);
+      text.parentNode?.normalize();
+    });
+    hitsRef.current = [];
+    hitIndexRef.current = -1;
+  }
+
+  function moveToHit(index: number) {
+    const hits = hitsRef.current;
+    if (!hits.length) {
+      setSearchStatus("검색 결과가 없습니다.");
+      return;
+    }
+    hits.forEach((hit) => hit.classList.remove("is-current"));
+    hitIndexRef.current = (index + hits.length) % hits.length;
+    const current = hits[hitIndexRef.current];
+    current.classList.add("is-current");
+    current.scrollIntoView({ behavior: "smooth", block: "center" });
+    setSearchStatus(`${hitIndexRef.current + 1} / ${hits.length} 검색 결과`);
+  }
+
+  function searchManual() {
+    const doc = iframeRef.current?.contentDocument;
+    clearHighlights();
+    const query = searchQuery.trim();
+    if (!doc || !query) {
+      setSearchStatus("검색어를 입력하세요.");
+      return;
+    }
+
+    const needle = query.toLocaleLowerCase();
+    const nodes: Text[] = [];
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue?.trim() || node.parentElement?.closest("style, script, mark")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+
+    nodes.forEach((node) => {
+      const value = node.nodeValue || "";
+      const lower = value.toLocaleLowerCase();
+      let cursor = 0;
+      let found = false;
+      const fragment = doc.createDocumentFragment();
+      while (true) {
+        const index = lower.indexOf(needle, cursor);
+        if (index === -1) break;
+        found = true;
+        if (index > cursor) fragment.appendChild(doc.createTextNode(value.slice(cursor, index)));
+        const mark = doc.createElement("mark");
+        mark.className = "manual-hit";
+        mark.textContent = value.slice(index, index + query.length);
+        fragment.appendChild(mark);
+        cursor = index + query.length;
+      }
+      if (!found) return;
+      if (cursor < value.length) fragment.appendChild(doc.createTextNode(value.slice(cursor)));
+      node.replaceWith(fragment);
+    });
+
+    hitsRef.current = Array.from(doc.querySelectorAll<HTMLElement>("mark.manual-hit"));
+    if (!hitsRef.current.length) {
+      setSearchStatus(`"${query}" 검색 결과가 없습니다.`);
+      return;
+    }
+    moveToHit(0);
+  }
+
+  function handleManualLoad() {
+    clearHighlights();
+    setSearchStatus("");
+    const doc = iframeRef.current?.contentDocument;
+    doc?.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      const link = target?.closest?.('a[href^="#"]');
+      const anchorId = decodeURIComponent(link?.getAttribute("href")?.slice(1) || "");
+      const section = anchorId ? doc.getElementById(anchorId) : null;
+      if (!section) return;
+      event.preventDefault();
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  useEffect(() => {
+    hitsRef.current = [];
+    hitIndexRef.current = -1;
+    setSearchQuery("");
+    setSearchStatus("");
+  }, [html]);
+
+  return (
+    <AppShell
+      user={user}
+      area="generate"
+      activeItem=""
+      onNavigate={(key) => shellNavigate(key, onGoTo)}
+      headerEyebrow="USER MANUAL"
+      headerTitle="사용 설명서"
+      headerActions={
+        <form
+          className="v3-manual-search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            searchManual();
+          }}
+        >
+          <input
+            type="search"
+            value={searchQuery}
+            placeholder="문서 내 검색"
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
+          <button className="v3-secondary-button" type="submit">검색</button>
+          <button className="v3-secondary-button" type="button" onClick={() => moveToHit(hitIndexRef.current + 1)}>다음</button>
+        </form>
+      }
+    >
+      <div className="v3-manual">
+        {searchStatus ? <p className="v3-manual-status" aria-live="polite">{searchStatus}</p> : null}
+        <div className="v3-manual-frame">
+          {loading ? (
+            <p className="v3-muted-text">사용자 매뉴얼을 불러오는 중입니다.</p>
+          ) : error ? (
+            <div className="v3-manual-error">
+              <h3>사용자 매뉴얼을 불러오지 못했습니다.</h3>
+              <p>{error}</p>
+            </div>
+          ) : (
+            <iframe
+              ref={iframeRef}
+              title="dobedub studio 사용자 매뉴얼"
+              sandbox="allow-same-origin"
+              onLoad={handleManualLoad}
+              srcDoc={html}
+            />
+          )}
+        </div>
       </div>
     </AppShell>
   );

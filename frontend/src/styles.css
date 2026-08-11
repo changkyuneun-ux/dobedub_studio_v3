@@ -3982,6 +3982,76 @@ textarea {
   margin: 0;
 }
 
+/* E-05 · 6b User Manual 화면 (design_handoff 1 Access.dc.html) */
+.v3-manual-search {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.v3-manual-search input {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 7px;
+  color: var(--v3-text-body);
+  font: inherit;
+  font-size: 12px;
+  min-width: 200px;
+  padding: 7px 12px;
+}
+
+.v3-manual-search input:focus {
+  border-color: var(--v3-accent);
+  outline: none;
+}
+
+.v3-manual {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.v3-manual-status {
+  color: var(--v3-text-secondary);
+  font: 500 11px var(--v3-font-mono);
+  margin: 0;
+}
+
+.v3-manual-frame {
+  background: var(--v3-bg-panel);
+  border: 1px solid var(--v3-border);
+  border-radius: 11px;
+  flex: 1;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+.v3-manual-frame iframe {
+  border: none;
+  height: 100%;
+  min-height: 480px;
+  width: 100%;
+}
+
+.v3-manual-frame > p,
+.v3-manual-error {
+  padding: 22px 26px;
+}
+
+.v3-manual-error h3 {
+  color: var(--v3-danger);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.v3-manual-error p {
+  color: var(--v3-text-secondary);
+  font-size: 12.5px;
+  margin: 0;
+}
+
 .v3-step-tracker {
   display: flex;
   flex-direction: column;

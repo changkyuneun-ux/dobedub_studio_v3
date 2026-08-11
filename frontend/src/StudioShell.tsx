@@ -68,10 +68,7 @@ import {
   finalOutputAsset,
   previewSegmentDetailRows
 } from "./helpers/workflow";
-import {
-  ManualModal
-} from "./components/Modals";
-import { AccessDeniedScreen } from "./screens/accessScreens";
+import { AccessDeniedScreen, ManualScreen } from "./screens/accessScreens";
 import { useProtectedAssetUrl } from "./components/ProtectedAssets";
 import {
   Create2aScreen,
@@ -219,7 +216,6 @@ export function StudioShell({
   const [runpodConnection, setRunpodConnection] = useState<RunpodConnectionResponse | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [statusNotice, setStatusNotice] = useState("");
-  const [manualModalOpen, setManualModalOpen] = useState(false);
   const [manualHtml, setManualHtml] = useState("");
   const [manualLoading, setManualLoading] = useState(false);
   const [manualError, setManualError] = useState("");
@@ -1077,10 +1073,9 @@ export function StudioShell({
   useEffect(() => {
     const granted = routeAccessGranted(user, route);
     // E-04: admin.status(6c)·admin.metadata(6d)는 전체 화면(Create6cScreen/
-    // Create6dScreen)이라 모달을 자동으로 여닫지 않는다. E-06: statusModalOpen/
-    // metadataModalOpen/adminModalOpen/historyModalOpen과 그 배후의 구버전
-    // 모달들은 모두 제거됐다 - manualModalOpen만 실제로 라우트 기반 모달이다.
-    setManualModalOpen(route === "access.manual" && granted);
+    // Create6dScreen)이라 모달을 자동으로 여닫지 않는다. E-05: 매뉴얼(access.manual,
+    // 6b)도 ManualScreen 전체 화면으로 전환돼 더 이상 모달이 아니다 - 라우트 화면
+    // 스위치에서 직접 렌더한다. E-06에서 구버전 모달들은 모두 제거됨.
     // E-05: 접근 거부 판정은 렌더 시점에 직접 계산해 7g AccessDeniedScreen을 본문으로
     // 그린다(아래 deniedRoute). 별도 상태로 들고 있으면 라우트 화면이 먼저 마운트돼
     // 권한 없는 API를 호출하는 깜빡임이 생겨, 여기서는 데이터 로딩만 막는다.
@@ -1541,6 +1536,14 @@ export function StudioShell({
         requiredPermission={ROUTE_REQUIRED_PERMISSION[deniedRoute] || ""}
         onGoTo={onNavigate}
       />
+    ) : route === "access.manual" ? (
+      <ManualScreen
+        user={user}
+        html={manualHtml}
+        loading={manualLoading}
+        error={manualError}
+        onGoTo={onNavigate}
+      />
     ) : route === "create.load" ? (
       <Create2aScreen
         user={user}
@@ -1911,15 +1914,8 @@ export function StudioShell({
     )}
     {/* 2026-08-11: 구버전 ConfirmDeleteModal(전역 렌더) 제거 - Create3aScreen이
        deleteTarget을 받아 자체적으로 v3 스펙 삭제 확인창을 그리므로(reviewScreens.tsx
-       213~243번째 줄), 여기서 또 렌더하면 3a에서 확인창이 두 개 겹쳐 떴다. */}
-    {manualModalOpen ? (
-      <ManualModal
-        html={manualHtml}
-        loading={manualLoading}
-        error={manualError}
-        onClose={() => onNavigate("create.load")}
-      />
-    ) : null}
+       213~243번째 줄), 여기서 또 렌더하면 3a에서 확인창이 두 개 겹쳐 떴다.
+       E-05: 매뉴얼(6b)도 ManualScreen 전체 화면으로 전환돼 전역 모달 렌더가 없다. */}
     </>
   );
 }
